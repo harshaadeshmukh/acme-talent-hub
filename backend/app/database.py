@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     smtp_port: int = 1025
     smtp_user: str = ""
     smtp_pass: str = ""
+    resend_api_key: str = ""
     redis_host: str = "localhost"
     redis_password: str = ""
     redis_port: int = 6379
