@@ -21,8 +21,24 @@ import asyncio
 from datetime import datetime, timedelta
 
 # Redis client setup
-redis_url = f"rediss://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}"
-redis_client = redis.Redis.from_url(redis_url, decode_responses=True)
+class DummyRedis:
+    def __init__(self):
+        self.data = {}
+    def setex(self, key, time, value):
+        self.data[key] = value
+    def get(self, key):
+        return self.data.get(key)
+    def delete(self, key):
+        if key in self.data:
+            del self.data[key]
+
+try:
+    redis_url = f"rediss://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}"
+    redis_client = redis.Redis.from_url(redis_url, decode_responses=True)
+    redis_client.ping()
+except Exception as e:
+    print(f"WARNING: Redis not available ({e}), falling back to in-memory storage.")
+    redis_client = DummyRedis()
 
 # Create tables
 Base.metadata.create_all(bind=engine)
