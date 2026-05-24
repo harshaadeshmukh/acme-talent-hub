@@ -1,0 +1,362 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Serif+Display&display=swap');
+
+/* ── Root ── */
+.dash-root {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh; /* dynamic viewport for mobile browsers */
+  font-family: 'DM Sans', sans-serif;
+  background: #f4f5f7;
+  position: relative;
+}
+
+/* ── Sidebar ── */
+.dash-sidebar {
+  width: 248px;
+  flex-shrink: 0;
+  background: #0f1117;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 200;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s ease;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-brand {
+  display: flex; align-items: center; gap: 12px;
+  padding: 22px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+
+.sidebar-logo-mark {
+  width: 34px; height: 34px;
+  background: #6366f1;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px; color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(99,102,241,0.4);
+}
+
+.sidebar-logo-mark.small {
+  width: 28px; height: 28px; font-size: 13px; border-radius: 8px;
+}
+
+.sidebar-brand-name { font-size: 14px; font-weight: 600; color: #fff; }
+
+.sidebar-nav {
+  flex: 1; padding: 12px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+.sidebar-nav-item {
+  display: flex; align-items: center; gap: 11px;
+  width: 100%; padding: 10px 12px; border-radius: 10px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; text-align: left;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sidebar-nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.sidebar-nav-item:active { transform: scale(0.98); }
+.sidebar-nav-item.active { background: rgba(99,102,241,0.2); color: #a5b4fc; font-weight: 500; }
+
+.sidebar-nav-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  margin: 8px 0;
+}
+
+.nav-icon { font-size: 15px; flex-shrink: 0; }
+
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex; flex-direction: column; gap: 12px; flex-shrink: 0;
+}
+
+.sidebar-user-info,
+.sidebar-profile-btn {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; border: none; background: none; padding: 0;
+  text-align: left; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sidebar-profile-btn { border-radius: 12px; }
+.sidebar-profile-btn:hover,
+.sidebar-profile-btn.active { background: rgba(255,255,255,0.06); }
+
+.sidebar-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #6366f1;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 13px; color: #fff; flex-shrink: 0;
+  overflow: hidden;
+}
+.sidebar-avatar-img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.sidebar-user-meta { min-width: 0; }
+.sidebar-user-name { font-size: 13px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-role { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: capitalize; }
+
+.sidebar-logout-btn {
+  width: 100%; padding: 8px 12px; border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.5);
+  font-size: 13px; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: background 0.15s, color 0.15s;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.sidebar-logout-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ── Sidebar overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 150;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Main Area ── */
+.dash-main-area {
+  flex: 1; display: flex; flex-direction: column; min-width: 0;
+}
+
+/* ── Header ── */
+.dash-header {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e5e7eb;
+  height: 62px; padding: 0 28px;
+  display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 100;
+  transition: padding 0.2s ease;
+}
+
+.hamburger-btn {
+  display: none;
+  background: none; border: none;
+  width: 40px; height: 40px; border-radius: 10px;
+  align-items: center; justify-content: center;
+  cursor: pointer; color: #374151;
+  transition: background 0.15s; padding: 0; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.hamburger-btn:hover { background: #f3f4f6; }
+.hamburger-btn:active { background: #e5e7eb; }
+.ham-icon,
+.ham-icon::before,
+.ham-icon::after {
+  display: block; width: 18px; height: 2px;
+  background: currentColor; border-radius: 2px;
+  position: relative; transition: transform 0.2s;
+}
+.ham-icon::before, .ham-icon::after {
+  content: ''; position: absolute; left: 0;
+}
+.ham-icon::before { top: -5px; }
+.ham-icon::after  { top:  5px; }
+
+.dash-header-logo {
+  display: none; align-items: center; gap: 10px;
+  font-size: 14px; font-weight: 600; color: #0f1117;
+}
+
+.dash-header-right {
+  margin-left: auto; display: flex; align-items: center; gap: 10px;
+}
+
+.user-role-badge {
+  background: rgba(99,102,241,0.1); color: #6366f1;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.user-name-header {
+  font-size: 13px; color: #374151; font-weight: 500; white-space: nowrap;
+}
+
+.dash-logout-btn {
+  background: #f3f4f6; color: #374151;
+  border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 6px 14px; font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: background 0.15s; white-space: nowrap;
+}
+.dash-logout-btn:hover { background: #e5e7eb; }
+
+/* ── Content ── */
+.dash-content {
+  padding: 36px 36px 48px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition: padding 0.2s ease;
+}
+
+.dash-welcome { margin-bottom: 32px; }
+.dash-welcome h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px; font-weight: 400; color: #0f1117; margin: 0 0 8px;
+}
+.dash-welcome p { font-size: 14px; color: #6b7280; margin: 0; }
+
+/* Stats & module styles are in sections/Sections.css */
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════════ */
+
+/* ── Large Tablet (≤1024px) ── */
+@media (max-width: 1024px) {
+  .dash-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-modules-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-content { padding: 28px 24px 40px; }
+  .user-name-header { display: none; }
+}
+
+/* ── Tablet / Small Tablet (≤768px) ── */
+@media (max-width: 768px) {
+  /* Show hamburger, hide sidebar by default */
+  .hamburger-btn { display: flex; }
+  .sidebar-overlay { display: block; }
+
+  .dash-sidebar {
+    position: fixed; top: 0; left: 0;
+    height: 100%; height: 100dvh;
+    width: 272px;
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+  .dash-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 30px rgba(0,0,0,0.25);
+  }
+
+  .dash-header {
+    padding: 0 16px;
+    height: 56px;
+  }
+  .dash-header-logo { display: flex; }
+
+  .dash-content {
+    padding: 20px 16px 36px;
+  }
+  .dash-welcome h1 { font-size: 22px; }
+
+  /* Make sidebar nav items bigger for touch */
+  .sidebar-nav-item {
+    padding: 12px 14px;
+    font-size: 14.5px;
+    gap: 13px;
+  }
+  .nav-icon { font-size: 17px; }
+
+  .sidebar-footer { padding: 16px; }
+  .sidebar-logout-btn { padding: 10px 14px; font-size: 14px; }
+}
+
+/* ── Mobile (≤540px) ── */
+@media (max-width: 540px) {
+  .dash-sidebar { width: 260px; }
+
+  .dash-header {
+    padding: 0 14px;
+    height: 52px;
+    gap: 10px;
+  }
+
+  .dash-header-logo {
+    font-size: 13px;
+    gap: 8px;
+  }
+  .sidebar-logo-mark.small {
+    width: 26px; height: 26px; font-size: 12px;
+  }
+
+  .dash-stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dash-modules-grid { grid-template-columns: 1fr; }
+  .stat-card { padding: 14px; }
+  .stat-value { font-size: 18px; }
+  .user-role-badge { display: none; }
+
+  .dash-content {
+    padding: 16px 12px 32px;
+  }
+  .dash-welcome h1 { font-size: 20px; }
+  .dash-welcome p { font-size: 13px; }
+}
+
+/* ── Small phones / iPhone SE (≤380px) ── */
+@media (max-width: 380px) {
+  .dash-sidebar { width: 240px; }
+
+  .dash-stats-grid { grid-template-columns: 1fr; }
+  .dash-content { padding: 14px 10px 28px; }
+
+  .dash-header {
+    padding: 0 10px;
+    height: 50px;
+  }
+
+  .hamburger-btn { width: 36px; height: 36px; }
+  .dash-welcome h1 { font-size: 18px; }
+}
+
+/* ── iOS Safe Area Insets ── */
+@supports (padding: max(0px)) {
+  .dash-header {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .dash-content {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(32px, env(safe-area-inset-bottom));
+  }
+  .dash-sidebar {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ── Smooth scrolling for the whole app ── */
+@media (prefers-reduced-motion: no-preference) {
+  .dash-content { scroll-behavior: smooth; }
+}
+
+/* ── Touch device optimizations ── */
+@media (hover: none) and (pointer: coarse) {
+  .sidebar-nav-item { min-height: 44px; }
+  .sidebar-logout-btn { min-height: 44px; }
+  .sidebar-profile-btn { min-height: 44px; padding: 6px 8px; }
+  .hamburger-btn { min-width: 44px; min-height: 44px; }
+}
+

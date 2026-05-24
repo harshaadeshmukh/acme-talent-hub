@@ -1,0 +1,21 @@
+# Re-exports from models.py — edit that file directly instead of this one
+from app.models.models import (
+    Base,
+    RoleEnum,
+    SkillLevelEnum,
+    StatusEnum,
+    generate_emp_id,
+    User,
+    PerformanceReview,
+    Competency,
+    EmployeeCompetency,
+    DevelopmentPlan,
+    TrainingRecord,
+    Goal,
+    GoalStatusEnum,
+    WorkTimelineEvent,
+    Department,
+    TeamAchievement,
+    AchievementTypeEnum,
+    RoleTarget,
+)
