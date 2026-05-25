@@ -121,20 +121,19 @@ def upload_profile_pic(user_id: int, file: UploadFile = File(...), db: Session =
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
         
-    # Create the filename
-    extension = file.filename.split('.')[-1] if '.' in file.filename else 'jpg'
-    filename = f"user_{user_id}_{int(time.time())}.{extension}"
-    upload_dir = "static/uploads"
-    os.makedirs(upload_dir, exist_ok=True)
-    file_location = f"{upload_dir}/{filename}"
+    import base64
+    import mimetypes
     
-    # Save the file
-    with open(file_location, "wb+") as file_object:
-        shutil.copyfileobj(file.file, file_object)
-        
-    # Update DB
-    url = f"/static/uploads/{filename}"
-    user.profile_pic_url = url
+    # Read the file content
+    content = file.file.read()
+    
+    # Convert to Base64 data URI
+    content_type = file.content_type or mimetypes.guess_type(file.filename)[0] or "image/jpeg"
+    base64_encoded = base64.b64encode(content).decode("utf-8")
+    data_uri = f"data:{content_type};base64,{base64_encoded}"
+    
+    # Update DB directly with Base64 string so it persists forever
+    user.profile_pic_url = data_uri
     db.commit()
     db.refresh(user)
     
