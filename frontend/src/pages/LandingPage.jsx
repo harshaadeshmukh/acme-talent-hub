@@ -23,79 +23,107 @@ export default function LandingPage() {
         </div>
         <div className="nav-links">
           <button className="nav-btn-text" onClick={() => navigate('/login')}>Sign In</button>
-          <button className="nav-btn-primary" onClick={() => navigate('/register')}>Join the Hub</button>
+          <button className="nav-btn-primary" onClick={() => navigate('/register')}>Request Demo / Join</button>
         </div>
       </nav>
 
       {/* ── Hero Section ── */}
       <header className="hero-section">
         <div className="hero-content">
-          <div className="hero-badge">🌟 NEXT-GEN WORKFORCE MANAGEMENT</div>
-          <h1 className="hero-h1">Elevate Your <span className="text-gradient">Team's Potential</span></h1>
+          <div className="hero-badge">ENTERPRISE PERFORMANCE MANAGEMENT</div>
+          <h1 className="hero-h1">Unlock the full <span className="text-gradient">potential</span> of your workforce.</h1>
           <p className="hero-p">
-            <strong>Why we built this:</strong> ACME Talent Hub was created to bridge the gap between employee career growth and managerial oversight. It replaces scattered spreadsheets with a beautiful, centralized platform to track goals, evaluate skills, and manage performance reviews.
+            ACME Talent Hub is the centralized system of record for modern teams. We replace scattered spreadsheets and manual tracking with a unified platform for goal setting, skill evaluation, and structured performance reviews, giving managers total visibility and employees a clear path to growth.
           </p>
           <div className="hero-btns">
-            <button className="hero-btn-main" onClick={() => navigate('/register')}>Get Started</button>
-            <button className="hero-btn-outline" onClick={() => setShowVideo(true)}>See it in Action</button>
+            <button className="hero-btn-main" onClick={() => navigate('/register')}>Get Started Now</button>
+            <button className="hero-btn-outline" onClick={() => setShowVideo(true)}>Watch Product Tour</button>
           </div>
         </div>
         <div className="hero-visual">
-          <div className="glass-card main-card">
-            <div className="card-header">Performance Analytics</div>
-            <div className="ai-wave">
-              <div className="wave-bar" style={{ height: '40%' }} />
-              <div className="wave-bar" style={{ height: '70%' }} />
-              <div className="wave-bar" style={{ height: '90%' }} />
-              <div className="wave-bar" style={{ height: '60%' }} />
-              <div className="wave-bar" style={{ height: '80%' }} />
+          <div className="enterprise-mockup">
+            <div className="mockup-header">
+              <div className="mockup-dot" style={{background: '#ef4444'}}></div>
+              <div className="mockup-dot" style={{background: '#f59e0b'}}></div>
+              <div className="mockup-dot" style={{background: '#10b981'}}></div>
             </div>
-            <div className="ai-status">📈 Tracking Team Growth...</div>
+            <div className="mockup-body">
+              <div className="mockup-card">
+                <h4>Q3 Performance</h4>
+                <div className="mockup-bar-group">
+                  <div className="mockup-bar" style={{height: '40%'}}></div>
+                  <div className="mockup-bar" style={{height: '70%'}}></div>
+                  <div className="mockup-bar" style={{height: '50%'}}></div>
+                  <div className="mockup-bar active" style={{height: '90%'}}></div>
+                  <div className="mockup-bar" style={{height: '60%'}}></div>
+                </div>
+              </div>
+              <div className="mockup-card">
+                <h4>Recent Goals</h4>
+                <div className="mockup-list">
+                  <div className="mockup-list-item"></div>
+                  <div className="mockup-list-item short"></div>
+                  <div className="mockup-list-item"></div>
+                </div>
+              </div>
+              <div className="mockup-card" style={{gridColumn: '1 / -1'}}>
+                <h4>Team Competency Radar</h4>
+                <div className="mockup-list">
+                  <div className="mockup-list-item"></div>
+                  <div className="mockup-list-item"></div>
+                  <div className="mockup-list-item short"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="glass-card float-card-1">🎯 Active Goals: 12</div>
-          <div className="glass-card float-card-2">💼 Next Review: Q3</div>
-          <div className="blob blob-1" />
-          <div className="blob blob-2" />
         </div>
       </header>
 
-      {/* ── How to Use Section ── */}
+      {/* ── Enterprise Features Section ── */}
       <section className="features-section">
         <div className="section-head">
-          <h2>How to use the platform.</h2>
-          <p style={{ color: '#64748b', marginTop: '16px', fontSize: '1.1rem', maxWidth: '600px', margin: '16px auto 0' }}>Whether you're an employee driving your own career or a manager guiding a team, we have you covered.</p>
+          <h2>Built for scale. Designed for clarity.</h2>
+          <p>Whether you're managing a team of 10 or an organization of 10,000, ACME Talent Hub provides the robust architecture you need to track, evaluate, and develop top-tier talent seamlessly.</p>
         </div>
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">🚀</div>
-            <h3>For Employees</h3>
-            <p>Log in to track your active goals, log your latest skill certifications, and review your past performance evaluations from your manager.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">💼</div>
-            <h3>For Managers</h3>
-            <p>Access the unified dashboard to oversee your team's progress, assign users to departments, and seamlessly conduct quarterly performance reviews.</p>
-          </div>
-          <div className="feature-card">
             <div className="feature-icon">📊</div>
-            <h3>Live Analytics</h3>
-            <p>Instantly visualize organizational health, team size distribution, and top performers through our dynamic, real-time charting system.</p>
+            <h3>Managerial Oversight</h3>
+            <p>Access unified dashboards to oversee your department's progress, assign critical roles, and seamlessly conduct quarterly or annual performance reviews with standardized metrics.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">🎯</div>
+            <h3>Employee Goal Tracking</h3>
+            <p>Empower your workforce. Employees can securely log in to track their active objectives, upload their latest certifications, and review past performance evaluations at any time.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">📈</div>
+            <h3>Dynamic Talent Analytics</h3>
+            <p>Instantly visualize organizational health, team size distribution, and top performers through our real-time charting system, enabling data-driven HR decisions.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">🔐</div>
+            <h3>Role-Based Security</h3>
+            <p>Enterprise-grade access control ensures that sensitive evaluation data remains strictly between the specific employee and their assigned departmental manager.</p>
           </div>
         </div>
       </section>
 
       {/* ── CTA Footer ── */}
       <section className="cta-footer">
-        <div className="cta-box ai-box">
+        <div className="cta-box">
           <h2>Ready to transform your workplace?</h2>
-          <p>Join ACME Talent Hub today and unlock the true potential of your workforce.</p>
-          <button onClick={() => navigate('/register')}>Create an Account</button>
+          <p>Join the industry leaders using ACME Talent Hub to streamline their performance reviews and unlock the true potential of their workforce.</p>
+          <button onClick={() => navigate('/register')}>Start Your Free Trial</button>
         </div>
       </section>
 
       <footer className="footer-bottom">
-        <p>© 2026 ACME Talent Hub. All rights reserved.</p>
-        <p style={{ marginTop: '8px', fontWeight: 600, color: '#4f46e5' }}>Designed and Created by Harshad Deshmukh</p>
+        <div>© 2026 ACME Talent Hub. All rights reserved.</div>
+        <div>
+          <span>Designed and Created by </span>
+          <span style={{ fontWeight: 700, color: '#2563eb' }}>Harshad Deshmukh</span>
+        </div>
       </footer>
 
       {/* ── Video Modal ── */}
