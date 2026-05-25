@@ -44,7 +44,7 @@ export default function LandingPage() {
       {/* ── Navigation ── */}
       <nav className="landing-nav">
         <div className="nav-logo">
-          <div className="logo-icon">🏢</div>
+          <div className="logo-icon" style={{ fontFamily: '"Segoe UI Emoji", "Apple Color Emoji", sans-serif' }}>🏢</div>
           <span>ACME Talent Hub</span>
         </div>
         <div className="nav-links">
