@@ -14,57 +14,80 @@ Organizations often struggle to track employee performance and growth over time 
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ System Architecture & Structure
 
-The application follows a modern decoupled architecture:
-- **Frontend Client:** A Single Page Application (SPA) built with React and Vite.
-- **Backend API:** A RESTful API built with Python and FastAPI.
-- **Database:** A relational PostgreSQL database.
-- **Real-time Engine:** WebSockets facilitate live UI updates across clients whenever the database changes.
+The ACME Talent Hub is designed using a decoupled client-server architecture, utilizing real-time WebSockets and a relational database.
 
----
+```mermaid
+graph TD
+    subgraph Frontend [Frontend: React SPA / Vite]
+        Pages[Page Components]
+        Context[Context API / State]
+        Service[API Service Layer]
+        
+        Pages --> Context
+        Pages --> Service
+    end
 
-## 📂 Project Structure
+    subgraph Backend [Backend: FastAPI]
+        Router[API Routers]
+        Schema[Pydantic Validation]
+        Model[SQLAlchemy ORM Models]
+        DB_Pool[Connection Pool]
+        WS[WebSocket Manager]
+        
+        Router --> Schema
+        Router --> Model
+        Router --> DB_Pool
+        DB_Pool --> WS
+    end
 
-### 💻 Frontend Structure (`/frontend`)
-The frontend is designed with modularity and reusability in mind.
-- **`src/components/`**: Reusable UI components (e.g., Modals, ProtectedRoutes).
-- **`src/context/`**: React Context providers for global state management (e.g., `AuthContext` for JWT tokens and user sessions).
-- **`src/pages/`**: Top-level route components (`DashboardPage`, `LoginPage`, `LandingPage`).
-- **`src/pages/sections/`**: Modular dashboard panels (e.g., `ManagerReviewsSection`, `TalentIntelligenceSection`) loaded dynamically based on user role.
-- **`src/services/`**: Abstraction layer for API calls (e.g., `authService`).
+    subgraph Database [PostgreSQL Database]
+        Tables[(Relational Data)]
+    end
 
-**Tech Stack:** React 18, Vite, Material UI (MUI), React Router DOM.
+    %% Network Connections
+    Service -- REST (HTTPS) --> Router
+    WS -- Real-time Sync (WSS) --> Context
+    DB_Pool -- TCP / psycopg2 --> Tables
+```
 
-### ⚙️ Backend Structure (`/backend`)
-The backend is a high-performance ASGI web server.
-- **`app/main.py`**: The application entry point, configuring CORS, WebSockets, and including routers.
-- **`app/database.py`**: SQLAlchemy engine configuration and DB session management.
-- **`app/models/`**: SQLAlchemy ORM models defining the database schema.
-- **`app/schemas/`**: Pydantic models for data validation, serialization, and API request/response typing.
-- **`app/routes/`**: API endpoints separated by domain (e.g., `auth`, `users`, `reviews`).
-- **`app/websocket.py`**: WebSocket connection manager for live broadcasting.
+### 💻 1. Frontend Structure (`/frontend`)
+The frontend is a Single Page Application (SPA) built for extreme modularity.
 
-**Tech Stack:** FastAPI, Uvicorn, SQLAlchemy, Pydantic, Passlib (Bcrypt), PyJWT.
+- **`src/App.jsx`**: The core router and theme provider. Handles code-splitting (React.lazy) and Suspense boundaries.
+- **`src/context/AuthContext.jsx`**: Global state management. It manages JWT token storage (in `localStorage`), user session persistence, and dynamic UI elements based on roles (Manager vs. Employee).
+- **`src/components/`**: Reusable generic UI components like `Modal` and `ProtectedRoute` (which securely intercepts unauthorized access).
+- **`src/pages/`**: The main route views (`DashboardPage`, `LoginPage`, `RegisterPage`).
+- **`src/pages/sections/`**: Modular, plug-and-play dashboard panels. For example, `ManagerReviewsSection` is dynamically injected into the Dashboard if the `user.role` is 'manager'.
+- **`src/services/authService.js`**: An abstraction layer that cleanly encapsulates all native `fetch()` calls to the backend, catching network errors before they reach the UI.
 
----
+### ⚙️ 2. Backend Structure (`/backend`)
+The backend is a high-performance ASGI web server written in Python.
 
-## 🗄️ Database Connection & Structure
-The platform uses **PostgreSQL** as its primary data store. 
-- **ORM (Object-Relational Mapping):** We use SQLAlchemy to interact with the database using Python objects rather than raw SQL strings. This prevents SQL injection and makes the codebase maintainable.
-- **Connection Pooling:** SQLAlchemy manages a pool of connections to the database, ensuring efficient resource usage under high load.
-- **Relationships:** The schema heavily utilizes Foreign Keys to map relationships (e.g., One-to-Many from `User` to `PerformanceReview`).
+- **`app/main.py`**: The application entry point. It configures CORS (allowing the frontend to communicate with it), initializes the WebSocket route, and mounts all the sub-routers.
+- **`app/routes/`**: Contains endpoint logic separated by domain (e.g., `auth.py`, `users.py`, `reviews.py`). This keeps the codebase highly organized.
+- **`app/schemas/schemas.py`**: Uses Pydantic to enforce strict type-checking on incoming HTTP requests and outgoing responses. If a frontend sends a string where an integer is expected, this layer rejects it with a 422 error.
+- **`app/models/models.py`**: Contains the SQLAlchemy Object-Relational Mapping (ORM). Here, Python classes (like `User` or `PerformanceReview`) are defined to perfectly mirror the PostgreSQL tables.
+- **`app/websocket.py`**: Manages a dictionary of active WebSocket connections.
+
+### 🗄️ 3. Database Connection Structure (`app/database.py`)
+The database connection architecture is designed for stability and high concurrency.
+
+- **Engine & Connection Pooling:** We use SQLAlchemy's `create_engine` connected to a PostgreSQL URI. This engine maintains a **Connection Pool** (`pool_pre_ping=True`), which keeps multiple database connections open and ready to use, preventing the overhead of creating a new TCP connection on every single API request.
+- **Session Yielding:** The `get_db()` dependency generator creates a localized database session (`SessionLocal()`) for an incoming HTTP request, yields it to the route to perform queries, and strictly guarantees `db.close()` is called in a `finally` block when the request finishes, preventing memory and connection leaks.
+- **Event Listeners (Real-time DB triggers):** Inside `database.py`, we use `@event.listens_for(Session, "after_commit")`. Whenever the database commits a new row (e.g., a new review is added), this listener catches the event globally and triggers the `WebSocket Manager` to broadcast an `'update'` message to the frontend, causing a seamless UI refresh.
 
 ---
 
 ## 🚀 Deployment Strategy: Why these tools?
 
 ### 1. Vercel (Frontend Hosting)
-**Why Vercel?** Vercel is highly optimized for React and Vite applications. It provides a global Edge Network (CDN), meaning the frontend assets are cached in servers all over the world. When a user visits the site, it loads instantly from the server closest to their physical location. It also offers seamless CI/CD (Continuous Integration/Continuous Deployment) directly from GitHub.
+**Why Vercel?** Vercel is the creator of Next.js and heavily optimized for React/Vite. It provides a global Edge Network (CDN). Instead of hosting our frontend on a single server in New York, Vercel caches our built HTML/JS/CSS files on servers worldwide. A user in London downloads the site from a London server, resulting in instant load times. It also offers automated CI/CD directly from our GitHub repository.
 
 ### 2. Render (Backend & Database Hosting)
-**Why Render?** Render is an excellent Platform-as-a-Service (PaaS) for hosting Dockerized applications, Python servers, and managed PostgreSQL databases. We use Render because it allows us to deploy our FastAPI backend and our PostgreSQL database in the same network environment, reducing latency. 
+**Why Render?** Render is an excellent modern Platform-as-a-Service (PaaS). We use it because it allows us to deploy our Python FastAPI backend and a managed PostgreSQL database in the **same private network region**. Because the backend and database sit right next to each other, the network latency for database queries is practically zero.
 
 ### 3. Cron-job.org (Keep-Alive Service)
-**Why Cron-job?** We are utilizing Render's "Free Tier" for hosting our backend web service. Render puts free web services to "sleep" after 15 minutes of inactivity to save server resources. When a service goes to sleep, the next user to visit the site will experience a 30-50 second delay (a "cold start") while the server spins back up. 
-To prevent this terrible user experience, we use `cron-job.org` to send an automated HTTP request to our API every 10 minutes. This tricks the Render server into thinking there is constant traffic, keeping the server awake 24/7 so the app is always blazing fast.
+**Why Cron-job?** We are utilizing Render's "Free Tier" to host our backend API. Render puts free web services to "sleep" after 15 minutes of inactivity to save server resources. When a service goes to sleep, the next user to visit the site will experience a 30-50 second delay (a "cold start") while the server spins back up. 
+To bypass this limitation, we use `cron-job.org` to send an automated HTTP GET request to our API every 10 minutes. This tricks the Render server into thinking there is constant active traffic, preventing it from ever spinning down.
