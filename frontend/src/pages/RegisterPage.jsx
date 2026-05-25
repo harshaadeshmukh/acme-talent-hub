@@ -213,7 +213,27 @@ export default function RegisterPage() {
               )}
             </div>
 
-
+            <div className={`form-group`}>
+              <label>Account Role</label>
+              <div style={{ display: 'flex', gap: '8px', padding: '4px', background: '#f1f5f9', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <button 
+                  type="button"
+                  onClick={() => setForm(f => ({...f, role: 'employee'}))}
+                  disabled={loading}
+                  style={{ flex: 1, padding: '10px', fontSize: '0.9rem', fontWeight: 600, borderRadius: '6px', border: 'none', background: form.role === 'employee' ? '#4f46e5' : 'transparent', color: form.role === 'employee' ? '#ffffff' : '#475569', boxShadow: form.role === 'employee' ? '0 4px 6px -1px rgba(79, 70, 229, 0.3)' : 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease-in-out' }}
+                >
+                  Employee
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setForm(f => ({...f, role: 'manager'}))}
+                  disabled={loading}
+                  style={{ flex: 1, padding: '10px', fontSize: '0.9rem', fontWeight: 600, borderRadius: '6px', border: 'none', background: form.role === 'manager' ? '#4f46e5' : 'transparent', color: form.role === 'manager' ? '#ffffff' : '#475569', boxShadow: form.role === 'manager' ? '0 4px 6px -1px rgba(79, 70, 229, 0.3)' : 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease-in-out' }}
+                >
+                  Manager
+                </button>
+              </div>
+            </div>
 
             <div className={`form-group ${fieldErrors.password ? 'has-error' : ''}`}>
               <label htmlFor="password">Password</label>
