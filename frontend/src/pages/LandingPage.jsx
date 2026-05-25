@@ -178,14 +178,14 @@ export default function LandingPage() {
                     <div className="mockup-metric-card">
                       <span className="metric-label">Reviews Pending</span>
                       <span className="metric-value">3 Reviews</span>
-                      <span className="metric-trend" style={{ color: '#f59e0b' }}>Due 5 Days</span>
+                      <span className="metric-trend" style={{ color: '#d97706' }}>Due 5 Days</span>
                     </div>
                   </div>
 
                   <div className="mockup-details-panel">
                     <div className="panel-title">
                       <span>Department Overview & Actions</span>
-                      <span className="panel-badge" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', borderColor: 'rgba(59, 130, 246, 0.3)' }}>Manager Suite</span>
+                      <span className="panel-badge" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#4f46e5', borderColor: 'rgba(99, 102, 241, 0.2)' }}>Manager Suite</span>
                     </div>
                     <div className="mockup-items-list">
                       <div className="mockup-item">
@@ -225,7 +225,7 @@ export default function LandingPage() {
                   <div className="activity-log-item" key={event.id}>
                     <span>
                       <span className="log-meta">[{event.time}] </span>
-                      <span style={{ color: event.type === 'SYS' ? '#c084fc' : event.type === 'CERT' ? '#60a5fa' : event.type === 'REV' ? '#f472b6' : '#34d399', fontWeight: 600 }}>
+                      <span style={{ color: event.type === 'SYS' ? '#7c3aed' : event.type === 'CERT' ? '#2563eb' : event.type === 'REV' ? '#db2777' : '#059669', fontWeight: 600 }}>
                         {event.type}
                       </span>
                       <span>: {event.msg}</span>
