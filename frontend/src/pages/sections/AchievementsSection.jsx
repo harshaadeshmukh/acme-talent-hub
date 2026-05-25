@@ -463,7 +463,7 @@ export default function AchievementsSection({ user }) {
       const dList = deps.ok ? await deps.json() : []
       setDepartments(dList)
       const results = await Promise.all(
-        dList.map(d => fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/achievements/${encodeURIComponent(d)}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? r.json() : []))
+        dList.map(d => fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/achievements/${encodeURIComponent(d)}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? r.json() : []))
       )
       const flat = results.flat().sort((a, b) => new Date(b.date_awarded) - new Date(a.date_awarded))
       setAllAchievements(flat)
@@ -474,7 +474,7 @@ export default function AchievementsSection({ user }) {
   async function fetchForTeam(dept) {
     if (!dept || dept === 'Unassigned') { setLoading(false); return }
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/achievements/${encodeURIComponent(dept)}`, { headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/achievements/${encodeURIComponent(dept)}`, { headers: { Authorization: `Bearer ${token}` } })
       if (res.ok) setAchievements(await res.json())
     } catch (e) { console.error(e) }
     finally { setLoading(false) }

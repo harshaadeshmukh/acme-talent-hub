@@ -103,10 +103,10 @@ export default function TeamsSection({ user }) {
     setShowAllSkills(false)
     try {
       const [compRes, reviewRes, trainRes, goalRes] = await Promise.all([
-        fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/competencies/employee/${member.id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/reviews/employee/${member.id}/average`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/training-records/employee/${member.id}/stats`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/goals/employee/${member.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/competencies/employee/${member.id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews/employee/${member.id}/average`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/training-records/employee/${member.id}/stats`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/goals/employee/${member.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
       ])
 
       if (compRes.ok) {

@@ -81,7 +81,7 @@ export default function OverviewSection({ onNavigate }) {
       if (!user?.id) return
       const token = localStorage.getItem('acme_token')
       try {
-        const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/reviews/employee/${user.id}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews/employee/${user.id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         if (res.ok) {

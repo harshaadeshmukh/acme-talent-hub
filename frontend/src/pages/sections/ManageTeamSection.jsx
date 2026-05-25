@@ -94,7 +94,7 @@ export default function ManageTeamSection() {
     setError(null)
     try {
       const url = query
-        ? `\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users?search=${encodeURIComponent(query)}`
+        ? `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users?search=${encodeURIComponent(query)}`
         : (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/users'
       const res = await fetch(url, { headers: headers() })
       if (!res.ok) throw new Error('Failed to fetch team members')
@@ -134,7 +134,7 @@ export default function ManageTeamSection() {
   }, [search, fetchMembers])
 
   useEffect(() => {
-    fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/departments/list`, { headers: headers() })
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/departments/list`, { headers: headers() })
       .then(res => res.json())
       .then(data => setDbDepartments(data))
       .catch(err => console.error('Failed to fetch departments:', err))
@@ -145,7 +145,7 @@ export default function ManageTeamSection() {
     if (target) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setMemberDetails(null)
-      fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/${target.id}/details`, { headers: headers() })
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/${target.id}/details`, { headers: headers() })
         .then(res => res.json())
         .then(data => setMemberDetails(data))
         .catch(err => console.error(err))
@@ -181,7 +181,7 @@ export default function ManageTeamSection() {
     e.preventDefault()
     setSubmitting(true)
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/${editTarget.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/${editTarget.id}`, {
         method: 'PATCH',
         headers: headers(),
         body: JSON.stringify({ name: editTarget.name, department: editTarget.department, job_title: editTarget.job_title || null, role: editTarget.role })
@@ -195,7 +195,7 @@ export default function ManageTeamSection() {
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/${deleteTarget.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/${deleteTarget.id}`, {
         method: 'PATCH', 
         headers: headers(),
         body: JSON.stringify({ department: 'Unassigned' })
@@ -210,7 +210,7 @@ export default function ManageTeamSection() {
     setWarningMsg(null)
     setSuccessMsg(null)
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/${employeeId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/${employeeId}`, {
         method: 'PATCH',
         headers: headers(),
         body: JSON.stringify({ department: user?.department || 'General' })
@@ -494,7 +494,7 @@ export default function ManageTeamSection() {
                 headers: headers(),
                 body: JSON.stringify({ name })
               }).then(() => {
-                fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/departments/list`, { headers: headers() })
+                fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/departments/list`, { headers: headers() })
                   .then(res => res.json())
                   .then(data => setDbDepartments(data))
               });

@@ -122,7 +122,7 @@ export default function ManagerGoalApprovalsSection() {
       ? `/api/goals/${feedbackGoal.id}/approve`
       : `/api/goals/${feedbackGoal.id}/reject`
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}${ep}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${ep}`, {
         method: 'PATCH', headers: headers(),
         body: JSON.stringify({ manager_feedback: feedbackText })
       })

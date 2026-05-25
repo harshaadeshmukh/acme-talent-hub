@@ -36,7 +36,7 @@ export default function PerformanceReviewsPage() {
     const fetchReviews = async () => {
       try {
         const [res, usersRes] = await Promise.all([
-          fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/reviews/employee/${user.id}`, {
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews/employee/${user.id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           }),
           fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/users', {
@@ -241,7 +241,7 @@ export default function PerformanceReviewsPage() {
               <div className="perf-reviewer-left">
                 {review.reviewerAvatar ? (
                   <img 
-                    src={review.reviewerAvatar.startsWith('http') ? review.reviewerAvatar : `\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}${review.reviewerAvatar}`} 
+                    src={review.reviewerAvatar.startsWith('http') ? review.reviewerAvatar : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${review.reviewerAvatar}`} 
                     alt={review.reviewerName} 
                     className="perf-avatar" 
                     style={{ objectFit: 'cover' }}

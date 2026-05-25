@@ -45,7 +45,7 @@ export default function MembersSection({ user }) {
 
   async function fetchLatestProfile() {
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/${user.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/${user.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (res.ok) {
@@ -74,7 +74,7 @@ export default function MembersSection({ user }) {
 
   async function fetchDepartments() {
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/departments/list`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/departments/list`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (res.ok) {
@@ -88,7 +88,7 @@ export default function MembersSection({ user }) {
 
   async function fetchTimeline() {
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/timeline/employee/${user.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/timeline/employee/${user.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (res.ok) {
@@ -145,7 +145,7 @@ export default function MembersSection({ user }) {
         end_date: newEvent.end_date ? newEvent.end_date.toISOString() : null,
         description: newEvent.description || null
       }
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/timeline`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/timeline`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -165,7 +165,7 @@ export default function MembersSection({ user }) {
   async function handleDeleteTimelineEvent(id) {
     if(!confirm("Delete this timeline event?")) return
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/timeline/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/timeline/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })

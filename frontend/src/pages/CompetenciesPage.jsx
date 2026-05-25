@@ -93,7 +93,7 @@ export default function CompetenciesPage() {
       }
 
       // Fetch user competencies
-      const userRes = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/competencies/employee/${user.id}`, {
+      const userRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/competencies/employee/${user.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (userRes.ok) {
@@ -161,7 +161,7 @@ export default function CompetenciesPage() {
     try {
       if (editingSkill) {
         // UPDATE
-        const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/competencies/employee/${user.id}/${editingSkill.competency_id}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/competencies/employee/${user.id}/${editingSkill.competency_id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -196,7 +196,7 @@ export default function CompetenciesPage() {
         }
         
         // 2. Add to user
-        const addRes = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/competencies/employee/${user.id}`, {
+        const addRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/competencies/employee/${user.id}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -219,7 +219,7 @@ export default function CompetenciesPage() {
 
   const handleDelete = async (skill) => {
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/competencies/employee/${user.id}/${skill.competency_id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/competencies/employee/${user.id}/${skill.competency_id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })

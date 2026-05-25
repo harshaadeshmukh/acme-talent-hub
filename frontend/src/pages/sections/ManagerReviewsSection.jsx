@@ -375,7 +375,7 @@ export default function ManagerReviewsSection() {
     }
 
     try {
-      await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/reviews/${evaluateTarget.id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews/${evaluateTarget.id}`, {
         method: 'PUT', headers: headers(),
         body: JSON.stringify({ rating, feedback: finalFeedback, review_period: evaluateTarget.review_period })
       })
@@ -804,7 +804,7 @@ export default function ManagerReviewsSection() {
                       onClick={async () => {
                         if (window.confirm("Are you sure you want to delete this review?")) {
                           try {
-                            const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/reviews/${review.id}`, { method: 'DELETE', headers: headers() });
+                            const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews/${review.id}`, { method: 'DELETE', headers: headers() });
                             if (res.ok) fetchData();
                           } catch (err) { console.error(err); }
                         }

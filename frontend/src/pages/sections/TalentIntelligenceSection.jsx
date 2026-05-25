@@ -259,7 +259,7 @@ export default function TalentIntelligenceSection() {
 
     Promise.all(
       validIds.map(id =>
-        fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/competencies/employee/${id}`, { headers: headers() }).then(res => res.json())
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/competencies/employee/${id}`, { headers: headers() }).then(res => res.json())
       )
     )
       .then((responses) => {

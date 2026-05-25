@@ -93,7 +93,7 @@ export default function LearningSection({ user }) {
   const handleSaveGoal = async (e) => {
     e.preventDefault()
     try {
-      const url = gForm.id ? `\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/learning/goals/${gForm.id}` : (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/learning/goals'
+      const url = gForm.id ? `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/learning/goals/${gForm.id}` : (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/learning/goals'
       const method = gForm.id ? 'PUT' : 'POST'
       const res = await fetch(url, {
         method,
@@ -115,7 +115,7 @@ export default function LearningSection({ user }) {
         duration_hours: cForm.duration_hours ? parseFloat(cForm.duration_hours) : null,
         completion_date: cForm.completion_date ? `${cForm.completion_date}T00:00:00Z` : null
       }
-      const url = cForm.id ? `\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/learning/certificates/${cForm.id}` : (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/learning/certificates'
+      const url = cForm.id ? `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/learning/certificates/${cForm.id}` : (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/learning/certificates'
       const method = cForm.id ? 'PUT' : 'POST'
       const res = await fetch(url, {
         method,
@@ -132,7 +132,7 @@ export default function LearningSection({ user }) {
   const handleDeleteCert = async (id) => {
     if (!window.confirm("Are you sure you want to delete this certificate?")) return;
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/learning/certificates/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/learning/certificates/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -142,7 +142,7 @@ export default function LearningSection({ user }) {
 
   const verifyCert = async (id, status) => {
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/learning/certificates/${id}/verify`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/learning/certificates/${id}/verify`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ verification_status: status })
@@ -153,7 +153,7 @@ export default function LearningSection({ user }) {
 
   const addFeedback = async (id, text, endorse) => {
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/learning/goals/${id}/feedback`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/learning/goals/${id}/feedback`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ manager_feedback: text, is_endorsed: endorse })
