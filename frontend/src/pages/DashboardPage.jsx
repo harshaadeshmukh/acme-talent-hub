@@ -114,7 +114,7 @@ export default function DashboardPage() {
       <aside className={`dash-sidebar ${sidebarOpen ? 'open' : ''}`} aria-label="Sidebar navigation">
         <div className="sidebar-brand">
           <span className="sidebar-logo-mark" style={{ fontFamily: '"Segoe UI Emoji", "Apple Color Emoji", sans-serif' }}>
-            {(user?.role === 'manager' || user?.role === 'admin') ? '💼' : '🧑‍💻'}
+            {(user?.role === 'manager' || user?.role === 'admin') ? '💼' : '💻'}
           </span>
           <span className="sidebar-brand-name">ACME Talent Hub</span>
         </div>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
           </button>
           <div className="dash-header-logo">
             <span className="sidebar-logo-mark small" aria-hidden="true" style={{ fontFamily: '"Segoe UI Emoji", "Apple Color Emoji", sans-serif' }}>
-              {(user?.role === 'manager' || user?.role === 'admin') ? '💼' : '🧑‍💻'}
+              {(user?.role === 'manager' || user?.role === 'admin') ? '💼' : '💻'}
             </span>
             <span>ACME Talent Hub</span>
           </div>
