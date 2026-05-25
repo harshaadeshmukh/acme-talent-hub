@@ -22,6 +22,32 @@ export function AuthProvider({ children }) {
     }
   }, [user])
 
+  // Automatically refresh user data from server when a global update is triggered
+  useEffect(() => {
+    if (!token) return;
+    const fetchUser = async () => {
+      try {
+        const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const userData = await res.json();
+          setUser(userData);
+          localStorage.setItem('acme_user', JSON.stringify(userData));
+        }
+      } catch (err) {
+        console.error('Failed to refresh user data', err);
+      }
+    };
+    
+    // Also fetch immediately on mount if token exists to ensure fresh data
+    fetchUser();
+    
+    const handleUpdate = () => fetchUser();
+    window.addEventListener('app-update', handleUpdate);
+    return () => window.removeEventListener('app-update', handleUpdate);
+  }, [token]);
+
   const login = useCallback((userData, authToken) => {
     setUser(userData)
     setToken(authToken)
