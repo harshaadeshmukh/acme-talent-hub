@@ -304,6 +304,7 @@ export default function ManagerReviewsSection() {
   const [activeFramework, setActiveFramework] = useState(null)
   const [frameworkData, setFrameworkData] = useState({})
   const [hoveredTier, setHoveredTier] = useState(null)
+  const [deleteTarget, setDeleteTarget] = useState(null)
 
   const headers = useCallback(() => ({ 'Authorization': `Bearer ${localStorage.getItem('acme_token')}`, 'Content-Type': 'application/json' }), [])
 
@@ -801,14 +802,7 @@ export default function ManagerReviewsSection() {
                       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                     </button>
                     <button 
-                      onClick={async () => {
-                        if (window.confirm("Are you sure you want to delete this review?")) {
-                          try {
-                            const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews/${review.id}`, { method: 'DELETE', headers: headers() });
-                            if (res.ok) fetchData();
-                          } catch (err) { console.error(err); }
-                        }
-                      }}
+                      onClick={() => setDeleteTarget(review)}
                       style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'color 0.2s' }}
                       onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
                       onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
@@ -1038,6 +1032,46 @@ export default function ManagerReviewsSection() {
               </form>
             </div>
 
+          </div>
+        </Modal>
+      )}
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <Modal
+          title="Delete Performance Review"
+          subtitle={`Are you sure you want to delete the review for ${deleteTarget.employeeName}?`}
+          onClose={() => setDeleteTarget(null)}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <p style={{ color: '#475569', margin: 0, fontSize: '15px', lineHeight: '1.5' }}>
+              This action cannot be undone. It will permanently remove this review record from the system.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
+              <button 
+                onClick={() => setDeleteTarget(null)}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', color: '#475569', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews/${deleteTarget.id}`, { method: 'DELETE', headers: headers() });
+                    if (res.ok) {
+                      setDeleteTarget(null);
+                      fetchData();
+                    }
+                  } catch (err) { console.error(err); }
+                }}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#ef4444', color: '#fff', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'}
+              >
+                Delete Review
+              </button>
+            </div>
           </div>
         </Modal>
       )}
