@@ -74,7 +74,9 @@ export default function DashboardPage() {
   }, [])
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8000/ws')
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+    const wsUrl = apiUrl.replace(/^http/, 'ws') + '/ws'
+    const ws = new WebSocket(wsUrl)
     ws.onmessage = (event) => {
       if (event.data === 'update') {
         window.dispatchEvent(new Event('app-update'))
