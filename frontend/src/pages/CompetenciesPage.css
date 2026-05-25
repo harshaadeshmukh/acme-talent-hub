@@ -241,3 +241,22 @@
   color: #9ca3af !important;
   box-shadow: none !important;
 }
+
+@media (max-width: 768px) {
+  .skill-title {
+    font-size: 16px;
+  }
+  .skill-level-label {
+    font-size: 10px;
+  }
+  .skill-level-value {
+    font-size: 12px;
+  }
+  .exp-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  .skill-card-premium {
+    padding: 16px;
+  }
+}
