@@ -880,7 +880,8 @@
         </div>
     </div>
     <script>
-        const BASE = 'http://127.0.0.1:8000';
+        const BASE = window.location.origin;
+        document.getElementById('serverUrl').textContent = BASE;
         const state = {
             emp: { token: null, logs: [], stats: { total: 0, ok: 0, err: 0, latencies: [] }, detail: null, activeDTab: 'response' },
             mgr: { token: null, logs: [], stats: { total: 0, ok: 0, err: 0, latencies: [] }, detail: null, activeDTab: 'response' }
