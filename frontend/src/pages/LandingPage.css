@@ -800,7 +800,7 @@
 
 /* ── CTA ── */
 .cta-footer {
-  padding: 100px 8%;
+  padding: 80px 8% 40px 8%;
   background: var(--bg-secondary);
 }
 
@@ -905,7 +905,8 @@
 @media (max-width: 768px) {
   .landing-nav { padding: 12px 4%; }
   .hero-section { padding: 40px 4% 50px; gap: 32px; }
-  .features-section, .workflow-section, .comparison-section, .cta-footer { padding: 50px 4%; }
+  .features-section, .workflow-section, .comparison-section { padding: 50px 4%; }
+  .cta-footer { padding: 40px 4% 20px 4%; }
   .purpose-section { padding: 40px 4%; }
   .footer-bottom { padding: 24px 4%; }
 
