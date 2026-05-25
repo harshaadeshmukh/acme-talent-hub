@@ -52,8 +52,34 @@ graph TD
     DB_Pool -- TCP / psycopg2 --> Tables
 ```
 
-### 💻 1. Frontend Structure (`/frontend`)
+### 💻 1. Frontend Architecture (`/frontend`)
 The frontend is a Single Page Application (SPA) built for extreme modularity.
+
+```mermaid
+graph TD
+    subgraph Frontend [React Single Page Application]
+        Router[React Router DOM]
+        Context[AuthContext / Global State]
+        
+        Router --> AuthRoute[ProtectedRoute]
+        AuthRoute --> Dash[DashboardPage]
+        Router --> AuthPages[Login / Register]
+        
+        Dash --> Nav[Sidebar Navigation]
+        Dash --> Sections[Dynamic Dashboard Sections]
+        
+        Sections --> MgrReview[ManagerReviewsSection]
+        Sections --> Talent[TalentIntelligenceSection]
+        Sections --> Others[...]
+        
+        Context -. "Provides JWT/User" .-> AuthPages
+        Context -. "Checks Access" .-> AuthRoute
+        Context -. "Role-based UI" .-> Dash
+        
+        Services[API Services / authService.js]
+        Sections --> Services
+    end
+```
 
 - **`src/App.jsx`**: The core router and theme provider. Handles code-splitting (React.lazy) and Suspense boundaries.
 - **`src/context/AuthContext.jsx`**: Global state management. It manages JWT token storage (in `localStorage`), user session persistence, and dynamic UI elements based on roles (Manager vs. Employee).
@@ -62,17 +88,59 @@ The frontend is a Single Page Application (SPA) built for extreme modularity.
 - **`src/pages/sections/`**: Modular, plug-and-play dashboard panels. For example, `ManagerReviewsSection` is dynamically injected into the Dashboard if the `user.role` is 'manager'.
 - **`src/services/authService.js`**: An abstraction layer that cleanly encapsulates all native `fetch()` calls to the backend, catching network errors before they reach the UI.
 
-### ⚙️ 2. Backend Structure (`/backend`)
+### ⚙️ 2. Backend Architecture (`/backend`)
 The backend is a high-performance ASGI web server written in Python.
+
+```mermaid
+graph TD
+    subgraph Backend [FastAPI ASGI Server]
+        Main[main.py - App Factory]
+        Main --> Middleware[CORS Middleware]
+        Main --> WS_Route[WebSocket Manager]
+        Main --> API_Router[Master API Router]
+        
+        API_Router --> AuthRoute[routes/auth.py]
+        API_Router --> UserRoute[routes/users.py]
+        API_Router --> ReviewRoute[routes/reviews.py]
+        
+        AuthRoute --> Schema[Pydantic Schemas - Validation]
+        UserRoute --> Schema
+        ReviewRoute --> Schema
+        
+        AuthRoute --> Models[SQLAlchemy ORM Models]
+        UserRoute --> Models
+        ReviewRoute --> Models
+    end
+```
 
 - **`app/main.py`**: The application entry point. It configures CORS (allowing the frontend to communicate with it), initializes the WebSocket route, and mounts all the sub-routers.
 - **`app/routes/`**: Contains endpoint logic separated by domain (e.g., `auth.py`, `users.py`, `reviews.py`). This keeps the codebase highly organized.
 - **`app/schemas/schemas.py`**: Uses Pydantic to enforce strict type-checking on incoming HTTP requests and outgoing responses. If a frontend sends a string where an integer is expected, this layer rejects it with a 422 error.
 - **`app/models/models.py`**: Contains the SQLAlchemy Object-Relational Mapping (ORM). Here, Python classes (like `User` or `PerformanceReview`) are defined to perfectly mirror the PostgreSQL tables.
-- **`app/websocket.py`**: Manages a dictionary of active WebSocket connections.
 
-### 🗄️ 3. Database Connection Structure (`app/database.py`)
-The database connection architecture is designed for stability and high concurrency.
+### 🗄️ 3. Database Connection Flow (`app/database.py`)
+The database connection architecture is designed for stability, high concurrency, and real-time reactivity.
+
+```mermaid
+sequenceDiagram
+    participant Route as FastAPI Route
+    participant DB as database.py
+    participant Session as SQLAlchemy Session
+    participant Postgres as PostgreSQL
+    participant WS as WebSocket Manager
+    
+    Route->>DB: get_db() Dependency
+    DB->>Session: Create SessionLocal()
+    Session->>Postgres: Acquire Connection from Pool
+    Route->>Session: Execute Query (e.g. Add Review)
+    Session->>Postgres: INSERT statement
+    Route->>Session: session.commit()
+    Session->>DB: Event Listener (after_commit) triggers
+    DB->>WS: broadcast("update")
+    WS-->>Clients: Real-time UI refresh
+    DB->>Session: session.close() in finally block
+    Session->>Postgres: Return Connection to Pool
+```
 
 - **Engine & Connection Pooling:** We use SQLAlchemy's `create_engine` connected to a PostgreSQL URI. This engine maintains a **Connection Pool** (`pool_pre_ping=True`), which keeps multiple database connections open and ready to use, preventing the overhead of creating a new TCP connection on every single API request.
 - **Session Yielding:** The `get_db()` dependency generator creates a localized database session (`SessionLocal()`) for an incoming HTTP request, yields it to the route to perform queries, and strictly guarantees `db.close()` is called in a `finally` block when the request finishes, preventing memory and connection leaks.
