@@ -45,17 +45,13 @@
 .auth-brand-content { position: relative; z-index: 1; }
 
 .auth-logo {
-  width: 52px; height: 52px;
-  background: #6366f1;
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 32px;
-  box-shadow: 0 4px 24px rgba(99,102,241,0.35);
+  display: flex; align-items: center; justify-content: flex-start;
+  margin-bottom: 24px;
 }
 
 .auth-logo-mark {
   font-family: 'DM Serif Display', serif;
-  font-size: 28px; color: #fff; line-height: 1;
+  font-size: 42px; color: #fff; line-height: 1;
 }
 
 .auth-logo-mark.small { font-size: 18px; }
@@ -287,8 +283,7 @@
     display: flex; align-items: center; gap: 16px; flex: 1;
   }
 
-  .auth-logo { width: 40px; height: 40px; border-radius: 10px; margin-bottom: 0; flex-shrink: 0; }
-  .auth-logo-mark { font-size: 20px; }
+  .auth-logo-mark { font-size: 32px; }
 
   .auth-brand-title { font-size: 18px; margin: 0; }
   .auth-brand-sub { display: none; }

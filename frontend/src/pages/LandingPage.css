@@ -75,16 +75,10 @@
 }
 
 .logo-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-size: 16px;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-  color: #fff;
+  font-size: 28px;
 }
 
 .nav-links {
@@ -937,7 +931,7 @@
 @media (max-width: 480px) {
   .landing-nav { flex-direction: row; justify-content: space-between; gap: 10px; }
   .nav-logo span { font-size: 14px; }
-  .logo-icon { width: 28px; height: 28px; font-size: 14px; }
+  .logo-icon { font-size: 22px; }
   .nav-links { gap: 8px; }
   .hero-btns { flex-direction: column; width: 100%; gap: 12px; }
   .hero-btn-main, .hero-btn-outline { width: 100%; justify-content: center; padding: 12px 20px; font-size: 14px; }
