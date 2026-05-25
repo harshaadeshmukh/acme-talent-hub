@@ -242,7 +242,7 @@ export default function PerformanceReviewsPage() {
               <div className="perf-reviewer-left">
                 {review.reviewerAvatar ? (
                   <img 
-                    src={review.reviewerAvatar.startsWith('http') ? review.reviewerAvatar : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${review.reviewerAvatar}`} 
+                    src={review.reviewerAvatar.startsWith('http') || review.reviewerAvatar.startsWith('data:') ? review.reviewerAvatar : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${review.reviewerAvatar}`} 
                     alt={review.reviewerName} 
                     className="perf-avatar" 
                     style={{ objectFit: 'cover' }}
