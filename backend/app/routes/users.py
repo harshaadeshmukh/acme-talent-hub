@@ -133,7 +133,7 @@ def upload_profile_pic(user_id: int, file: UploadFile = File(...), db: Session =
         shutil.copyfileobj(file.file, file_object)
         
     # Update DB
-    url = f"http://localhost:8000/static/uploads/{filename}"
+    url = f"/static/uploads/{filename}"
     user.profile_pic_url = url
     db.commit()
     db.refresh(user)

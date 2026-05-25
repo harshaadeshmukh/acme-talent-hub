@@ -184,7 +184,7 @@ export default function MembersSection({ user }) {
     formData.append('file', file)
     
     try {
-      const res = await fetch(`\${import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || 'http://localhost:8000') + ''}/api/users/${user.id}/upload-profile-pic`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/users/${user.id}/upload-profile-pic`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
