@@ -111,6 +111,25 @@
 .sidebar-user-name { font-size: 13px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-user-role { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: capitalize; }
 
+/* ── Manager Mode Theme Overrides ── */
+.dash-root.manager-mode .dash-sidebar {
+  background: #09131a; /* Deep Executive Slate */
+}
+
+.dash-root.manager-mode .sidebar-nav-item.active {
+  background: rgba(16, 185, 129, 0.15); /* Emerald Green accent */
+  color: #34d399; /* Emerald 400 */
+}
+
+.dash-root.manager-mode .sidebar-avatar {
+  background: #059669; /* Emerald 600 */
+}
+
+.dash-root.manager-mode .user-role-badge {
+  background: rgba(16, 185, 129, 0.1); 
+  color: #059669;
+}
+
 .sidebar-logout-btn {
   width: 100%; padding: 8px 12px; border-radius: 8px;
   background: rgba(255,255,255,0.05);
