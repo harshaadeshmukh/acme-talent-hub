@@ -443,7 +443,7 @@ export default function ManagerReviewsSection() {
     companyAvg: companyAverage
   })).sort((a, b) => b.rating - a.rating)
 
-  const topPerformers = chartData.slice(0, 3)
+  const topPerformers = chartData.filter(emp => emp.rating >= 3.5).slice(0, 3)
   const needsAttention = [...chartData].reverse().filter(emp => emp.rating < 3.5).slice(0, 3)
 
   if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading reviews...</div>
