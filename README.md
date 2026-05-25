@@ -158,7 +158,12 @@ sequenceDiagram
 
 ### 3. Supabase / Neon (Database Hosting - Forever Free)
 **Why not Render for the DB?** Render's free PostgreSQL tier automatically expires and deletes your database after 90 days. To keep the project **100% forever free**, we use modern Serverless PostgreSQL providers like **Supabase** or **Neon (neon.tech)**. 
-These platforms offer generous, non-expiring free tiers. Because our backend uses SQLAlchemy, migrating is as simple as creating a free account, copying the provided `postgresql://...` connection string, and pasting it into our `.env` file—without changing a single line of code!
+
+**Important Connection Considerations:**
+- **Neon:** We highly recommend Neon because it natively provides IPv4 connection strings that work instantly with Render's free tier. 
+- **Supabase:** If you choose Supabase, please note that their direct database connection (port `5432`) uses IPv6. **Render's free tier does NOT support IPv6.** To connect successfully, you must use Supabase's **Connection Pooler URL** (port `6543`), which routes through IPv4.
+
+Because our backend uses SQLAlchemy, migrating is as simple as creating a free account, copying the proper `postgresql://...` connection string, and pasting it into our `.env` file—without changing a single line of code!
 
 ### 4. Cron-job.org (Keep-Alive Service)
 **Why Cron-job?** We are utilizing Render's "Free Tier" to host our backend API. Render puts free web services to "sleep" after 15 minutes of inactivity to save server resources. When a service goes to sleep, the next user to visit the site will experience a 30-50 second delay (a "cold start") while the server spins back up. 
