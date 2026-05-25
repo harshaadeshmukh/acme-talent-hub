@@ -113,7 +113,9 @@ export default function DashboardPage() {
       {/* ── Sidebar ── */}
       <aside className={`dash-sidebar ${sidebarOpen ? 'open' : ''}`} aria-label="Sidebar navigation">
         <div className="sidebar-brand">
-          <span className="sidebar-logo-mark">A</span>
+          <span className="sidebar-logo-mark" style={{fontFamily: 'sans-serif', paddingRight: '5px'}}>
+            {(user?.role === 'manager' || user?.role === 'admin') ? '💼' : '🧑‍💻'}
+          </span>
           <span className="sidebar-brand-name">ACME Talent Hub</span>
         </div>
 
@@ -166,7 +168,9 @@ export default function DashboardPage() {
             <span className="ham-icon" />
           </button>
           <div className="dash-header-logo">
-            <span className="sidebar-logo-mark small" aria-hidden="true">A</span>
+            <span className="sidebar-logo-mark small" aria-hidden="true" style={{fontFamily: 'sans-serif', paddingRight: '5px'}}>
+              {(user?.role === 'manager' || user?.role === 'admin') ? '💼' : '🧑‍💻'}
+            </span>
             <span>ACME Talent Hub</span>
           </div>
           <div className="dash-header-right">

@@ -23,7 +23,7 @@ export default function RegisterPage() {
   const [fieldErrors, setFieldErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  
+
   const [otpStep, setOtpStep] = useState(false)
   const [otpCode, setOtpCode] = useState('')
   const [registeredEmail, setRegisteredEmail] = useState('')
@@ -61,13 +61,13 @@ export default function RegisterPage() {
     try {
       // eslint-disable-next-line no-unused-vars
       const { confirm_password, first_name, last_name, ...rest } = form
-      const payload = { 
-        ...rest, 
+      const payload = {
+        ...rest,
         name: `${first_name} ${last_name}`.trim(),
         department: ""
       }
       await authService.register(payload)
-      navigate('/login', { 
+      navigate('/login', {
         replace: true,
         state: { successMessage: 'Account created successfully! Please sign in.' }
       })
@@ -88,7 +88,7 @@ export default function RegisterPage() {
     setError('')
     try {
       await authService.verifyOtp(registeredEmail, otpCode.trim())
-      navigate('/login', { 
+      navigate('/login', {
         replace: true,
         state: { successMessage: 'Account created successfully! Please sign in.' }
       })
@@ -104,7 +104,7 @@ export default function RegisterPage() {
       <div className="auth-brand-panel">
         <div className="auth-brand-content">
           <div className="auth-logo">
-            <span className="auth-logo-mark">A</span>
+            <span className="auth-logo-mark" style={{fontFamily: 'sans-serif', paddingRight: '5px'}}>🏢</span>
           </div>
           <h1 className="auth-brand-title">ACME Talent Hub</h1>
           <p className="auth-brand-sub">
@@ -148,7 +148,7 @@ export default function RegisterPage() {
                   onChange={(e) => setOtpCode(e.target.value)}
                   disabled={loading}
                 />
-                <p className="role-locked-hint" style={{marginTop: '8px'}}>
+                <p className="role-locked-hint" style={{ marginTop: '8px' }}>
                   We sent a confirmation code to <strong>{registeredEmail}</strong>.
                 </p>
               </div>
@@ -162,130 +162,130 @@ export default function RegisterPage() {
             </form>
           ) : (
 
-          <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            <div className="form-row">
-              <div className={`form-group ${fieldErrors.first_name ? 'has-error' : ''}`}>
-                <label htmlFor="first_name">First name</label>
+            <form className="auth-form" onSubmit={handleSubmit} noValidate>
+              <div className="form-row">
+                <div className={`form-group ${fieldErrors.first_name ? 'has-error' : ''}`}>
+                  <label htmlFor="first_name">First name</label>
+                  <input
+                    id="first_name"
+                    name="first_name"
+                    type="text"
+                    placeholder="Jane"
+                    value={form.first_name}
+                    onChange={handleChange}
+                    disabled={loading}
+                  />
+                  {fieldErrors.first_name && (
+                    <span className="field-error">{fieldErrors.first_name}</span>
+                  )}
+                </div>
+                <div className={`form-group ${fieldErrors.last_name ? 'has-error' : ''}`}>
+                  <label htmlFor="last_name">Last name</label>
+                  <input
+                    id="last_name"
+                    name="last_name"
+                    type="text"
+                    placeholder="Smith"
+                    value={form.last_name}
+                    onChange={handleChange}
+                    disabled={loading}
+                  />
+                  {fieldErrors.last_name && (
+                    <span className="field-error">{fieldErrors.last_name}</span>
+                  )}
+                </div>
+              </div>
+
+              <div className={`form-group ${fieldErrors.email ? 'has-error' : ''}`}>
+                <label htmlFor="email">Work email</label>
                 <input
-                  id="first_name"
-                  name="first_name"
-                  type="text"
-                  placeholder="Jane"
-                  value={form.first_name}
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@acmeinc.com"
+                  value={form.email}
                   onChange={handleChange}
                   disabled={loading}
                 />
-                {fieldErrors.first_name && (
-                  <span className="field-error">{fieldErrors.first_name}</span>
+                {fieldErrors.email && (
+                  <span className="field-error">{fieldErrors.email}</span>
                 )}
               </div>
-              <div className={`form-group ${fieldErrors.last_name ? 'has-error' : ''}`}>
-                <label htmlFor="last_name">Last name</label>
-                <input
-                  id="last_name"
-                  name="last_name"
-                  type="text"
-                  placeholder="Smith"
-                  value={form.last_name}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-                {fieldErrors.last_name && (
-                  <span className="field-error">{fieldErrors.last_name}</span>
+
+              <div className={`form-group`}>
+                <label>Account Role</label>
+                <div style={{ display: 'flex', gap: '8px', padding: '4px', background: '#f1f5f9', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, role: 'employee' }))}
+                    disabled={loading}
+                    style={{ flex: 1, padding: '10px', fontSize: '0.9rem', fontWeight: 600, borderRadius: '6px', border: 'none', background: form.role === 'employee' ? '#4f46e5' : 'transparent', color: form.role === 'employee' ? '#ffffff' : '#475569', boxShadow: form.role === 'employee' ? '0 4px 6px -1px rgba(79, 70, 229, 0.3)' : 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease-in-out' }}
+                  >
+                    Employee
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, role: 'manager' }))}
+                    disabled={loading}
+                    style={{ flex: 1, padding: '10px', fontSize: '0.9rem', fontWeight: 600, borderRadius: '6px', border: 'none', background: form.role === 'manager' ? '#4f46e5' : 'transparent', color: form.role === 'manager' ? '#ffffff' : '#475569', boxShadow: form.role === 'manager' ? '0 4px 6px -1px rgba(79, 70, 229, 0.3)' : 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease-in-out' }}
+                  >
+                    Manager
+                  </button>
+                </div>
+              </div>
+
+              <div className={`form-group ${fieldErrors.password ? 'has-error' : ''}`}>
+                <label htmlFor="password">Password</label>
+                <div className="input-with-action">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Min. 8 characters"
+                    value={form.password}
+                    onChange={handleChange}
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    className="input-action-btn"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? '🙈' : '👁'}
+                  </button>
+                </div>
+                {fieldErrors.password && (
+                  <span className="field-error">{fieldErrors.password}</span>
                 )}
               </div>
-            </div>
 
-            <div className={`form-group ${fieldErrors.email ? 'has-error' : ''}`}>
-              <label htmlFor="email">Work email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@acmeinc.com"
-                value={form.email}
-                onChange={handleChange}
-                disabled={loading}
-              />
-              {fieldErrors.email && (
-                <span className="field-error">{fieldErrors.email}</span>
-              )}
-            </div>
-
-            <div className={`form-group`}>
-              <label>Account Role</label>
-              <div style={{ display: 'flex', gap: '8px', padding: '4px', background: '#f1f5f9', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                <button 
-                  type="button"
-                  onClick={() => setForm(f => ({...f, role: 'employee'}))}
-                  disabled={loading}
-                  style={{ flex: 1, padding: '10px', fontSize: '0.9rem', fontWeight: 600, borderRadius: '6px', border: 'none', background: form.role === 'employee' ? '#4f46e5' : 'transparent', color: form.role === 'employee' ? '#ffffff' : '#475569', boxShadow: form.role === 'employee' ? '0 4px 6px -1px rgba(79, 70, 229, 0.3)' : 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease-in-out' }}
-                >
-                  Employee
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setForm(f => ({...f, role: 'manager'}))}
-                  disabled={loading}
-                  style={{ flex: 1, padding: '10px', fontSize: '0.9rem', fontWeight: 600, borderRadius: '6px', border: 'none', background: form.role === 'manager' ? '#4f46e5' : 'transparent', color: form.role === 'manager' ? '#ffffff' : '#475569', boxShadow: form.role === 'manager' ? '0 4px 6px -1px rgba(79, 70, 229, 0.3)' : 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease-in-out' }}
-                >
-                  Manager
-                </button>
-              </div>
-            </div>
-
-            <div className={`form-group ${fieldErrors.password ? 'has-error' : ''}`}>
-              <label htmlFor="password">Password</label>
-              <div className="input-with-action">
+              <div className={`form-group ${fieldErrors.confirm_password ? 'has-error' : ''}`}>
+                <label htmlFor="confirm_password">Confirm password</label>
                 <input
-                  id="password"
-                  name="password"
+                  id="confirm_password"
+                  name="confirm_password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Min. 8 characters"
-                  value={form.password}
+                  placeholder="Repeat your password"
+                  value={form.confirm_password}
                   onChange={handleChange}
                   disabled={loading}
                 />
-                <button
-                  type="button"
-                  className="input-action-btn"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? '🙈' : '👁'}
-                </button>
+                {fieldErrors.confirm_password && (
+                  <span className="field-error">{fieldErrors.confirm_password}</span>
+                )}
               </div>
-              {fieldErrors.password && (
-                <span className="field-error">{fieldErrors.password}</span>
-              )}
-            </div>
 
-            <div className={`form-group ${fieldErrors.confirm_password ? 'has-error' : ''}`}>
-              <label htmlFor="confirm_password">Confirm password</label>
-              <input
-                id="confirm_password"
-                name="confirm_password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Repeat your password"
-                value={form.confirm_password}
-                onChange={handleChange}
+              <button
+                type="submit"
+                id="register-submit-btn"
+                className={`auth-submit-btn ${loading ? 'loading' : ''}`}
                 disabled={loading}
-              />
-              {fieldErrors.confirm_password && (
-                <span className="field-error">{fieldErrors.confirm_password}</span>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              id="register-submit-btn"
-              className={`auth-submit-btn ${loading ? 'loading' : ''}`}
-              disabled={loading}
-            >
-              {loading ? <span className="btn-spinner" /> : 'Create account'}
-            </button>
-          </form>
+              >
+                {loading ? <span className="btn-spinner" /> : 'Create account'}
+              </button>
+            </form>
           )}
 
           <p className="auth-switch">
