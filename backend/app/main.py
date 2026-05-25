@@ -142,41 +142,21 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
-    # Create new user, inactive by default until OTP is verified
-    # Wait: The new logic stores it in OTPVerification instead of creating a user
     password_hash = get_password_hash(user.password)
     
-    # Generate OTP
-    otp_code = str(random.randint(100000, 999999))
+    new_user = User(
+        name=user.name,
+        email=user.email,
+        password_hash=password_hash,
+        department=user.department,
+        role=RoleEnum.EMPLOYEE,
+        is_active=True
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
     
-    # Store new OTP and pending user details in Redis
-    redis_data = {
-        "email": user.email,
-        "otp_code": otp_code,
-        "name": user.name,
-        "password_hash": password_hash,
-        "department": user.department
-    }
-    
-    # Set with 15 minutes (900 seconds) TTL
-    redis_client.setex(f"otp:{user.email}", 900, json.dumps(redis_data))
-    
-    # Send email via SMTP
-    send_otp_email(user.email, otp_code)
-    
-    # Since we don't have a user ID yet, we just return a mockup matching UserResponse
-    return {
-        "id": 0,
-        "name": user.name,
-        "email": user.email,
-        "role": RoleEnum.EMPLOYEE,
-        "department": user.department,
-        "is_active": False,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
-    }
-    
-    # Replaced above
+    return new_user
 
 @app.post("/auth/verify-otp", tags=["Auth"])
 def verify_otp(payload: OTPVerifyRequest, db: Session = Depends(get_db)):

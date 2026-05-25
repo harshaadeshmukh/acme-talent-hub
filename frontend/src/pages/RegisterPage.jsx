@@ -67,8 +67,10 @@ export default function RegisterPage() {
         department: ""
       }
       await authService.register(payload)
-      setRegisteredEmail(payload.email)
-      setOtpStep(true)
+      navigate('/login', { 
+        replace: true,
+        state: { successMessage: 'Account created successfully! Please sign in.' }
+      })
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.')
     } finally {
