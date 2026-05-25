@@ -11,16 +11,6 @@ export function AuthProvider({ children }) {
   })
   const [token, setToken] = useState(() => localStorage.getItem('acme_token') || null)
 
-  useEffect(() => {
-    let icon = '🏢'
-    if (user) {
-      icon = (user.role === 'manager' || user.role === 'admin') ? '💼' : '🧑‍💻'
-    }
-    const link = document.querySelector("link[rel~='icon']")
-    if (link) {
-      link.href = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${icon}</text></svg>`
-    }
-  }, [user])
 
   const login = useCallback((userData, authToken) => {
     setUser(userData)
