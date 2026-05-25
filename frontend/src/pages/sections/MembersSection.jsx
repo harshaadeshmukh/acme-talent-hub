@@ -115,7 +115,6 @@ export default function MembersSection({ user }) {
         address: profile.address || null,
         gender: profile.gender || null,
         is_handicapped: profile.is_handicapped,
-        profile_pic_url: profile.profile_pic_url || null,
         linkedin_url: profile.linkedin_url || null,
         github_url: profile.github_url || null,
         portfolio_url: profile.portfolio_url || null
