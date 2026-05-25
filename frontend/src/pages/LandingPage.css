@@ -526,7 +526,7 @@
 
 /* ── Info-Dense Feature Grid ── */
 .features-section {
-  padding: 100px 8%;
+  padding: 100px 8% 50px 8%;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
@@ -602,7 +602,7 @@
 
 /* ── Interactive How-It-Works Workflow ── */
 .workflow-section {
-  padding: 100px 8%;
+  padding: 50px 8% 100px 8%;
   background: var(--bg-primary);
 }
 
