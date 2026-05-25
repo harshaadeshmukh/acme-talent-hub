@@ -1261,3 +1261,17 @@
   color: #475569;
   margin-bottom: 6px;
 }
+.evaluate-split-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+@media (max-width: 768px) {
+  .evaluate-split-layout {
+    flex-direction: column;
+  }
+  .evaluate-split-layout > div {
+    width: 100% !important;
+    flex: none !important;
+  }
+}

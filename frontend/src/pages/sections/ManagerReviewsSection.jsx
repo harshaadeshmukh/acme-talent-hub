@@ -913,7 +913,7 @@ export default function ManagerReviewsSection() {
           wide
           splitScreen
         >
-          <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+          <div className="evaluate-split-layout">
             
             {/* Left Side: Premium Advanced Analytics Panel */}
             <div style={{ flex: '1', background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', color: '#fff', border: '1px solid #334155', borderRadius: '16px', padding: '28px', boxShadow: '0 20px 40px -12px rgba(0,0,0,0.4)', position: 'relative', overflow: 'hidden' }}>
