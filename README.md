@@ -153,9 +153,13 @@ sequenceDiagram
 ### 1. Vercel (Frontend Hosting)
 **Why Vercel?** Vercel is the creator of Next.js and heavily optimized for React/Vite. It provides a global Edge Network (CDN). Instead of hosting our frontend on a single server in New York, Vercel caches our built HTML/JS/CSS files on servers worldwide. A user in London downloads the site from a London server, resulting in instant load times. It also offers automated CI/CD directly from our GitHub repository.
 
-### 2. Render (Backend & Database Hosting)
-**Why Render?** Render is an excellent modern Platform-as-a-Service (PaaS). We use it because it allows us to deploy our Python FastAPI backend and a managed PostgreSQL database in the **same private network region**. Because the backend and database sit right next to each other, the network latency for database queries is practically zero.
+### 2. Render (Backend Hosting)
+**Why Render?** Render is an excellent modern Platform-as-a-Service (PaaS). We use it because it allows us to deploy our Python FastAPI backend completely for free on a containerized web service.
 
-### 3. Cron-job.org (Keep-Alive Service)
+### 3. Supabase / Neon (Database Hosting - Forever Free)
+**Why not Render for the DB?** Render's free PostgreSQL tier automatically expires and deletes your database after 90 days. To keep the project **100% forever free**, we use modern Serverless PostgreSQL providers like **Supabase** or **Neon (neon.tech)**. 
+These platforms offer generous, non-expiring free tiers. Because our backend uses SQLAlchemy, migrating is as simple as creating a free account, copying the provided `postgresql://...` connection string, and pasting it into our `.env` file—without changing a single line of code!
+
+### 4. Cron-job.org (Keep-Alive Service)
 **Why Cron-job?** We are utilizing Render's "Free Tier" to host our backend API. Render puts free web services to "sleep" after 15 minutes of inactivity to save server resources. When a service goes to sleep, the next user to visit the site will experience a 30-50 second delay (a "cold start") while the server spins back up. 
 To bypass this limitation, we use `cron-job.org` to send an automated HTTP GET request to our API every 10 minutes. This tricks the Render server into thinking there is constant active traffic, preventing it from ever spinning down.
