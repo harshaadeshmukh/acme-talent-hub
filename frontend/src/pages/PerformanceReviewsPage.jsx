@@ -74,12 +74,12 @@ export default function PerformanceReviewsPage() {
     return () => window.removeEventListener('app-update', handleUpdate);
   }, [user, token]);
 
-  // Filter reviews based on selected filters
+  // Filter reviews based on selected filters and sort newest first
   const filteredReviews = reviews.filter(review => {
     const yearMatch = filterYear === 'All' || review.date.startsWith(filterYear)
     const cycleMatch = filterCycle === 'All' || review.reviewPeriod.includes(filterCycle)
     return yearMatch && cycleMatch
-  })
+  }).sort((a, b) => new Date(b.date) - new Date(a.date))
 
   // Extract unique available years from reviews data
   const availableYears = Array.from(new Set(reviews.map(r => r.date.substring(0, 4)))).sort().reverse()
