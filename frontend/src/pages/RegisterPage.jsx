@@ -103,10 +103,12 @@ export default function RegisterPage() {
     <div className="auth-layout">
       <div className="auth-brand-panel">
         <div className="auth-brand-content">
-          <div className="auth-logo">
-            <span className="auth-logo-mark" style={{ fontFamily: '"Segoe UI Emoji", "Apple Color Emoji", sans-serif', paddingRight: '5px' }}>🏢</span>
-          </div>
-          <h1 className="auth-brand-title">ACME Talent Hub</h1>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: 'fit-content' }}>
+            <div className="auth-logo">
+              <span className="auth-logo-mark" style={{ fontFamily: '"Segoe UI Emoji", "Apple Color Emoji", sans-serif', paddingRight: '5px' }}>🏢</span>
+            </div>
+            <h1 className="auth-brand-title">ACME Talent Hub</h1>
+          </Link>
           <p className="auth-brand-sub">
             Join your team on the centralized performance &amp; development platform.
           </p>
