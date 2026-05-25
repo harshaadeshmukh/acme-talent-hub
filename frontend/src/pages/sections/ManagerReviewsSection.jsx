@@ -787,7 +787,7 @@ export default function ManagerReviewsSection() {
               <div className="perf-review-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <span className="perf-review-tag">{review.review_period}</span>
-                  <span className="perf-review-date">{new Date(review.date).toLocaleDateString()}</span>
+                  <span className="perf-review-date">Submitted {new Date(review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>
                 {review.rating > 0 && (
                   <div style={{ display: 'flex', gap: '8px' }}>

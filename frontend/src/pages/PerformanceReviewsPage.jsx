@@ -234,7 +234,7 @@ export default function PerformanceReviewsPage() {
           <div className="perf-review-item" key={review.id}>
             <div className="perf-review-meta">
               <span className="perf-review-tag">{review.reviewPeriod}</span>
-              <span className="perf-review-date">{new Date(review.date).toLocaleDateString()}</span>
+              <span className="perf-review-date">Submitted {new Date(review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
             </div>
             
             <div className="perf-reviewer-info">
