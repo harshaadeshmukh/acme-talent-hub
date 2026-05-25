@@ -104,6 +104,8 @@ export default function DashboardPage() {
     )
   }
 
+  if (!user) return null;
+
   return (
     <div className={`dash-root ${(user?.role === 'manager' || user?.role === 'admin') ? 'manager-mode' : ''}`}>
       {sidebarOpen && (

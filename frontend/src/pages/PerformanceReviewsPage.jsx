@@ -115,6 +115,7 @@ export default function PerformanceReviewsPage() {
   const getInitials = (name) => {
     return name.split(' ').map(n => n[0]).join('').substring(0, 2);
   }
+  if (!user) return null;
 
   return (
     <div className="perf-page-container">

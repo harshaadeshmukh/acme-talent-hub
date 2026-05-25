@@ -240,6 +240,7 @@ export default function CompetenciesPage() {
       default: return 'default'
     }
   }
+  if (!user) return null;
 
   return (
     <Container maxWidth={false} sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 0, sm: 2, md: 3 } }}>
