@@ -149,7 +149,7 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
         email=user.email,
         password_hash=password_hash,
         department=user.department,
-        role=user.role,
+        role=RoleEnum.EMPLOYEE,
         is_active=True
     )
     db.add(new_user)
