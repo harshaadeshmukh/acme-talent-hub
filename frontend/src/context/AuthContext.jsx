@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let icon = '🏢'
     if (user) {
-      icon = (user.role === 'manager' || user.role === 'admin') ? '💼' : '🚀'
+      icon = (user.role === 'manager' || user.role === 'admin') ? '💼' : '🧑‍💻'
     }
     const link = document.querySelector("link[rel~='icon']")
     if (link) {
