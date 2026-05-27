@@ -614,15 +614,15 @@ export default function ManageTeamSection() {
         >
           <div className="es-unassigned-detail">
             {/* Profile Header Box */}
-            <div className="es-profile-header">
+            <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center', marginBottom: '24px', background: '#fafafa', justifyContent: 'center', textAlign: 'center' }}>
               <div style={{ position: 'relative' }}>
                 <Avatar name={selectedMember.name} size={76} imageUrl={selectedMember.profile_pic_url} />
                 <div style={{ position: 'absolute', bottom: '2px', right: '2px', width: '16px', height: '16px', background: '#10b981', border: '2px solid white', borderRadius: '50%' }}></div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#475569', fontSize: '15px', wordBreak: 'break-all' }}>
-                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                  {selectedMember.email}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: '1 1 200px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#475569', fontSize: '15px', wordBreak: 'break-word', whiteSpace: 'normal', overflowWrap: 'break-word' }}>
+                  <svg style={{ flexShrink: 0 }} width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  <span style={{ minWidth: 0, overflowWrap: 'break-word' }}>{selectedMember.email}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#475569', fontSize: '15px' }}>
                   <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg>
@@ -637,7 +637,7 @@ export default function ManageTeamSection() {
             </div>
 
             {/* Stats Row */}
-            <div className="es-profile-stats">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '12px', marginBottom: '32px' }}>
               <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 8px', textAlign: 'center', background: '#fff' }}>
                 <div style={{ fontSize: '28px', fontWeight: '800', color: '#6366f1' }}>{memberDetails ? (memberDetails.avg_rating || '-') : '-'}</div>
                 <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', marginTop: '8px', letterSpacing: '0.5px' }}>AVG RATING</div>
