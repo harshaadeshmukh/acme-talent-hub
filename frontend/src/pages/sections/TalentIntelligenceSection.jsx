@@ -550,6 +550,10 @@ export default function TalentIntelligenceSection() {
       weakestSkill = sortedByAvg[sortedByAvg.length - 1];
     }
 
+    const levelLabels = ['–', 'Beginner', 'Intermediate', 'Advanced', 'Expert', 'Master'];
+    const levelColors = ['#f1f5f9', '#fef3c7', '#dbeafe', '#dcfce7', '#d1fae5', '#f3e8ff'];
+    const levelTextColors = ['#94a3b8', '#92400e', '#1e40af', '#166534', '#065f46', '#6b21a8'];
+
     return (
       <div className="ti-container">
         {competencies.length > 0 && (
@@ -567,63 +571,53 @@ export default function TalentIntelligenceSection() {
           </div>
         )}
 
-        <div className="ti-matrix-container">
-          <table className="ti-matrix-table">
-            <thead>
-              <tr>
-                <th className="ti-matrix-th ti-matrix-th-first">Team Member</th>
-                {competencies.map(c => (
-                  <th key={c.id} className="ti-matrix-th" style={{ height: '140px', verticalAlign: 'bottom', padding: '0 12px 16px 12px', textAlign: 'center' }}>
-                    <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: '#1e293b', fontWeight: 800, fontSize: '13px', letterSpacing: '0.05em', margin: '0 auto', whiteSpace: 'nowrap' }}>
-                      {c.name}
+        <div className="ti-cards-grid">
+          {matrix.map((row, idx) => (
+            <div key={row.employee_id} className="ti-member-card">
+              <div className="ti-member-card-header">
+                <Avatar name={row.employee_name} imageUrl={row.avatar_url} index={idx} size={48} />
+                <div className="ti-member-card-info">
+                  <div className="ti-member-card-name">{row.employee_name}</div>
+                  <div className="ti-member-card-role">{row.role}</div>
+                </div>
+              </div>
+              <div className="ti-member-skills">
+                {competencies.map(c => {
+                  const skill = row.skills[c.id];
+                  const val = skill ? skill.val : 0;
+                  const levelLabels = ['–', 'Beginner', 'Intermediate', 'Advanced', 'Expert', 'Master'];
+                  const levelColors = ['#f1f5f9', '#fef3c7', '#dbeafe', '#dcfce7', '#d1fae5', '#f3e8ff'];
+                  const levelTextColors = ['#94a3b8', '#92400e', '#1e40af', '#166534', '#065f46', '#6b21a8'];
+                  return (
+                    <div key={c.id} className="ti-skill-chip" style={{
+                      background: levelColors[val],
+                      color: levelTextColors[val],
+                    }}>
+                      <span className="ti-skill-chip-name">{c.name}</span>
+                      <span className="ti-skill-chip-level">{val > 0 ? levelLabels[val] : '–'}</span>
                     </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {matrix.map((row, idx) => (
-                <tr key={row.employee_id} className="ti-matrix-row">
-                  <td className="ti-matrix-td-first">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ flexShrink: 0 }}>
-                        <Avatar name={row.employee_name} imageUrl={row.avatar_url} index={idx} size={36} />
-                      </div>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{row.employee_name}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px', fontWeight: 600, whiteSpace: 'nowrap' }}>{row.role}</div>
-                      </div>
-                    </div>
-                  </td>
-                  {competencies.map(c => {
-                    const skill = row.skills[c.id];
-                    const val = skill ? skill.val : 0;
-                    return (
-                      <td key={c.id} className="ti-matrix-td">
-                        <div className={`heatmap-cell heat-${val}`}>
-                          {val > 0 ? val : '-'}
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td className="ti-matrix-td-first" style={{ fontWeight: '800', color: '#475569', paddingTop: '20px', paddingBottom: '20px' }}>Average Level</td>
-                {competencies.map(c => (
-                  <td key={c.id} className="ti-matrix-td" style={{ color: '#0f172a', fontWeight: '800', paddingTop: '20px', paddingBottom: '20px' }}>
-                    {summaries[c.id].avg.toFixed(1)}
-                  </td>
-                ))}
-              </tr>
-            </tfoot>
-          </table>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
 
+        {competencies.length > 0 && (
+          <div className="ti-averages-bar">
+            <div className="ti-averages-title">📊 Team Averages</div>
+            <div className="ti-averages-chips">
+              {competencies.map(c => (
+                <div key={c.id} className="ti-avg-chip">
+                  <span className="ti-avg-skill">{c.name}</span>
+                  <span className="ti-avg-val">{summaries[c.id].avg.toFixed(1)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="ti-legend">
-          <div className="ti-legend-item"><div className="ti-legend-color heat-0"></div> No Skill</div>
           <div className="ti-legend-item"><div className="ti-legend-color heat-1"></div> Beginner (1)</div>
           <div className="ti-legend-item"><div className="ti-legend-color heat-2"></div> Intermediate (2)</div>
           <div className="ti-legend-item"><div className="ti-legend-color heat-3"></div> Advanced (3)</div>
