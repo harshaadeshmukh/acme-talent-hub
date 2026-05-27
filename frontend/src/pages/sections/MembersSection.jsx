@@ -244,12 +244,12 @@ export default function MembersSection({ user }) {
       {/* ── MAIN PROFILE PANEL ── */}
       <div className="es-panel" style={{ padding: '28px 32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '32px', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', flexShrink: 0 }}>
+          <div style={{ position: 'relative', flexShrink: 0, width: '84px', height: '84px' }}>
             <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
             {profile.profile_pic_url && !imgError ? (
-              <img src={profile.profile_pic_url.startsWith('http') || profile.profile_pic_url.startsWith('data:') ? profile.profile_pic_url : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${profile.profile_pic_url}`} alt="Profile" style={{ width: '84px', height: '84px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--es-border)', opacity: uploadingPic ? 0.5 : 1 }} onError={() => setImgError(true)} />
+              <img src={profile.profile_pic_url.startsWith('http') || profile.profile_pic_url.startsWith('data:') ? profile.profile_pic_url : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${profile.profile_pic_url}`} alt="Profile" style={{ width: '84px', height: '84px', minWidth: '84px', minHeight: '84px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--es-border)', opacity: uploadingPic ? 0.5 : 1 }} onError={() => setImgError(true)} />
             ) : (
-              <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: 'var(--es-indigo)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 'bold', opacity: uploadingPic ? 0.5 : 1 }}>
+              <div style={{ width: '84px', height: '84px', minWidth: '84px', minHeight: '84px', borderRadius: '50%', background: 'var(--es-indigo)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 'bold', opacity: uploadingPic ? 0.5 : 1 }}>
                 {initials || '?'}
               </div>
             )}

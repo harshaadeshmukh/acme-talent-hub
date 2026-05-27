@@ -260,6 +260,23 @@ export default function LearningSection({ user }) {
           100% { transform: translateX(100%); }
         }
 
+        .ls-toolbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .ls-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .ls-toolbar button {
+            width: 100%;
+          }
+        }
+
         .growth-feedback {
           background: linear-gradient(145deg, #f8fafc, #f1f5f9);
           padding: 12px 16px;
@@ -346,8 +363,8 @@ export default function LearningSection({ user }) {
       )}
 
       {/* Tabs */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div style={{ background: '#f1f5f9', padding: '4px', borderRadius: '10px', display: 'inline-flex', gap: '4px' }}>
+      <div className="ls-toolbar">
+        <div style={{ background: '#f1f5f9', padding: '4px', borderRadius: '10px', display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button style={S.tabBtn(activeTab === 'goals')} onClick={() => setActiveTab('goals')}>🎯 Goals & Development</button>
           <button style={S.tabBtn(activeTab === 'certs')} onClick={() => setActiveTab('certs')}>📜 Certifications</button>
         </div>
@@ -364,7 +381,7 @@ export default function LearningSection({ user }) {
               }
             }}
             className="es-btn-primary"
-            style={{ borderRadius: '20px', padding: '10px 24px' }}
+            style={{ borderRadius: '20px', padding: '10px 24px', whiteSpace: 'nowrap' }}
           >
             + Add New {activeTab === 'goals' ? 'Career Goal' : 'Certificate'}
           </button>
