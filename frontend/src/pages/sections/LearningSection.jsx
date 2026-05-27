@@ -423,7 +423,7 @@ export default function LearningSection({ user }) {
                     </div>
 
                     {!collapsedQuarters[quarter] && (
-                      <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px', borderTop: '1px solid #e2e8f0' }}>
+                      <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '20px', borderTop: '1px solid #e2e8f0' }}>
                         {groupedGoals[quarter].map(goal => (
                           <div key={goal.id} className="growth-card">
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
@@ -515,7 +515,7 @@ export default function LearningSection({ user }) {
 
           {/* ── CERTIFICATES TAB ────────────────────────────────────────────── */}
           {activeTab === 'certs' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
               {certs.length === 0 ? <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px', background: '#fff', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>No certificates found.</div> :
                 certs.map(cert => (
                   <div key={cert.id} style={{
