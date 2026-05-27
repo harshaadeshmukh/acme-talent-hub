@@ -585,10 +585,14 @@ export default function TalentIntelligenceSection() {
               {matrix.map((row, idx) => (
                 <tr key={row.employee_id} className="ti-matrix-row">
                   <td className="ti-matrix-td-first">
-                    <Avatar name={row.employee_name} imageUrl={row.avatar_url} index={idx} size={36} />
-                    <div>
-                      <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '0.95rem' }}>{row.employee_name}</div>
-                      <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>{row.role}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ flexShrink: 0 }}>
+                        <Avatar name={row.employee_name} imageUrl={row.avatar_url} index={idx} size={36} />
+                      </div>
+                      <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                        <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.employee_name}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.role}</div>
+                      </div>
                     </div>
                   </td>
                   {competencies.map(c => {

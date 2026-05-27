@@ -15,6 +15,7 @@
 /* Tabs wrapper to match LearningSection */
 .ti-tabs-wrapper {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 4px;
   background: #f1f5f9;
   padding: 4px;
@@ -172,7 +173,8 @@
 .ti-matrix-th-first {
   left: 0;
   z-index: 20;
-  min-width: 250px;
+  min-width: 140px;
+  max-width: 180px;
   border-right: 1px solid #e2e8f0;
 }
 
@@ -189,12 +191,9 @@
   position: sticky;
   left: 0;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 16px;
   border-bottom: 1px solid #f1f5f9;
   border-right: 1px solid #e2e8f0;
-  padding-left: 20px;
+  padding: 12px 16px;
 }
 
 .ti-matrix-row:hover .ti-matrix-td, .ti-matrix-row:hover .ti-matrix-td-first {
@@ -231,10 +230,10 @@
 .heat-4 { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
 .heat-5 { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
 
-/* Summary Bar Light */
 .ti-summary-bar {
   display: flex;
   gap: 1.5rem;
+  flex-wrap: wrap;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   padding: 2rem;
@@ -242,6 +241,7 @@
   align-items: center;
   box-shadow: 0 4px 20px -4px rgba(0,0,0,0.03);
   position: relative;
+  box-sizing: border-box;
 }
 
 .ti-summary-icon {
