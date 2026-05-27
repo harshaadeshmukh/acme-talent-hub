@@ -111,17 +111,17 @@ export default function OverviewSection({ onNavigate }) {
   return (
     <div className="overview-container" style={{ width: '100%', paddingBottom: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* ── Enterprise Welcome Hero ── */}
-      <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', borderRadius: '24px', padding: '24px 32px', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 10px 30px -10px rgba(30, 27, 75, 0.4)', position: 'relative', overflow: 'hidden' }}>
+      <div className="overview-hero-card">
         <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '60%', height: '200%', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', transform: 'rotate(-15deg)' }} />
         
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '600px' }}>
+        <div className="overview-hero-card-left">
           <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0', letterSpacing: '-0.02em', background: 'linear-gradient(to right, #fff, #c7d2fe)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             Welcome back, {firstName}! ✨
           </h1>
           <p style={{ fontSize: '14px', color: '#94a3b8', margin: '0 0 20px 0', lineHeight: 1.5 }}>
             Your enterprise career growth and team management command center. Track your progress, manage objectives, and drive success.
           </p>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div className="overview-hero-buttons">
             {!isProfileComplete && (
               <button onClick={() => onNavigate('My Profile')} style={{ background: '#fff', color: '#0f172a', border: 'none', padding: '10px 20px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>Complete Profile</button>
             )}
@@ -141,13 +141,13 @@ export default function OverviewSection({ onNavigate }) {
       </div>
 
       {/* ── Enterprise Stats Row ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+      <div className="overview-stats-grid">
         {stats.map((s, i) => (
            <KpiCard key={i} {...s} />
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: '20px' }}>
+      <div className="overview-content-columns">
         {/* ── Left Column: Active Goals ── */}
         <div style={{ flex: 2 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>

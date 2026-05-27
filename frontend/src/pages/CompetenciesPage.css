@@ -244,19 +244,29 @@
 
 @media (max-width: 768px) {
   .skill-title {
-    font-size: 16px;
+    font-size: 15px;
+  }
+  .skill-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+  .skill-icon-wrapper svg {
+    font-size: 20px;
   }
   .skill-level-label {
     font-size: 10px;
   }
   .skill-level-value {
-    font-size: 12px;
+    font-size: 11px;
   }
   .exp-badge {
-    font-size: 11px;
-    padding: 4px 10px;
+    font-size: 10px;
+    padding: 4px 8px;
   }
   .skill-card-premium {
-    padding: 16px;
+    padding: 14px;
+  }
+  .skill-header {
+    margin-bottom: 16px;
   }
 }

@@ -1275,3 +1275,34 @@
     flex: none !important;
   }
 }
+
+/* Responsive Profile Modal in ManageTeamSection */
+.es-profile-header {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 24px;
+  background: #fafafa;
+}
+
+.es-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 640px) {
+  .es-profile-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+    gap: 16px;
+  }
+  .es-profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

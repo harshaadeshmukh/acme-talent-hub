@@ -614,7 +614,7 @@ export default function ManageTeamSection() {
         >
           <div className="es-unassigned-detail">
             {/* Profile Header Box */}
-            <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', display: 'flex', gap: '24px', alignItems: 'center', marginBottom: '24px', background: '#fafafa' }}>
+            <div className="es-profile-header">
               <div style={{ position: 'relative' }}>
                 <Avatar name={selectedMember.name} size={76} imageUrl={selectedMember.profile_pic_url} />
                 <div style={{ position: 'absolute', bottom: '2px', right: '2px', width: '16px', height: '16px', background: '#10b981', border: '2px solid white', borderRadius: '50%' }}></div>
@@ -637,7 +637,7 @@ export default function ManageTeamSection() {
             </div>
 
             {/* Stats Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '32px' }}>
+            <div className="es-profile-stats">
               <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 8px', textAlign: 'center', background: '#fff' }}>
                 <div style={{ fontSize: '28px', fontWeight: '800', color: '#6366f1' }}>{memberDetails ? (memberDetails.avg_rating || '-') : '-'}</div>
                 <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', marginTop: '8px', letterSpacing: '0.5px' }}>AVG RATING</div>
@@ -730,7 +730,7 @@ export default function ManageTeamSection() {
           {selectedUnassigned ? (
             <div className="es-unassigned-detail">
               {/* Profile Header Box */}
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', display: 'flex', gap: '24px', alignItems: 'center', marginBottom: '24px', background: '#fafafa' }}>
+              <div className="es-profile-header">
                 <div style={{ position: 'relative' }}>
                   <Avatar name={selectedUnassigned.name} size={76} imageUrl={selectedUnassigned.profile_pic_url} />
                   <div style={{ position: 'absolute', bottom: '2px', right: '2px', width: '16px', height: '16px', background: '#10b981', border: '2px solid white', borderRadius: '50%' }}></div>
@@ -753,7 +753,7 @@ export default function ManageTeamSection() {
               </div>
 
               {/* Stats Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '32px' }}>
+              <div className="es-profile-stats">
                 <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 8px', textAlign: 'center', background: '#fff' }}>
                   <div style={{ fontSize: '28px', fontWeight: '800', color: '#6366f1' }}>{memberDetails ? (memberDetails.avg_rating || '-') : '-'}</div>
                   <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '700', marginTop: '8px', letterSpacing: '0.5px' }}>AVG RATING</div>
