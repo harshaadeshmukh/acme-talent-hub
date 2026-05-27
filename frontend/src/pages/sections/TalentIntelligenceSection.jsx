@@ -571,20 +571,7 @@ export default function TalentIntelligenceSection() {
           <table className="ti-matrix-table">
             <thead>
               <tr>
-                <th className="ti-matrix-th ti-matrix-th-first" style={{ padding: 0, verticalAlign: 'bottom' }}>
-                  <div style={{ 
-                    resize: 'horizontal', 
-                    overflow: 'hidden', 
-                    width: '280px', 
-                    minWidth: '200px', 
-                    maxWidth: '500px', 
-                    padding: '16px 12px',
-                    boxSizing: 'border-box',
-                    position: 'relative'
-                  }}>
-                    Team Member
-                  </div>
-                </th>
+                <th className="ti-matrix-th ti-matrix-th-first">Team Member</th>
                 {competencies.map(c => (
                   <th key={c.id} className="ti-matrix-th" style={{ height: '140px', verticalAlign: 'bottom', padding: '0 12px 16px 12px', textAlign: 'center' }}>
                     <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: '#1e293b', fontWeight: 800, fontSize: '13px', letterSpacing: '0.05em', margin: '0 auto', whiteSpace: 'nowrap' }}>
@@ -592,7 +579,6 @@ export default function TalentIntelligenceSection() {
                     </div>
                   </th>
                 ))}
-                <th style={{ width: '100%', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -603,9 +589,9 @@ export default function TalentIntelligenceSection() {
                       <div style={{ flexShrink: 0 }}>
                         <Avatar name={row.employee_name} imageUrl={row.avatar_url} index={idx} size={36} />
                       </div>
-                      <div style={{ minWidth: 0, overflow: 'hidden' }}>
-                        <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.employee_name}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.role}</div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '0.95rem', whiteSpace: 'nowrap' }}>{row.employee_name}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px', fontWeight: 600, whiteSpace: 'nowrap' }}>{row.role}</div>
                       </div>
                     </div>
                   </td>
@@ -620,7 +606,6 @@ export default function TalentIntelligenceSection() {
                       </td>
                     );
                   })}
-                  <td className="ti-matrix-td" style={{ width: '100%' }}></td>
                 </tr>
               ))}
             </tbody>
@@ -632,7 +617,6 @@ export default function TalentIntelligenceSection() {
                     {summaries[c.id].avg.toFixed(1)}
                   </td>
                 ))}
-                <td className="ti-matrix-td" style={{ width: '100%', paddingTop: '20px', paddingBottom: '20px' }}></td>
               </tr>
             </tfoot>
           </table>
