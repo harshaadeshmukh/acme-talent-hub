@@ -826,6 +826,7 @@
   max-width: 460px;
   max-height: 90vh;
   overflow-y: auto;
+  box-sizing: border-box;
   box-shadow: 0 24px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.06);
 }
 .es-modal-wide { max-width: 560px; }
@@ -839,6 +840,7 @@
 .es-modal-header {
   display: flex; align-items: flex-start; justify-content: space-between;
   padding: 22px 24px 16px;
+  box-sizing: border-box;
   border-bottom: 1px solid var(--es-border);
   gap: 12px;
 }
@@ -863,6 +865,7 @@
 
 .es-modal-body {
   padding: 20px 24px;
+  box-sizing: border-box;
 }
 
 .es-modal-footer {
@@ -870,6 +873,7 @@
   padding-top: 16px; margin-top: 4px;
   border-top: 1px solid var(--es-border);
   flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 /* ── Form ── */

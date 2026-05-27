@@ -528,12 +528,12 @@ export default function ManagerReviewsSection() {
       </div>
 
       {/* Top Section - Overview & Actionable Insights */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px', marginBottom: '24px' }}>
         
         {/* Stats - Horizontal */}
         <div className="perf-premium-card" style={{ height: '100%', marginBottom: 0 }}>
           <div className="perf-section-title">Overview</div>
-          <div className="perf-metric-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          <div className="perf-metric-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '16px' }}>
             <div className="perf-metric-box" style={{ padding: '20px 16px' }}>
               <div className="perf-metric-label">Average Rating Given</div>
               <div className="perf-metric-value">{averageRating.toFixed(1)}</div>
@@ -580,11 +580,11 @@ export default function ManagerReviewsSection() {
                     {dist.risk.length > 0 && <div onMouseEnter={() => setHoveredTier('risk')} style={{ width: `${(dist.risk.length/totalDist)*100}%`, background: '#f59e0b', transition: 'width 1s ease-in-out', cursor: 'pointer' }} />}
                   </div>
                   
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: 10, height: 10, borderRadius: '3px', background: '#10b981' }} /> Elite ≥4.5 ({dist.elite.length})</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: 10, height: 10, borderRadius: '3px', background: '#3b82f6' }} /> High 3.5-4.4 ({dist.high.length})</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: 10, height: 10, borderRadius: '3px', background: '#8b5cf6' }} /> Core 2.5-3.4 ({dist.core.length})</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: 10, height: 10, borderRadius: '3px', background: '#f59e0b' }} /> Risk &lt;2.5 ({dist.risk.length})</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, color: '#475569' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: 10, height: 10, borderRadius: '3px', background: '#10b981', flexShrink: 0 }} /> Elite ≥4.5 ({dist.elite.length})</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: 10, height: 10, borderRadius: '3px', background: '#3b82f6', flexShrink: 0 }} /> High 3.5-4.4 ({dist.high.length})</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: 10, height: 10, borderRadius: '3px', background: '#8b5cf6', flexShrink: 0 }} /> Core 2.5-3.4 ({dist.core.length})</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ width: 10, height: 10, borderRadius: '3px', background: '#f59e0b', flexShrink: 0 }} /> Risk &lt;2.5 ({dist.risk.length})</div>
                   </div>
 
                   {/* Premium Custom Tooltip */}

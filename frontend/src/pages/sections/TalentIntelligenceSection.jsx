@@ -345,12 +345,12 @@ export default function TalentIntelligenceSection() {
 
       return (
         <div className="ti-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ flex: '1 1 250px' }}>
             <h3 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-0.5px' }}>Skill Comparison</h3>
             <p style={{ margin: '6px 0 0 0', color: '#64748b', fontSize: '1rem' }}>Overlay employees to find complementary skillsets.</p>
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end', flex: 1, minWidth: '300px' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-start', flex: '1 1 250px' }}>
             {selectedEmpIds.map((id, index) => (
                 <div key={index} style={{ position: 'relative' }}>
                   <PremiumDropdown 
