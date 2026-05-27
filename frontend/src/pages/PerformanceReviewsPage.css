@@ -91,12 +91,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
 .perf-reviews-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 20px;
 }
 
@@ -190,6 +192,7 @@
 /* Minimalist Select Overrides */
 .perf-filters {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -288,7 +291,7 @@
 /* Overrides for Review Grid to Match */
 .perf-reviews-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 20px;
 }
 

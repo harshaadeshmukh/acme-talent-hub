@@ -8,6 +8,8 @@
   animation: fadeIn 0.4s ease;
   color: #0f172a;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-width: 0;
+  width: 100%;
 }
 
 /* Tabs wrapper to match LearningSection */
@@ -126,6 +128,8 @@
   border: 1px solid #e2e8f0;
   background: #ffffff;
   box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+  min-width: 0;
+  width: 100%;
 }
 
 /* Premium Scrollbar for Matrix */

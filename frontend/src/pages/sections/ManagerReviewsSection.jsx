@@ -669,7 +669,7 @@ export default function ManagerReviewsSection() {
 
       {/* Chart - Full Width */}
       {completedReviews.length > 0 && (
-        <div className="perf-premium-card" style={{ marginBottom: '32px' }}>
+        <div className="perf-premium-card" style={{ marginBottom: '32px', minWidth: 0, overflow: 'hidden', boxSizing: 'border-box', width: '100%' }}>
           <div className="perf-section-title">Team Performance</div>
           <div style={{ height: '300px', width: '100%', marginTop: '32px' }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -740,7 +740,7 @@ export default function ManagerReviewsSection() {
       {/* Review History */}
       <div className="perf-reviews-header">
         <div className="perf-section-title" style={{ marginBottom: 0 }}>Team Reviews</div>
-        <div className="perf-filters" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div className="perf-filters" style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <Autocomplete
             size="small"
             options={uniqueEmployees}
