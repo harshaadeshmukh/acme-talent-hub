@@ -17,7 +17,7 @@ def create_competency(competency: CompetencyCreate, db: Session = Depends(get_db
     if existing:
         raise HTTPException(status_code=400, detail="Competency already exists")
     
-    new_competency = Competency(name=competency.name, description=competency.description)
+    new_competency = Competency(name=competency.name)
     db.add(new_competency)
     db.commit()
     db.refresh(new_competency)

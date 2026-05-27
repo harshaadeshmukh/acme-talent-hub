@@ -146,7 +146,6 @@ class PerformanceReviewResponse(PerformanceReviewBase):
 # ── Competency Schemas ────────────────────────────────────────────────────────
 class CompetencyBase(BaseModel):
     name: str
-    description: Optional[str] = None
 
 class CompetencyCreate(CompetencyBase):
     pass
