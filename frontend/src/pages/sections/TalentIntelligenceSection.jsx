@@ -693,7 +693,7 @@ export default function TalentIntelligenceSection() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '10px' }}>
+      <div style={{ marginBottom: '10px' }}>
         {renderTabs()}
       </div>
 

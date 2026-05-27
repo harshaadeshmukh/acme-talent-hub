@@ -12,22 +12,24 @@
   width: 100%;
 }
 
-/* Tabs wrapper to match LearningSection */
+/* Tabs wrapper */
 .ti-tabs-wrapper {
-  display: inline-flex;
-  flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
   gap: 4px;
   background: #f1f5f9;
   padding: 4px;
   border-radius: 10px;
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .ti-tab {
+  flex: 1;
   background: transparent;
   border: none;
   color: #64748b;
-  padding: 12px 24px;
+  padding: 12px 16px;
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
@@ -35,7 +37,10 @@
   transition: all 0.2s;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .ti-tab:hover {
