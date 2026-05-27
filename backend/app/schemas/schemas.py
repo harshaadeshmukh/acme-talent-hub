@@ -179,32 +179,7 @@ class EmployeeCompetencyResponse(EmployeeCompetencyBase):
         from_attributes = True
 
 
-# ── Development Plan Schemas ──────────────────────────────────────────────────
-class DevelopmentPlanBase(BaseModel):
-    goal: str
-    description: Optional[str] = None
-    status: StatusEnum = StatusEnum.PENDING
-    target_date: Optional[datetime] = None
-    progress_percentage: int = Field(default=0, ge=0, le=100)
 
-class DevelopmentPlanCreate(DevelopmentPlanBase):
-    employee_id: int
-
-class DevelopmentPlanUpdate(BaseModel):
-    goal: Optional[str] = None
-    description: Optional[str] = None
-    status: Optional[StatusEnum] = None
-    target_date: Optional[datetime] = None
-    progress_percentage: Optional[int] = Field(None, ge=0, le=100)
-
-class DevelopmentPlanResponse(DevelopmentPlanBase):
-    id: int
-    employee_id: int
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # ── Training Record Schemas ───────────────────────────────────────────────────
@@ -321,48 +296,11 @@ class GoalResponse(BaseModel):
         from_attributes = True
 
 
-# ── Work Timeline Schemas ─────────────────────────────────────────────────────
-class TimelineEventBase(BaseModel):
-    title: str
-    company: str
-    start_date: datetime
-    end_date: Optional[datetime] = None
-    description: Optional[str] = None
 
-class TimelineEventCreate(TimelineEventBase):
-    pass
-
-class TimelineEventUpdate(BaseModel):
-    title: Optional[str] = None
-    company: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    description: Optional[str] = None
-
-class TimelineEventResponse(TimelineEventBase):
-    id: int
-    employee_id: int
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 # ── Talent Intelligence Schemas ───────────────────────────────────────────────
 
-class RoleTargetCreate(BaseModel):
-    role_name: str
-    competency_id: int
-    target_level: SkillLevelEnum
 
-class RoleTargetResponse(BaseModel):
-    id: int
-    role_name: str
-    competency_id: int
-    target_level: SkillLevelEnum
-    competency_name: Optional[str] = None
-
-    class Config:
-        from_attributes = True
 
 class TeamSkillGap(BaseModel):
     employee_id: int
