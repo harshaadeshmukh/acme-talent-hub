@@ -9,13 +9,10 @@ from app.models.models import (
     PerformanceReview,
     Competency,
     EmployeeCompetency,
-    DevelopmentPlan,
     TrainingRecord,
     Goal,
     GoalStatusEnum,
-    WorkTimelineEvent,
     Department,
     TeamAchievement,
     AchievementTypeEnum,
-    RoleTarget,
 )

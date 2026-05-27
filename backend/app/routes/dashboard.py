@@ -4,7 +4,7 @@ from sqlalchemy import func, and_
 from typing import List
 
 from app.database import get_db
-from app.models import User, PerformanceReview, DevelopmentPlan, TrainingRecord, EmployeeCompetency, RoleEnum
+from app.models import User, PerformanceReview, TrainingRecord, EmployeeCompetency, RoleEnum
 from app.schemas import EmployeeStats, HighPerformer, SkillGap
 from app.auth import get_current_user, get_current_manager
 
@@ -180,12 +180,9 @@ def get_promotion_ready_employees(db: Session = Depends(get_db), current_user: U
         User.email,
         User.department,
         User.role,
-        func.avg(PerformanceReview.rating).label('avg_rating'),
-        func.count(DevelopmentPlan.id).label('completed_plans')
+        func.avg(PerformanceReview.rating).label('avg_rating')
     ).join(
         PerformanceReview, User.id == PerformanceReview.employee_id, isouter=True
-    ).join(
-        DevelopmentPlan, and_(User.id == DevelopmentPlan.employee_id, DevelopmentPlan.status == 'completed'), isouter=True
     ).filter(
         User.is_active == True,
         User.role == RoleEnum.EMPLOYEE
@@ -201,8 +198,7 @@ def get_promotion_ready_employees(db: Session = Depends(get_db), current_user: U
             "department": emp[3],
             "current_role": emp[4],
             "average_rating": float(emp[5]) if emp[5] else 0.0,
-            "completed_development_plans": emp[6] if emp[6] else 0,
-            "promotion_score": (float(emp[5]) if emp[5] else 0.0) * 0.7 + (emp[6] if emp[6] else 0) * 0.3
+            "promotion_score": (float(emp[5]) if emp[5] else 0.0)
         }
         for emp in promotion_ready
     ]
