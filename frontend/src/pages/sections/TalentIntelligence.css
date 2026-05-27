@@ -150,7 +150,7 @@
 }
 
 .ti-matrix-table {
-  width: max-content;
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }

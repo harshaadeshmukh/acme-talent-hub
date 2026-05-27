@@ -579,6 +579,7 @@ export default function TalentIntelligenceSection() {
                     </div>
                   </th>
                 ))}
+                <th style={{ width: '100%', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -606,6 +607,7 @@ export default function TalentIntelligenceSection() {
                       </td>
                     );
                   })}
+                  <td className="ti-matrix-td" style={{ width: '100%' }}></td>
                 </tr>
               ))}
             </tbody>
@@ -617,6 +619,7 @@ export default function TalentIntelligenceSection() {
                     {summaries[c.id].avg.toFixed(1)}
                   </td>
                 ))}
+                <td className="ti-matrix-td" style={{ width: '100%', paddingTop: '20px', paddingBottom: '20px' }}></td>
               </tr>
             </tfoot>
           </table>
