@@ -571,7 +571,20 @@ export default function TalentIntelligenceSection() {
           <table className="ti-matrix-table">
             <thead>
               <tr>
-                <th className="ti-matrix-th ti-matrix-th-first">Team Member</th>
+                <th className="ti-matrix-th ti-matrix-th-first" style={{ padding: 0, verticalAlign: 'bottom' }}>
+                  <div style={{ 
+                    resize: 'horizontal', 
+                    overflow: 'hidden', 
+                    width: '280px', 
+                    minWidth: '200px', 
+                    maxWidth: '500px', 
+                    padding: '16px 12px',
+                    boxSizing: 'border-box',
+                    position: 'relative'
+                  }}>
+                    Team Member
+                  </div>
+                </th>
                 {competencies.map(c => (
                   <th key={c.id} className="ti-matrix-th" style={{ height: '140px', verticalAlign: 'bottom', padding: '0 12px 16px 12px', textAlign: 'center' }}>
                     <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: '#1e293b', fontWeight: 800, fontSize: '13px', letterSpacing: '0.05em', margin: '0 auto', whiteSpace: 'nowrap' }}>
