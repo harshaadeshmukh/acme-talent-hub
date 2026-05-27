@@ -220,9 +220,16 @@ export default function TalentIntelligenceSection() {
   // --- TAB 2: Team Matrix State ---
   const [matrixData, setMatrixData] = useState(null);
   const [loadingMatrix, setLoadingMatrix] = useState(false);
+  const [expandedCards, setExpandedCards] = useState(new Set());
 
-
-
+  const toggleCard = (id) => {
+    setExpandedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
   // Fetch employees for dropdown
   useEffect(() => {
     fetch((import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api/users', { headers: headers() })
@@ -572,7 +579,18 @@ export default function TalentIntelligenceSection() {
         )}
 
         <div className="ti-cards-grid">
-          {matrix.map((row, idx) => (
+          {matrix.map((row, idx) => {
+            const COLLAPSED_LIMIT = 6;
+            // Only show skills the person actually has (val > 0)
+            const skillsWithVal = competencies.filter(c => row.skills[c.id]?.val > 0);
+            const skillsWithout = competencies.filter(c => !row.skills[c.id]?.val);
+            const isExpanded = expandedCards.has(row.employee_id);
+            const visibleSkills = isExpanded
+              ? competencies  // show all including no-skill ones when expanded
+              : skillsWithVal.slice(0, COLLAPSED_LIMIT);
+            const hiddenCount = skillsWithVal.length - COLLAPSED_LIMIT;
+
+            return (
             <div key={row.employee_id} className="ti-member-card">
               <div className="ti-member-card-header">
                 <Avatar name={row.employee_name} imageUrl={row.avatar_url} index={idx} size={48} />
@@ -580,9 +598,10 @@ export default function TalentIntelligenceSection() {
                   <div className="ti-member-card-name">{row.employee_name}</div>
                   <div className="ti-member-card-role">{row.role}</div>
                 </div>
+                <div className="ti-skill-count-badge">{skillsWithVal.length} skill{skillsWithVal.length !== 1 ? 's' : ''}</div>
               </div>
               <div className="ti-member-skills">
-                {competencies.map(c => {
+                {visibleSkills.map(c => {
                   const skill = row.skills[c.id];
                   const val = skill ? skill.val : 0;
                   const levelLabels = ['–', 'Beginner', 'Intermediate', 'Advanced', 'Expert', 'Master'];
@@ -598,9 +617,26 @@ export default function TalentIntelligenceSection() {
                     </div>
                   );
                 })}
+                {!isExpanded && hiddenCount > 0 && (
+                  <button className="ti-show-more-btn" onClick={() => toggleCard(row.employee_id)}>
+                    +{hiddenCount} more
+                  </button>
+                )}
+                {!isExpanded && skillsWithVal.length === 0 && (
+                  <span style={{ color: '#94a3b8', fontSize: '0.82rem', fontStyle: 'italic' }}>No skills recorded yet</span>
+                )}
               </div>
+              {(isExpanded || (!isExpanded && skillsWithVal.length > COLLAPSED_LIMIT)) && (
+                <button
+                  className="ti-toggle-btn"
+                  onClick={() => toggleCard(row.employee_id)}
+                >
+                  {isExpanded ? '▲ Show less' : `▼ Show all ${competencies.length} skills`}
+                </button>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {competencies.length > 0 && (

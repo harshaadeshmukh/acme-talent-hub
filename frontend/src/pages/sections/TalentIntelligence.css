@@ -166,6 +166,55 @@
   margin-top: 2px;
 }
 
+.ti-skill-count-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.ti-show-more-btn {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  align-self: flex-start;
+}
+
+.ti-show-more-btn:hover {
+  background: #e2e8f0;
+}
+
+.ti-toggle-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  background: none;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  text-align: center;
+}
+
+.ti-toggle-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
 .ti-member-skills {
   display: flex;
   flex-wrap: wrap;
