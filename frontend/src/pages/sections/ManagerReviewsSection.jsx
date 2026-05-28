@@ -997,7 +997,7 @@ export default function ManagerReviewsSection() {
                   <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <StarRating value={rating} onChange={setRating} />
                     <div style={{ fontWeight: 600, color: rating > 0 ? '#10b981' : '#94a3b8', fontSize: '0.85rem' }}>
-                      {['Select Rating','Needs Improvement','Below Expectations','Meets Expectations','Exceeds Expectations','Outstanding'][rating] || 'Pending'}
+                      {['Select Rating','Needs Improvement','Below Expectations','Meets Expectations','Exceeds Expectations','Outstanding'][Math.floor(rating)] || 'Pending'}
                     </div>
                   </div>
                 </div>
