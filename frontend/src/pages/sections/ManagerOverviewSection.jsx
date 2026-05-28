@@ -544,17 +544,7 @@ export default function ManagerOverviewSection({ onNavigate }) {
         )}
       </div>
 
-      {/* ── Insight Footer ── */}
-      <div className="mgr-insight-strip">
-        <div className="mgr-insight-item">
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          <span>Dashboard refreshes live. Data sourced from ACME Talent Hub API.</span>
-        </div>
-        <button className="mgr-refresh-btn" onClick={fetchAll}>
-          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-          Refresh
-        </button>
-      </div>
+
 
     </div>
   )

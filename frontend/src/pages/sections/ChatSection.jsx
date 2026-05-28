@@ -29,7 +29,8 @@ export default function ChatSection({ user }) {
   const [inputValue, setInputValue] = useState('');
   const [ws, setWs] = useState(null);
   const [typingUsers, setTypingUsers] = useState({});
-  const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -81,6 +82,8 @@ export default function ChatSection({ user }) {
         }
       } catch (err) {
         console.error('Failed to fetch chat history:', err);
+      } finally {
+        setIsLoadingHistory(false);
       }
     };
     fetchHistory();
@@ -126,6 +129,15 @@ export default function ChatSection({ user }) {
             return [...prev, newMsg];
           });
           
+          // Check if we are scrolled up to show "New messages below" instead of auto-scrolling
+          if (messagesContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+            const isScrolledUp = scrollHeight - scrollTop - clientHeight > 100;
+            if (isScrolledUp && newMsg.sender_id !== user.id) {
+              setHasUnreadMessages(true);
+            }
+          }
+          
           // clear their typing status immediately
           if (newMsg.sender_id) {
             setTypingUsers(prev => {
@@ -148,20 +160,25 @@ export default function ChatSection({ user }) {
     };
   }, [department, user?.id]);
 
-  // Scroll to bottom on new messages
+  // Auto-scroll on initial load or own message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, typingUsers]);
+    if (!hasUnreadMessages) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, typingUsers, hasUnreadMessages]);
 
-  // Track scroll position to show/hide "Scroll to Bottom" button
+  // Track scroll position to hide "Scroll to Bottom" button when at bottom
   const handleScroll = () => {
     if (!messagesContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-    const isScrolledUp = scrollHeight - scrollTop - clientHeight > 300;
-    setShowScrollBottom(isScrolledUp);
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+    if (isAtBottom && hasUnreadMessages) {
+      setHasUnreadMessages(false);
+    }
   };
 
   const scrollToBottom = () => {
+    setHasUnreadMessages(false);
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -309,7 +326,14 @@ export default function ChatSection({ user }) {
         className="chat-messages-container"
         onScroll={handleScroll}
       >
-        {renderMessages()}
+        {isLoadingHistory ? (
+          <div className="chat-loading">
+            <div className="chat-spinner"></div>
+            Loading messages...
+          </div>
+        ) : (
+          renderMessages()
+        )}
         
         {typingText && (
           <div className="chat-typing-indicator">
@@ -322,7 +346,7 @@ export default function ChatSection({ user }) {
         <div ref={messagesEndRef} />
       </div>
       
-      {showScrollBottom && (
+      {hasUnreadMessages && (
         <button className="chat-scroll-bottom-btn" onClick={scrollToBottom} title="Scroll to bottom">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -351,7 +375,7 @@ export default function ChatSection({ user }) {
           <input
             type="text"
             className="chat-input"
-            placeholder={`Message ${department} team...`}
+            placeholder={`Message ${department}...`}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}

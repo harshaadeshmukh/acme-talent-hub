@@ -169,7 +169,7 @@ function PremiumDropdown({ options, value, onChange, onRemove, showRemove, color
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: isSelected ? color : 'transparent' }}></div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <span style={{ whiteSpace: 'nowrap' }}>{opt.name}</span>
-                          {opt.job_title && <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 500, whiteSpace: 'nowrap' }}>{opt.job_title}</span>}
+                          {(opt.job_title || opt.role) && <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 500, whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{opt.job_title || opt.role}</span>}
                         </div>
                       </div>
                       {(() => {
