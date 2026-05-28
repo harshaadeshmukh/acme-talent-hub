@@ -33,19 +33,49 @@ import './EnterpriseSection.css'
 
 function StarRating({ value, onChange, readonly = false }) {
   const [hovered, setHovered] = useState(0)
+
+  const handleAction = (e, s, isClick) => {
+    if (readonly) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const isHalf = (e.clientX - rect.left) < (rect.width / 2);
+    const val = isHalf ? s - 0.5 : s;
+    if (isClick) {
+      onChange(val);
+    } else {
+      setHovered(val);
+    }
+  }
+
   return (
-    <div className="es-stars">
-      {[1,2,3,4,5].map(s => (
-        <button
-          key={s} type="button"
-          className={`es-star ${(hovered || value) >= s ? 'es-star-on' : ''}`}
-          onClick={() => !readonly && onChange(s)}
-          onMouseEnter={() => !readonly && setHovered(s)}
-          onMouseLeave={() => !readonly && setHovered(0)}
-          disabled={readonly}
-          style={{ cursor: readonly ? 'default' : 'pointer' }}
-        >★</button>
-      ))}
+    <div className="es-stars" onMouseLeave={() => !readonly && setHovered(0)}>
+      {[1,2,3,4,5].map(s => {
+        const displayVal = hovered || value;
+        const isFull = displayVal >= s;
+        const isHalf = displayVal === s - 0.5;
+        
+        return (
+          <button
+            key={s} type="button"
+            className={`es-star ${isFull ? 'es-star-on' : ''}`}
+            onClick={(e) => handleAction(e, s, true)}
+            onMouseMove={(e) => handleAction(e, s, false)}
+            disabled={readonly}
+            style={{ 
+              cursor: readonly ? 'default' : 'pointer',
+              ...(isHalf ? {
+                background: `linear-gradient(90deg, #f59e0b 50%, #e2e8f0 50%)`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent'
+              } : {
+                background: 'none',
+                WebkitBackgroundClip: 'unset',
+                WebkitTextFillColor: 'unset'
+              })
+            }}
+          >★</button>
+        )
+      })}
       {value > 0 && <span className="es-star-label">{value}/5</span>}
     </div>
   )
