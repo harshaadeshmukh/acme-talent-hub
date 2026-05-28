@@ -317,3 +317,20 @@ class GoalMatchResponse(BaseModel):
     matching_skills: List[str]
     avatar_url: Optional[str] = None
     role: Optional[str] = None
+
+
+# ── Chat Schemas ──────────────────────────────────────────────────────────────
+class ChatMessageCreate(BaseModel):
+    content: str
+    department_name: str
+
+class ChatMessageResponse(BaseModel):
+    id: int
+    sender_id: int
+    department_name: str
+    content: str
+    timestamp: datetime
+    sender: Optional[UserResponse] = None
+
+    class Config:
+        from_attributes = True

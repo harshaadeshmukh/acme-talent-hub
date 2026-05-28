@@ -17,6 +17,7 @@ import ManagerReviewsSection from './sections/ManagerReviewsSection'
 import ManagerGoalApprovalsSection from './sections/ManagerGoalApprovalsSection'
 import LearningSection from './sections/LearningSection'
 import TalentIntelligenceSection from './sections/TalentIntelligenceSection'
+import ChatSection from './sections/ChatSection'
 import './DashboardPage.css'
 
 const PROFILE_ITEM = { label: 'My Profile', icon: '👤', Section: MembersSection }
@@ -24,6 +25,7 @@ const PROFILE_ITEM = { label: 'My Profile', icon: '👤', Section: MembersSectio
 const EMPLOYEE_NAV_ITEMS = [
   { label: 'Dashboard', icon: '🏠', Section: OverviewSection },
   { label: 'My Team', icon: '👥', Section: TeamsSection },
+  { label: 'Department Chat', icon: '💬', Section: ChatSection },
   { label: 'Achievements', icon: '🏆', Section: AchievementsSection },
   { label: 'Development', icon: '📚', Section: LearningSection },
   { label: 'Competencies', icon: '🧠', Section: CompetenciesPage },
@@ -33,6 +35,7 @@ const EMPLOYEE_NAV_ITEMS = [
 const MANAGER_NAV_ITEMS = [
   { label: 'Manager Dashboard', icon: '🏠', Section: ManagerOverviewSection },
   { label: 'Manage Team', icon: '👥', Section: ManageTeamSection },
+  { label: 'Department Chat', icon: '💬', Section: ChatSection },
   { label: 'Achievements', icon: '🏆', Section: AchievementsSection },
   { label: 'Learning & Growth', icon: '🌱', Section: LearningSection },
   { label: 'Talent Intelligence', icon: '🔬', Section: TalentIntelligenceSection },
@@ -180,7 +183,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <main className="dash-content" id="main-content">
+        <main className={`dash-content ${activeNav === 'Department Chat' ? 'chat-active' : ''}`} id="main-content">
           <ActiveSection user={user} onNavigate={handleNavigate} />
         </main>
       </div>

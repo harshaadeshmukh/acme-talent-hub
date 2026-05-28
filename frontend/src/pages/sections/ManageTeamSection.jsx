@@ -248,12 +248,20 @@ export default function ManageTeamSection() {
           <p className="es-page-sub">Manage headcount, roles, and department assignments</p>
         </div>
         <div className="es-cmd-right" style={{ display: 'flex', gap: '12px' }}>
-          {unassigned.length > 0 && (
-            <button className="es-btn" style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fcd34d' }} onClick={() => setUnassignedOpen(true)}>
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Unassigned Pool ({unassigned.length})
-            </button>
-          )}
+          <button 
+            className="es-btn" 
+            style={{ 
+              background: unassigned.length > 0 ? '#fef3c7' : '#f8fafc', 
+              color: unassigned.length > 0 ? '#b45309' : '#94a3b8', 
+              border: `1px solid ${unassigned.length > 0 ? '#fcd34d' : '#e2e8f0'}`,
+              opacity: unassigned.length === 0 ? 0.7 : 1,
+              pointerEvents: unassigned.length === 0 ? 'none' : 'auto'
+            }} 
+            onClick={() => setUnassignedOpen(true)}
+          >
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Unassigned Pool ({unassigned.length})
+          </button>
           <button className="es-btn es-btn-ghost" onClick={() => setAddDeptOpen(true)}>
             <span style={{ fontSize: '1.2rem', marginRight: '6px' }}>+</span> Add Department
           </button>

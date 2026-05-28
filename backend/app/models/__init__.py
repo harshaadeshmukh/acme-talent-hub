@@ -15,4 +15,5 @@ from app.models.models import (
     Department,
     TeamAchievement,
     AchievementTypeEnum,
+    ChatMessage,
 )

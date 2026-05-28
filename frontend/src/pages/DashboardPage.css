@@ -235,6 +235,15 @@
   max-width: 100%;
   box-sizing: border-box;
   transition: padding 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-content.chat-active {
+  padding: 0 !important;
+  height: calc(100vh - 62px);
+  height: calc(100dvh - 62px);
+  overflow: hidden;
 }
 
 .dash-welcome { margin-bottom: 32px; }

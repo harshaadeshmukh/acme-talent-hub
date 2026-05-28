@@ -213,3 +213,15 @@ class TeamAchievement(Base):
     date_awarded = Column(DateTime, default=datetime.utcnow)
 
 
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    department_name = Column(String, index=True, nullable=False)
+    content = Column(Text, nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    sender = relationship("User", foreign_keys=[sender_id])

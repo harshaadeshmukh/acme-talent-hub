@@ -9,8 +9,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 from app.database import SessionLocal, engine, Base
 from app.models.models import (
     User, RoleEnum, PerformanceReview, Competency,
-    EmployeeCompetency, SkillLevelEnum, DevelopmentPlan,
-    StatusEnum, TrainingRecord, generate_emp_id
+    EmployeeCompetency, SkillLevelEnum,
+    StatusEnum, TrainingRecord, generate_emp_id,
+    Goal, GoalStatusEnum
 )
 from app.auth import get_password_hash
 from datetime import datetime, timedelta
@@ -146,21 +147,21 @@ print("  ✅ Created performance reviews")
 
 # ── 5. Development Plans ──────────────────────────────────────────────────────
 plans_data = [
-    ("harrygamers804@gmail.com", "Learn System Design",     "Complete system design course and apply patterns", StatusEnum.IN_PROGRESS, 45),
-    ("harrygamers804@gmail.com", "AWS Certification",       "Achieve AWS Solutions Architect certification",    StatusEnum.PENDING,     10),
-    ("ravi.kulkarni@acmeinc.com","Kubernetes Mastery",      "Master K8s deployment and scaling",               StatusEnum.IN_PROGRESS, 70),
-    ("ananya.patel@acmeinc.com", "Figma Advanced",          "Complete advanced Figma prototyping course",       StatusEnum.COMPLETED,  100),
-    ("kavya.reddy@acmeinc.com",  "Publish ML Research",     "Publish paper on recommendation systems",          StatusEnum.IN_PROGRESS, 60),
-    ("vikram.nair@acmeinc.com",  "Google Analytics Cert",   "Obtain GA4 certification",                        StatusEnum.COMPLETED,  100),
-    ("deepak.joshi@acmeinc.com", "CFA Level 1",             "Pass CFA Level 1 examination",                    StatusEnum.PENDING,      5),
+    ("harrygamers804@gmail.com", "Learn System Design",     "Complete system design course and apply patterns", GoalStatusEnum.APPROVED, 45),
+    ("harrygamers804@gmail.com", "AWS Certification",       "Achieve AWS Solutions Architect certification",    GoalStatusEnum.SUBMITTED,     10),
+    ("ravi.kulkarni@acmeinc.com","Kubernetes Mastery",      "Master K8s deployment and scaling",               GoalStatusEnum.APPROVED, 70),
+    ("ananya.patel@acmeinc.com", "Figma Advanced",          "Complete advanced Figma prototyping course",       GoalStatusEnum.APPROVED,  100),
+    ("kavya.reddy@acmeinc.com",  "Publish ML Research",     "Publish paper on recommendation systems",          GoalStatusEnum.APPROVED, 60),
+    ("vikram.nair@acmeinc.com",  "Google Analytics Cert",   "Obtain GA4 certification",                        GoalStatusEnum.APPROVED,  100),
+    ("deepak.joshi@acmeinc.com", "CFA Level 1",             "Pass CFA Level 1 examination",                    GoalStatusEnum.SUBMITTED,      5),
 ]
-for email, goal, desc, status, progress in plans_data:
+for email, title, desc, status, progress in plans_data:
     user = db.query(User).filter(User.email == email).first()
     if user:
-        existing = db.query(DevelopmentPlan).filter_by(employee_id=user.id, goal=goal).first()
+        existing = db.query(Goal).filter_by(employee_id=user.id, title=title).first()
         if not existing:
-            db.add(DevelopmentPlan(
-                employee_id=user.id, goal=goal, description=desc,
+            db.add(Goal(
+                employee_id=user.id, title=title, description=desc,
                 status=status, progress_percentage=progress,
                 target_date=datetime.utcnow() + timedelta(days=90)
             ))
