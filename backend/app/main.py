@@ -303,7 +303,7 @@ def get_user(user_id: int, db: Session = Depends(get_db), current_user: User = D
     return user
 
 # Import and include route modules
-from app.routes import users, reviews, competencies, training_records, dashboard, goals, employee_dashboard, achievements, learning, talent_intelligence, chat
+from app.routes import users, reviews, competencies, training_records, dashboard, goals, employee_dashboard, achievements, learning, talent_intelligence, chat, timeline
 
 app.include_router(users.router)
 app.include_router(reviews.router)
@@ -316,3 +316,4 @@ app.include_router(achievements.router)
 app.include_router(learning.router, prefix="/api/learning", tags=["Learning & Growth"])
 app.include_router(talent_intelligence.router, prefix="/api/talent-intelligence", tags=["Talent Intelligence"])
 app.include_router(chat.router)
+app.include_router(timeline.router)

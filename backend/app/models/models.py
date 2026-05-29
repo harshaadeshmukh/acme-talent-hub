@@ -96,8 +96,23 @@ class User(Base):
     competencies = relationship("EmployeeCompetency", back_populates="employee", cascade="all, delete-orphan")
     training_records = relationship("TrainingRecord", foreign_keys="TrainingRecord.employee_id", back_populates="employee", cascade="all, delete-orphan")
     goals = relationship("Goal", back_populates="employee", cascade="all, delete-orphan")
+    timeline_events = relationship("WorkTimelineEvent", back_populates="employee", cascade="all, delete-orphan", order_by="desc(WorkTimelineEvent.start_date)")
 
 
+class WorkTimelineEvent(Base):
+    __tablename__ = "work_timeline_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False)
+    company = Column(String, nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=True)  # Null means present
+    description = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    employee = relationship("User", back_populates="timeline_events")
 
 
 class PerformanceReview(Base):

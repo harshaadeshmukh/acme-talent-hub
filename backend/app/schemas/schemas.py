@@ -297,6 +297,33 @@ class GoalResponse(BaseModel):
 
 
 
+# ── Work Timeline Schemas ─────────────────────────────────────────────────────
+class TimelineEventBase(BaseModel):
+    title: str
+    company: str
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    description: Optional[str] = None
+
+class TimelineEventCreate(TimelineEventBase):
+    pass
+
+class TimelineEventUpdate(BaseModel):
+    title: Optional[str] = None
+    company: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    description: Optional[str] = None
+
+class TimelineEventResponse(TimelineEventBase):
+    id: int
+    employee_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 # ── Talent Intelligence Schemas ───────────────────────────────────────────────
 
 
