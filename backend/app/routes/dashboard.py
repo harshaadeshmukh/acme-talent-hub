@@ -6,35 +6,34 @@ from typing import List
 from app.database import get_db
 from app.models import User, PerformanceReview, TrainingRecord, EmployeeCompetency, RoleEnum
 from app.schemas import EmployeeStats, HighPerformer, SkillGap
-from app.auth import get_tenant_db, get_current_user, get_current_manager
+from app.database import get_shard1_db, get_shard2_db, get_current_user, get_current_manager
 
 router = APIRouter(prefix="/api/manager-dashboard", tags=["Manager Dashboard"])
 
 @router.get("/stats", response_model=EmployeeStats)
-def get_employee_stats(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_employee_stats(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     """Get overall employee statistics"""
-    total_employees = db.query(User).filter(User.role == RoleEnum.EMPLOYEE, User.is_active == True).count()
-    active_employees = db.query(User).filter(User.role == RoleEnum.EMPLOYEE, User.is_active == True).count()
+    total_employees = db1.query(User).filter(User.role == RoleEnum.EMPLOYEE, User.is_active == True).count()
+    active_employees = db1.query(User).filter(User.role == RoleEnum.EMPLOYEE, User.is_active == True).count()
     
-    # High performers: average rating >= 4.0
-    high_performers_subquery = db.query(User.id).join(
-        PerformanceReview, User.id == PerformanceReview.employee_id
-    ).group_by(User.id).having(func.avg(PerformanceReview.rating) >= 4.0)
+    # Calculate averages from DB2
+    employee_ratings = db2.query(
+        PerformanceReview.employee_id,
+        func.avg(PerformanceReview.rating).label('avg_rating')
+    ).group_by(PerformanceReview.employee_id).all()
     
-    high_performers = db.query(User).filter(
-        User.id.in_(high_performers_subquery),
+    high_performer_ids = [emp[0] for emp in employee_ratings if emp[1] >= 4.0]
+    at_risk_ids = [emp[0] for emp in employee_ratings if emp[1] < 2.0]
+    
+    high_performers = db1.query(User).filter(
+        User.id.in_(high_performer_ids) if high_performer_ids else False,
         User.is_active == True
-    ).count()
+    ).count() if high_performer_ids else 0
     
-    # At-risk employees: average rating < 2.0
-    at_risk_subquery = db.query(User.id).join(
-        PerformanceReview, User.id == PerformanceReview.employee_id
-    ).group_by(User.id).having(func.avg(PerformanceReview.rating) < 2.0)
-    
-    at_risk_employees = db.query(User).filter(
-        User.id.in_(at_risk_subquery),
+    at_risk_employees = db1.query(User).filter(
+        User.id.in_(at_risk_ids) if at_risk_ids else False,
         User.is_active == True
-    ).count()
+    ).count() if at_risk_ids else 0
     
     return {
         "total_employees": total_employees,
@@ -44,85 +43,84 @@ def get_employee_stats(db: Session = Depends(get_tenant_db), current_user: User 
     }
 
 @router.get("/high-performers", response_model=List[HighPerformer])
-def get_high_performers(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_high_performers(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     """Get high-performing employees (average rating >= 4.0)"""
-    high_performers = db.query(
-        User.id,
-        User.name,
-        User.email,
-        User.department,
-        func.avg(PerformanceReview.rating).label('avg_rating'),
-        User.profile_pic_url
-    ).join(
-        PerformanceReview, User.id == PerformanceReview.employee_id
+    employee_ratings = db2.query(
+        PerformanceReview.employee_id,
+        func.avg(PerformanceReview.rating).label('avg_rating')
+    ).group_by(PerformanceReview.employee_id).having(func.avg(PerformanceReview.rating) >= 4.0).all()
+    
+    high_performer_map = {emp[0]: emp[1] for emp in employee_ratings}
+    
+    if not high_performer_map:
+        return []
+        
+    high_performers = db1.query(
+        User.id, User.name, User.email, User.department, User.profile_pic_url
     ).filter(
+        User.id.in_(list(high_performer_map.keys())),
         User.is_active == True,
         User.role == RoleEnum.EMPLOYEE
-    ).group_by(User.id, User.name, User.email, User.department, User.profile_pic_url).having(
-        func.avg(PerformanceReview.rating) >= 4.0
     ).all()
     
     return [
         HighPerformer(
-            id=emp[0],
-            name=emp[1],
-            email=emp[2],
-            average_rating=float(emp[4]) if emp[4] else 0.0,
-            department=emp[3],
-            avatar_url=emp[5]
+            id=emp.id,
+            name=emp.name,
+            email=emp.email,
+            average_rating=float(high_performer_map[emp.id]),
+            department=emp.department,
+            avatar_url=emp.profile_pic_url
         )
         for emp in high_performers
     ]
 
 @router.get("/at-risk-employees", response_model=List[dict])
-def get_at_risk_employees(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_manager)):
-    """Get at-risk employees (average rating < 2.0 or no reviews in last 6 months)"""
-    from datetime import datetime, timedelta
+def get_at_risk_employees(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_manager)):
+    """Get at-risk employees (average rating < 3.0)"""
+    employee_ratings = db2.query(
+        PerformanceReview.employee_id,
+        func.avg(PerformanceReview.rating).label('avg_rating')
+    ).group_by(PerformanceReview.employee_id).having(func.avg(PerformanceReview.rating) < 3.0).all()
     
-    # Employees with low ratings
-    at_risk_low_rating = db.query(
-        User.id,
-        User.name,
-        User.email,
-        User.department,
-        func.avg(PerformanceReview.rating).label('avg_rating'),
-        User.profile_pic_url
-    ).join(
-        PerformanceReview, User.id == PerformanceReview.employee_id
+    at_risk_map = {emp[0]: emp[1] for emp in employee_ratings}
+    
+    if not at_risk_map:
+        return []
+        
+    at_risk_employees = db1.query(
+        User.id, User.name, User.email, User.department, User.profile_pic_url
     ).filter(
+        User.id.in_(list(at_risk_map.keys())),
         User.is_active == True,
         User.role == RoleEnum.EMPLOYEE
-    ).group_by(User.id, User.name, User.email, User.department, User.profile_pic_url).having(
-        func.avg(PerformanceReview.rating) < 3.0
     ).all()
     
-    result = [
+    return [
         {
-            "id": emp[0],
-            "name": emp[1],
-            "email": emp[2],
-            "department": emp[3],
-            "average_rating": float(emp[4]) if emp[4] else 0.0,
+            "id": emp.id,
+            "name": emp.name,
+            "email": emp.email,
+            "department": emp.department,
+            "average_rating": float(at_risk_map[emp.id]),
             "reason": "Low performance rating",
-            "avatar_url": emp[5]
+            "avatar_url": emp.profile_pic_url
         }
-        for emp in at_risk_low_rating
+        for emp in at_risk_employees
     ]
-    
-    return result
 
 @router.get("/skill-gaps", response_model=List[dict])
-def get_skill_gaps(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_skill_gaps(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     """Identify critical skill gaps across organization"""
     from app.models import Competency
     
     # Get all competencies
-    competencies = db.query(Competency).all()
+    competencies = db1.query(Competency).all()
     total_employees = db.query(User).filter(User.role == RoleEnum.EMPLOYEE, User.is_active == True).count()
     
     skill_gaps = []
     for competency in competencies:
-        employees_with_skill = db.query(EmployeeCompetency).filter(
+        employees_with_skill = db1.query(EmployeeCompetency).filter(
             EmployeeCompetency.competency_id == competency.id
         ).count()
         
@@ -142,7 +140,7 @@ def get_skill_gaps(db: Session = Depends(get_tenant_db), current_user: User = De
     return skill_gaps
 
 @router.get("/performance-distribution")
-def get_performance_distribution(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_performance_distribution(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     """Get distribution of performance ratings"""
     ratings_dist = {
         "5_stars": 0,
@@ -152,7 +150,7 @@ def get_performance_distribution(db: Session = Depends(get_tenant_db), current_u
         "1_stars": 0
     }
     
-    reviews = db.query(PerformanceReview).all()
+    reviews = db2.query(PerformanceReview).all()
     
     for review in reviews:
         if review.rating >= 4.5:
@@ -172,42 +170,44 @@ def get_performance_distribution(db: Session = Depends(get_tenant_db), current_u
     }
 
 @router.get("/promotion-ready-employees", response_model=List[dict])
-def get_promotion_ready_employees(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_manager)):
-    """Get employees ready for promotion (avg rating >= 4.5 and completed development plans)"""
-    promotion_ready = db.query(
-        User.id,
-        User.name,
-        User.email,
-        User.department,
-        User.role,
+def get_promotion_ready_employees(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_manager)):
+    """Get employees ready for promotion (avg rating >= 4.5)"""
+    employee_ratings = db2.query(
+        PerformanceReview.employee_id,
         func.avg(PerformanceReview.rating).label('avg_rating')
-    ).join(
-        PerformanceReview, User.id == PerformanceReview.employee_id, isouter=True
+    ).group_by(PerformanceReview.employee_id).having(func.avg(PerformanceReview.rating) >= 4.5).all()
+    
+    promo_ready_map = {emp[0]: emp[1] for emp in employee_ratings}
+    
+    if not promo_ready_map:
+        return []
+        
+    promotion_ready = db1.query(
+        User.id, User.name, User.email, User.department, User.role
     ).filter(
+        User.id.in_(list(promo_ready_map.keys())),
         User.is_active == True,
         User.role == RoleEnum.EMPLOYEE
-    ).group_by(User.id, User.name, User.email, User.department, User.role).having(
-        func.avg(PerformanceReview.rating) >= 4.5
     ).all()
     
     return [
         {
-            "id": emp[0],
-            "name": emp[1],
-            "email": emp[2],
-            "department": emp[3],
-            "current_role": emp[4],
-            "average_rating": float(emp[5]) if emp[5] else 0.0,
-            "promotion_score": (float(emp[5]) if emp[5] else 0.0)
+            "id": emp.id,
+            "name": emp.name,
+            "email": emp.email,
+            "department": emp.department,
+            "current_role": emp.role,
+            "average_rating": float(promo_ready_map[emp.id]),
+            "promotion_score": float(promo_ready_map[emp.id])
         }
         for emp in promotion_ready
     ]
 
 @router.get("/training-completion-rate")
-def get_training_completion_rate(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_training_completion_rate(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     """Get organization-wide training completion rate"""
-    total_trainings = db.query(TrainingRecord).count()
-    completed_trainings = db.query(TrainingRecord).filter(
+    total_trainings = db2.query(TrainingRecord).count()
+    completed_trainings = db2.query(TrainingRecord).filter(
         TrainingRecord.completion_date is not None
     ).count()
     
@@ -220,35 +220,29 @@ def get_training_completion_rate(db: Session = Depends(get_tenant_db), current_u
     }
 
 @router.get("/department-performance")
-def get_department_performance(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_department_performance(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     """Get average performance by department"""
-    departments = db.query(User.department).filter(
+    departments = db1.query(User.department).filter(
         User.is_active == True,
         User.role == RoleEnum.EMPLOYEE,
-        User.department is not None
+        User.department != None
     ).distinct().all()
     
     dept_performance = []
     for dept in departments:
         dept_name = dept[0]
-        avg_rating = db.query(func.avg(PerformanceReview.rating)).join(
-            User, PerformanceReview.employee_id == User.id
-        ).filter(
-            User.department == dept_name,
-            User.is_active == True
-        ).scalar()
+        emp_ids = [emp[0] for emp in db1.query(User.id).filter(User.department == dept_name, User.is_active == True, User.role == RoleEnum.EMPLOYEE).all()]
         
-        employee_count = db.query(User).filter(
-            User.department == dept_name,
-            User.is_active == True,
-            User.role == RoleEnum.EMPLOYEE
-        ).count()
-        
+        if emp_ids:
+            avg_rating = db2.query(func.avg(PerformanceReview.rating)).filter(PerformanceReview.employee_id.in_(emp_ids)).scalar()
+        else:
+            avg_rating = None
+            
         if avg_rating:
             dept_performance.append({
                 "department": dept_name,
                 "average_rating": float(avg_rating),
-                "employee_count": employee_count
+                "employee_count": len(emp_ids)
             })
     
     return sorted(dept_performance, key=lambda x: x['average_rating'], reverse=True)

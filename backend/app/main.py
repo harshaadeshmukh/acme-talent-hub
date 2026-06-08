@@ -8,7 +8,7 @@ import os
 from datetime import timedelta
 from sqlalchemy.orm import Session
 
-from app.database import Base, engine, get_db, settings, engines
+from app.database import Base1, Base2, get_shard1_db, settings, SessionLocalShard1, SessionLocalShard2, engine1, engine2
 from app.models import User, RoleEnum
 from app.schemas import UserRegister, UserLogin, Token, UserResponse, OTPVerifyRequest, ForgotPasswordRequest, ResetPasswordRequest
 from app.auth import get_password_hash, verify_password, create_access_token, get_current_user
@@ -40,10 +40,9 @@ except Exception as e:
     print(f"WARNING: Redis not available ({e}), falling back to in-memory storage.")
     redis_client = DummyRedis()
 
-# Create tables on all databases
-Base.metadata.create_all(bind=engine)
-for _shard_engine in engines.values():
-    Base.metadata.create_all(bind=_shard_engine)
+# Create tables on respective databases
+Base1.metadata.create_all(bind=engine1)
+Base2.metadata.create_all(bind=engine2)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -134,7 +133,7 @@ def api_dashboard():
 
 # ─── Authentication Routes ───
 @app.post("/auth/register", response_model=UserResponse, tags=["Auth"])
-def register(user: UserRegister, db: Session = Depends(get_db)):
+def register(user: UserRegister, db: Session = Depends(get_shard1_db)):
     """Register a new user"""
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == user.email).first()
@@ -146,8 +145,6 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
     
     # Default tenant - register users under first company (ID=1)
     # In a full multi-tenant setup, tenant selection happens at onboarding
-    from app.models.models import Company
-    default_company = db.query(Company).first()
     password_hash = get_password_hash(user.password)
     new_user = User(
         name=user.name,
@@ -155,8 +152,7 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
         password_hash=password_hash,
         department=user.department,
         role=user.role,
-        is_active=True,
-        tenant_id=default_company.id if default_company else 1
+        is_active=True
     )
     db.add(new_user)
     db.commit()
@@ -165,7 +161,7 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
     return new_user
 
 @app.post("/auth/verify-otp", tags=["Auth"])
-def verify_otp(payload: OTPVerifyRequest, db: Session = Depends(get_db)):
+def verify_otp(payload: OTPVerifyRequest, db: Session = Depends(get_shard1_db)):
     """Verify OTP and activate user account"""
     redis_key = f"otp:{payload.email}"
     redis_data_str = redis_client.get(redis_key)
@@ -192,16 +188,13 @@ def verify_otp(payload: OTPVerifyRequest, db: Session = Depends(get_db)):
         )
         
     # Mark OTP as verified and actually CREATE the user now
-    from app.models.models import Company
-    default_company = db.query(Company).first()
     new_user = User(
         name=redis_data["name"],
         email=redis_data["email"],
         password_hash=redis_data["password_hash"],
         department=redis_data["department"],
         role=RoleEnum.EMPLOYEE,
-        is_active=True,
-        tenant_id=default_company.id if default_company else 1
+        is_active=True
     )
     db.add(new_user)
     db.commit()
@@ -212,7 +205,7 @@ def verify_otp(payload: OTPVerifyRequest, db: Session = Depends(get_db)):
     return {"message": "Account successfully activated"}
 
 @app.post("/auth/login", response_model=Token, tags=["Auth"])
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_shard1_db)):
     """Login user and return JWT token"""
     print(f"DEBUG: Login attempt for email: {form_data.username}")
     user = db.query(User).filter(User.email == form_data.username).first()
@@ -259,7 +252,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     }
 
 @app.post("/auth/forgot-password", tags=["Auth"])
-def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_shard1_db)):
     """Send OTP for password reset"""
     user = db.query(User).filter(User.email == payload.email).first()
     if not user:
@@ -273,7 +266,7 @@ def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db
     return {"message": "OTP sent to your email"}
 
 @app.post("/auth/reset-password", tags=["Auth"])
-def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_shard1_db)):
     """Reset password using OTP"""
     redis_key = f"reset_otp:{payload.email}"
     stored_otp = redis_client.get(redis_key)
@@ -298,13 +291,13 @@ def get_current_user_info(current_user: User = Depends(get_current_user)):
 
 # ─── User Routes ───
 @app.get("/api/users", response_model=list[UserResponse], tags=["Users"])
-def list_users(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def list_users(db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """List all users (accessible to all authenticated users)"""
     users = db.query(User).filter(User.is_active == True).all()
     return users
 
 @app.get("/api/users/{user_id}", response_model=UserResponse, tags=["Users"])
-def get_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_user(user_id: int, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Get user by ID"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

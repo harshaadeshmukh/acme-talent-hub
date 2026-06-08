@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from app.models import User, Competency, EmployeeCompetency, RoleEnum, SkillLevelEnum
 from app.schemas import TeamSkillGap, GoalMatchResponse
-from app.auth import get_tenant_db, get_current_manager
+from app.database import get_shard1_db, get_shard2_db, get_current_manager
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ class GoalMatchRequest(BaseModel):
 
 
 @router.get("/team-matrix")
-def get_team_matrix(db: Session = Depends(get_tenant_db), current_manager: User = Depends(get_current_manager)):
+def get_team_matrix(db: Session = Depends(get_shard1_db), current_manager: User = Depends(get_current_manager)):
     """Get aggregated skill matrix for all team members (manager's department)"""
     dept = current_manager.department
     
@@ -84,7 +84,7 @@ def get_team_matrix(db: Session = Depends(get_tenant_db), current_manager: User 
     }
 
 @router.post("/goal-match", response_model=List[GoalMatchResponse])
-def get_goal_match(request: GoalMatchRequest, db: Session = Depends(get_tenant_db), current_manager: User = Depends(get_current_manager)):
+def get_goal_match(request: GoalMatchRequest, db: Session = Depends(get_shard1_db), current_manager: User = Depends(get_current_manager)):
     """Recommend employees for a goal based on their skills"""
     description = request.description.lower()
     

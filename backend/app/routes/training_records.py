@@ -5,7 +5,7 @@ from typing import List
 from app.database import get_db
 from app.models import User, TrainingRecord, RoleEnum
 from app.schemas import TrainingRecordResponse, TrainingRecordCreate, TrainingRecordUpdate
-from app.auth import get_tenant_db, get_current_user, get_current_manager
+from app.database import get_shard1_db, get_shard2_db, get_current_user, get_current_manager
 
 router = APIRouter(prefix="/api/training-records", tags=["Training Records"])
 

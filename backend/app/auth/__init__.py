@@ -4,8 +4,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from app.database import settings, get_db, SessionLocal, shard_session_factories
-from app.models.models import Company
+from app.database import settings, get_shard1_db, SessionLocalShard1
 from sqlalchemy.orm import Session
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -40,7 +39,7 @@ def decode_token(token: str) -> dict:
     except JWTError:
         return None
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_shard1_db)):
     """Dependency to get current authenticated user"""
     from app.models import User
     
@@ -79,21 +78,3 @@ def get_current_manager(current_user = Depends(get_current_user)):
             detail="Only managers can perform this action"
         )
     return current_user
-
-def get_tenant_db(current_user = Depends(get_current_user)):
-    """
-    Dependency that returns a database session connected to the user's specific shard.
-    """
-    global_db = SessionLocal()
-    try:
-        company = global_db.query(Company).filter(Company.id == current_user.tenant_id).first()
-        shard_id = company.shard_id if company else "shard_1"
-    finally:
-        global_db.close()
-        
-    factory = shard_session_factories.get(shard_id, SessionLocal)
-    db = factory()
-    try:
-        yield db
-    finally:
-        db.close()

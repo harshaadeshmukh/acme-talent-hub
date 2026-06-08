@@ -30,39 +30,28 @@ settings = Settings()
 # Database setup
 connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
 
-# Global Engine
-engine = create_engine(settings.database_url, pool_pre_ping=True, connect_args=connect_args)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Engine 1 (Users, Profiles, Competencies)
+engine1 = create_engine(settings.shard_1_db_url or settings.database_url, pool_pre_ping=True, connect_args=connect_args)
+SessionLocalShard1 = sessionmaker(autocommit=False, autoflush=False, bind=engine1)
 
-# Shard Engines Registry
-engines = {
-    "shard_1": create_engine(settings.shard_1_db_url or settings.database_url, pool_pre_ping=True, connect_args=connect_args),
-    "shard_2": create_engine(settings.shard_2_db_url or settings.database_url, pool_pre_ping=True, connect_args=connect_args)
-}
+# Engine 2 (Chat, Reviews, Goals, Achievements)
+engine2 = create_engine(settings.shard_2_db_url or settings.database_url, pool_pre_ping=True, connect_args=connect_args)
+SessionLocalShard2 = sessionmaker(autocommit=False, autoflush=False, bind=engine2)
 
-shard_session_factories = {
-    shard_id: sessionmaker(autocommit=False, autoflush=False, bind=shard_engine)
-    for shard_id, shard_engine in engines.items()
-}
+Base1 = declarative_base()
+Base2 = declarative_base()
 
-Base = declarative_base()
-
-def get_db():
-    """
-    Dependency for getting GLOBAL database session.
-    WARNING: For tenant-specific queries, you MUST resolve the shard first.
-    Currently returns the global db for backward compatibility.
-    """
-    db = SessionLocal()
+def get_shard1_db():
+    """Dependency for getting Shard 1 (Core Data) database session."""
+    db = SessionLocalShard1()
     try:
         yield db
     finally:
         db.close()
 
-def get_shard_db(shard_id: str):
-    """Helper to get a session for a specific shard."""
-    factory = shard_session_factories.get(shard_id, SessionLocal)
-    db = factory()
+def get_shard2_db():
+    """Dependency for getting Shard 2 (Logs/Chat) database session."""
+    db = SessionLocalShard2()
     try:
         yield db
     finally:

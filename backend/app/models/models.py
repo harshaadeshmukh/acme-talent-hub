@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
 import random
-from app.database import Base
+from app.database import Base1, Base2
 
 
 class RoleEnum(str, enum.Enum):
@@ -61,26 +61,18 @@ def generate_emp_id():
     """Generate a random 7-digit employee ID"""
     return random.randint(1000000, 9999999)
 
-class Company(Base):
-    __tablename__ = "companies"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    shard_id = Column(String, default="shard_1", index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
 
-class Department(Base):
+class Department(Base1):
     __tablename__ = "departments"
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
     name = Column(String, unique=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
-class User(Base):
+class User(Base1):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, default=generate_emp_id)
-    tenant_id = Column(Integer, index=True, nullable=False)
     name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
@@ -100,20 +92,14 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    reviews_given = relationship("PerformanceReview", foreign_keys="PerformanceReview.reviewer_id", back_populates="reviewer")
-    reviews_received = relationship("PerformanceReview", foreign_keys="PerformanceReview.employee_id", back_populates="employee")
     competencies = relationship("EmployeeCompetency", back_populates="employee", cascade="all, delete-orphan")
-    training_records = relationship("TrainingRecord", foreign_keys="TrainingRecord.employee_id", back_populates="employee", cascade="all, delete-orphan")
-    goals = relationship("Goal", back_populates="employee", cascade="all, delete-orphan")
-    timeline_events = relationship("WorkTimelineEvent", back_populates="employee", cascade="all, delete-orphan", order_by="desc(WorkTimelineEvent.start_date)")
 
 
-class WorkTimelineEvent(Base):
+class WorkTimelineEvent(Base2):
     __tablename__ = "work_timeline_events"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
-    employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    employee_id = Column(Integer, index=True, nullable=False)
     title = Column(String, nullable=False)
     company = Column(String, nullable=False)
     start_date = Column(DateTime, nullable=False)
@@ -122,16 +108,14 @@ class WorkTimelineEvent(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    employee = relationship("User", back_populates="timeline_events")
 
 
-class PerformanceReview(Base):
+class PerformanceReview(Base2):
     __tablename__ = "performance_reviews"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
-    employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    reviewer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    employee_id = Column(Integer, index=True, nullable=False)
+    reviewer_id = Column(Integer, index=True, nullable=False)
     rating = Column(Float, nullable=False)  # 1-5
     feedback = Column(Text, nullable=True)
     review_period = Column(String, nullable=True)  # e.g., "Q1 2024"
@@ -140,15 +124,12 @@ class PerformanceReview(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    employee = relationship("User", foreign_keys=[employee_id], back_populates="reviews_received")
-    reviewer = relationship("User", foreign_keys=[reviewer_id], back_populates="reviews_given")
 
 
-class Competency(Base):
+class Competency(Base1):
     __tablename__ = "competencies"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
     name = Column(String, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -156,12 +137,11 @@ class Competency(Base):
     employees = relationship("EmployeeCompetency", back_populates="competency", cascade="all, delete-orphan")
 
 
-class EmployeeCompetency(Base):
+class EmployeeCompetency(Base1):
     __tablename__ = "employee_competencies"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
-    employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    employee_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
     competency_id = Column(Integer, ForeignKey("competencies.id"), nullable=False)
     skill_level = Column(Enum(SkillLevelEnum), default=SkillLevelEnum.BEGINNER)
     years_of_experience = Column(Float, nullable=True)
@@ -169,18 +149,17 @@ class EmployeeCompetency(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    employee = relationship("User", back_populates="competencies")
     competency = relationship("Competency", back_populates="employees")
+    employee = relationship("User", back_populates="competencies")
 
 
 
 
-class TrainingRecord(Base):
+class TrainingRecord(Base2):
     __tablename__ = "training_records"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
-    employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    employee_id = Column(Integer, index=True, nullable=False)
     training_name = Column(String, nullable=False)
     provider = Column(String, nullable=True)
     completion_date = Column(DateTime, nullable=True)
@@ -190,26 +169,19 @@ class TrainingRecord(Base):
     # New fields for Learning & Growth
     category = Column(Enum(CertificateCategoryEnum), default=CertificateCategoryEnum.TECHNICAL)
     verification_status = Column(Enum(VerificationStatusEnum), default=VerificationStatusEnum.PENDING)
-    verified_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    verified_by_id = Column(Integer, index=True, nullable=True)
     rejection_reason = Column(Text, nullable=True)
     
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    employee = relationship("User", foreign_keys=[employee_id], back_populates="training_records")
-    verified_by = relationship("User", foreign_keys=[verified_by_id])
-
-    @property
-    def employee_name(self):
-        return self.employee.name if self.employee else None
 
 
-class Goal(Base):
+class Goal(Base2):
     __tablename__ = "goals"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
-    employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    employee_id = Column(Integer, index=True, nullable=False)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     target_date = Column(DateTime, nullable=True)
@@ -226,17 +198,11 @@ class Goal(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    employee = relationship("User", back_populates="goals")
 
-    @property
-    def employee_name(self):
-        return self.employee.name if self.employee else None
-
-class TeamAchievement(Base):
+class TeamAchievement(Base2):
     __tablename__ = "team_achievements"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
     team_name = Column(String, nullable=False, index=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
@@ -245,15 +211,11 @@ class TeamAchievement(Base):
 
 
 
-class ChatMessage(Base):
+class ChatMessage(Base2):
     __tablename__ = "chat_messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, index=True, nullable=False)
-    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    sender_id = Column(Integer, index=True, nullable=False)
     department_name = Column(String, index=True, nullable=False)
     content = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
-
-    # Relationships
-    sender = relationship("User", foreign_keys=[sender_id])

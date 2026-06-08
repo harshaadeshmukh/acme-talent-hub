@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
-from app.auth import get_tenant_db, get_current_user
+from app.database import get_shard1_db, get_shard2_db, get_current_user
 from app.models.models import User, TrainingRecord, Goal, VerificationStatusEnum, RoleEnum, GoalStatusEnum
 from app.schemas.schemas import (
     TrainingRecordCreate, TrainingRecordResponse, CertificateVerifyRequest,
@@ -16,7 +16,7 @@ router = APIRouter()
 # ───────────────────────────────────────────────────────────────────────────
 
 @router.get("/certificates", response_model=List[TrainingRecordResponse])
-def get_certificates(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_certificates(db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     if current_user.role == RoleEnum.MANAGER:
         # Get team's certificates
         users = db.query(User).filter(User.department == current_user.department).all()
@@ -26,15 +26,15 @@ def get_certificates(db: Session = Depends(get_tenant_db), current_user: User = 
         return db.query(TrainingRecord).filter(TrainingRecord.employee_id == current_user.id).order_by(TrainingRecord.created_at.desc()).all()
 
 @router.post("/certificates", response_model=TrainingRecordResponse)
-def create_certificate(cert: TrainingRecordCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
-    db_cert = TrainingRecord(**cert.dict(), employee_id=current_user.id, tenant_id=current_user.tenant_id)
+def create_certificate(cert: TrainingRecordCreate, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
+    db_cert = TrainingRecord(**cert.dict(), employee_id=current_user.id)
     db.add(db_cert)
     db.commit()
     db.refresh(db_cert)
     return db_cert
 
 @router.put("/certificates/{cert_id}/verify", response_model=TrainingRecordResponse)
-def verify_certificate(cert_id: int, verify_data: CertificateVerifyRequest, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def verify_certificate(cert_id: int, verify_data: CertificateVerifyRequest, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     if current_user.role != RoleEnum.MANAGER:
         raise HTTPException(status_code=403, detail="Only managers can verify certificates")
         
@@ -50,7 +50,7 @@ def verify_certificate(cert_id: int, verify_data: CertificateVerifyRequest, db: 
     return db_cert
 
 @router.put("/certificates/{cert_id}", response_model=TrainingRecordResponse)
-def update_certificate(cert_id: int, cert_data: TrainingRecordCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def update_certificate(cert_id: int, cert_data: TrainingRecordCreate, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     db_cert = db.query(TrainingRecord).filter(TrainingRecord.id == cert_id).first()
     if not db_cert:
         raise HTTPException(status_code=404, detail="Certificate not found")
@@ -74,7 +74,7 @@ def update_certificate(cert_id: int, cert_data: TrainingRecordCreate, db: Sessio
     return db_cert
 
 @router.delete("/certificates/{cert_id}")
-def delete_certificate(cert_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def delete_certificate(cert_id: int, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     db_cert = db.query(TrainingRecord).filter(TrainingRecord.id == cert_id).first()
     if not db_cert:
         raise HTTPException(status_code=404, detail="Certificate not found")
@@ -91,7 +91,7 @@ def delete_certificate(cert_id: int, db: Session = Depends(get_tenant_db), curre
 # ───────────────────────────────────────────────────────────────────────────
 
 @router.get("/goals", response_model=List[GoalResponse])
-def get_goals(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_goals(db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     if current_user.role == RoleEnum.MANAGER:
         users = db.query(User).filter(User.department == current_user.department).all()
         user_ids = [u.id for u in users]
@@ -100,15 +100,15 @@ def get_goals(db: Session = Depends(get_tenant_db), current_user: User = Depends
         return db.query(Goal).filter(Goal.employee_id == current_user.id).order_by(Goal.created_at.desc()).all()
 
 @router.post("/goals", response_model=GoalResponse)
-def create_goal(goal: GoalCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
-    db_goal = Goal(**goal.dict(), employee_id=current_user.id, tenant_id=current_user.tenant_id)
+def create_goal(goal: GoalCreate, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
+    db_goal = Goal(**goal.dict(), employee_id=current_user.id)
     db.add(db_goal)
     db.commit()
     db.refresh(db_goal)
     return db_goal
 
 @router.put("/goals/{goal_id}", response_model=GoalResponse)
-def update_goal(goal_id: int, goal_data: GoalCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def update_goal(goal_id: int, goal_data: GoalCreate, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     db_goal = db.query(Goal).filter(Goal.id == goal_id).first()
     if not db_goal:
         raise HTTPException(status_code=404, detail="Goal not found")
@@ -133,7 +133,7 @@ def update_goal(goal_id: int, goal_data: GoalCreate, db: Session = Depends(get_t
     return db_goal
 
 @router.put("/goals/{goal_id}/progress", response_model=GoalResponse)
-def update_goal_progress(goal_id: int, progress: GoalProgressUpdate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def update_goal_progress(goal_id: int, progress: GoalProgressUpdate, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     db_goal = db.query(Goal).filter(Goal.id == goal_id).first()
     if not db_goal:
         raise HTTPException(status_code=404, detail="Goal not found")
@@ -157,7 +157,7 @@ def update_goal_progress(goal_id: int, progress: GoalProgressUpdate, db: Session
     return db_goal
 
 @router.put("/goals/{goal_id}/feedback", response_model=GoalResponse)
-def add_goal_feedback(goal_id: int, feedback: GoalFeedback, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def add_goal_feedback(goal_id: int, feedback: GoalFeedback, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     if current_user.role != RoleEnum.MANAGER:
         raise HTTPException(status_code=403, detail="Only managers can add feedback")
         

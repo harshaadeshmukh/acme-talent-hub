@@ -6,63 +6,53 @@ Run from the backend/ directory:
 import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 
-from app.database import SessionLocal, engine, Base, engines, get_shard_db
+from app.database import SessionLocalShard1, SessionLocalShard2, engine1, engine2, Base1, Base2
 from app.models.models import (
     User, RoleEnum, PerformanceReview, Competency,
     EmployeeCompetency, SkillLevelEnum,
     StatusEnum, TrainingRecord, generate_emp_id,
-    Goal, GoalStatusEnum, Company
+    Goal, GoalStatusEnum, Department, TeamAchievement, ChatMessage, WorkTimelineEvent
 )
 from app.auth import get_password_hash
 from datetime import datetime, timedelta
 
 # Ensure tables exist with new schema
-Base.metadata.create_all(bind=engine)
-for shard_id, shard_engine in engines.items():
-    Base.metadata.create_all(bind=shard_engine)
+Base1.metadata.drop_all(bind=engine1)
+Base2.metadata.drop_all(bind=engine2)
+Base1.metadata.create_all(bind=engine1)
+Base2.metadata.create_all(bind=engine2)
+Base2.metadata.create_all(bind=engine2)
 
-db = SessionLocal()
+db1 = SessionLocalShard1()
+db2 = SessionLocalShard2()
 
 print("🌱 Seeding database...")
 
-# ── 1. Create Default Tenant ──────────────────────────────────────────────────
-acme_company = db.query(Company).filter(Company.name == "Acme Corp").first()
-if not acme_company:
-    acme_company = Company(name="Acme Corp", shard_id="shard_2")
-    db.add(acme_company)
-    db.commit()
-    db.refresh(acme_company)
-    print(f"  ✅ Created default company: Acme Corp (ID: {acme_company.id})")
-else:
-    print(f"  ⏭  Skipped (exists): Acme Corp")
 
-# Get shard db session for Acme Corp
-shard_db = next(get_shard_db(acme_company.shard_id))
 
-# ── 2. Competencies ───────────────────────────────────────────────────────────
+
+# ── 3. Competencies ───────────────────────────────────────────────────────────
 competency_names = [
     ("Python",          "Backend development with Python"),
     ("React.js",        "Frontend development with React"),
     ("PostgreSQL",      "Database design and management"),
     ("Leadership",      "Team leadership and management"),
-    ("Communication",   "Effective verbal and written communication"),
-    ("System Design",   "Designing scalable distributed systems"),
-    ("DevOps",          "CI/CD pipelines, Docker, Kubernetes"),
-    ("Machine Learning","ML model development and deployment"),
 ]
 comp_map = {}
 for name, desc in competency_names:
-    existing = shard_db.query(Competency).filter(Competency.name == name).first()
+    existing = db1.query(Competency).filter(Competency.name == name).first()
     if not existing:
-        c = Competency(name=name, tenant_id=acme_company.id)
-        shard_db.add(c)
-        shard_db.flush()
+        c = Competency(name=name)
+        db1.add(c)
+        db1.flush()
         comp_map[name] = c
-        print(f"  ✅ Created competency: {name} in {acme_company.shard_id}")
+        print(f"  ✅ Created competency: {name}")
     else:
         comp_map[name] = existing
-shard_db.commit()
+db1.commit()
 
-shard_db.close()
-db.close()
-print("\n🎉 Seeding complete! Competencies have been populated in your PostgreSQL database.")
+
+
+db1.close()
+db2.close()
+print("\n🎉 Seeding complete! Database has been populated across Shard 1 and Shard 2.")

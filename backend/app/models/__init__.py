@@ -1,6 +1,7 @@
 # Re-exports from models.py — edit that file directly instead of this one
 from app.models.models import (
-    Base,
+    Base1,
+    Base2,
     RoleEnum,
     SkillLevelEnum,
     StatusEnum,
@@ -17,5 +18,4 @@ from app.models.models import (
     AchievementTypeEnum,
     ChatMessage,
     WorkTimelineEvent,
-    Company,
 )

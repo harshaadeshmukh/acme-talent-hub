@@ -14,7 +14,7 @@ from app.auth import get_current_user, get_current_manager, get_current_manager,
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def create_user(user: UserCreate, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_manager)):
     """Create new user (manager only)"""
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
@@ -25,8 +25,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: U
         email=user.email,
         password_hash=get_password_hash(user.password),
         role=user.role,
-        department=user.department,
-        tenant_id=current_user.tenant_id  # Inherit tenant from the creating manager
+        department=user.department  # Inherit tenant from the creating manager
     )
     db.add(new_user)
     db.commit()
@@ -34,7 +33,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: U
     return new_user
 
 @router.get("/", response_model=List[UserResponse])
-def list_users(search: str = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def list_users(search: str = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """List all users with pagination and search"""
     query = db.query(User).filter(User.is_active == True)
     if search:
@@ -46,7 +45,7 @@ def list_users(search: str = None, skip: int = 0, limit: int = 100, db: Session 
     return query.offset(skip).limit(limit).all()
 
 @router.get("/unassigned", response_model=List[UserResponse])
-def get_unassigned_employees(db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def get_unassigned_employees(db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_manager)):
     """Get all employees without a department"""
     users = db.query(User).filter(
         User.role == RoleEnum.EMPLOYEE,
@@ -56,7 +55,7 @@ def get_unassigned_employees(db: Session = Depends(get_db), current_user: User =
     return users
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_user(user_id: int, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Get user by ID"""
     user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
     if not user:
@@ -64,7 +63,7 @@ def get_user(user_id: int, db: Session = Depends(get_db), current_user: User = D
     return user
 
 @router.patch("/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Update user (admin or self)"""
     # Check authorization
     if current_user.id != user_id and current_user.role != RoleEnum.MANAGER:
@@ -86,7 +85,7 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get
     return user
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def delete_user(user_id: int, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Soft delete user"""
     if current_user.role != RoleEnum.MANAGER:
         raise HTTPException(status_code=403, detail="Not authorized")
@@ -100,19 +99,19 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User 
     return None
 
 @router.get("/department/{department}", response_model=List[UserResponse])
-def get_users_by_department(department: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_users_by_department(department: str, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Get all users in a department"""
     users = db.query(User).filter(User.department == department, User.is_active == True).all()
     return users
 
 @router.get("/role/{role}", response_model=List[UserResponse])
-def get_users_by_role(role: RoleEnum, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_users_by_role(role: RoleEnum, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Get all users with a specific role"""
     users = db.query(User).filter(User.role == role, User.is_active == True).all()
     return users
 
 @router.post("/{user_id}/upload-profile-pic", response_model=UserResponse)
-def upload_profile_pic(user_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def upload_profile_pic(user_id: int, file: UploadFile = File(...), db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Upload a profile picture for the user"""
     # Check authorization
     if current_user.id != user_id and current_user.role != RoleEnum.MANAGER:
@@ -144,26 +143,26 @@ class DepartmentCreate(BaseModel):
     name: str
 
 @router.get("/departments/list")
-def get_departments(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_departments(db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Get a list of all unique departments in the system"""
     # Migrate any existing departments from Users table
     existing_user_deps = db.query(User.department).filter(User.department != None, User.department != "").distinct().all()
     for d in existing_user_deps:
         dept_name = d[0].strip()
         if not db.query(Department).filter(Department.name == dept_name).first():
-            db.add(Department(name=dept_name, tenant_id=current_user.tenant_id))
+            db.add(Department(name=dept_name))
     db.commit()
 
     deps = db.query(Department).all()
     if not deps:
-        db.add(Department(name="Team General", tenant_id=current_user.tenant_id))
+        db.add(Department(name="Team General"))
         db.commit()
         deps = db.query(Department).all()
 
     return sorted([d.name for d in deps])
 
 @router.post("/departments")
-def create_department(dept: DepartmentCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def create_department(dept: DepartmentCreate, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_manager)):
     name = dept.name.strip()
     if not name:
         raise HTTPException(status_code=400, detail="Name cannot be empty")
@@ -172,13 +171,13 @@ def create_department(dept: DepartmentCreate, db: Session = Depends(get_db), cur
     if existing:
         return {"message": "Department already exists"}
         
-    new_dept = Department(name=name, tenant_id=current_user.tenant_id)
+    new_dept = Department(name=name)
     db.add(new_dept)
     db.commit()
     return {"message": "Department created successfully"}
 
 @router.get("/{user_id}/details")
-def get_user_details(user_id: int, db: Session = Depends(get_db)):
+def get_user_details(user_id: int, db: Session = Depends(get_shard1_db)):
     """Get detailed stats and competencies for a user modal"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

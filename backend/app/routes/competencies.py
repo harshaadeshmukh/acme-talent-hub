@@ -4,32 +4,32 @@ from typing import List
 
 from app.models import User, Competency, EmployeeCompetency, RoleEnum
 from app.schemas import CompetencyResponse, CompetencyCreate, EmployeeCompetencyResponse, EmployeeCompetencyCreate, EmployeeCompetencyBase
-from app.auth import get_tenant_db, get_current_user, get_current_manager
+from app.database import get_shard1_db, get_shard2_db, get_current_user, get_current_manager
 
 router = APIRouter(prefix="/api/competencies", tags=["Competencies"])
 
 # ─── Competency Management ───
 @router.post("/", response_model=CompetencyResponse, status_code=status.HTTP_201_CREATED)
-def create_competency(competency: CompetencyCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def create_competency(competency: CompetencyCreate, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Create new competency (any user can create)"""
     existing = db.query(Competency).filter(Competency.name == competency.name).first()
     if existing:
         raise HTTPException(status_code=400, detail="Competency already exists")
     
-    new_competency = Competency(name=competency.name, tenant_id=current_user.tenant_id)
+    new_competency = Competency(name=competency.name)
     db.add(new_competency)
     db.commit()
     db.refresh(new_competency)
     return new_competency
 
 @router.get("/", response_model=List[CompetencyResponse])
-def list_competencies(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def list_competencies(db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """List all competencies"""
     competencies = db.query(Competency).all()
     return competencies
 
 @router.get("/{competency_id}", response_model=CompetencyResponse)
-def get_competency(competency_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_competency(competency_id: int, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Get competency by ID"""
     competency = db.query(Competency).filter(Competency.id == competency_id).first()
     if not competency:
@@ -38,7 +38,7 @@ def get_competency(competency_id: int, db: Session = Depends(get_tenant_db), cur
 
 # ─── Employee Competency Management ───
 @router.post("/employee/{employee_id}", response_model=EmployeeCompetencyResponse, status_code=status.HTTP_201_CREATED)
-def add_employee_competency(employee_id: int, competency_data: EmployeeCompetencyBase, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def add_employee_competency(employee_id: int, competency_data: EmployeeCompetencyBase, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Add competency to employee"""
     # Check authorization
     if current_user.id != employee_id and current_user.role != RoleEnum.MANAGER:
@@ -66,8 +66,7 @@ def add_employee_competency(employee_id: int, competency_data: EmployeeCompetenc
         employee_id=employee_id,
         competency_id=competency_data.competency_id,
         skill_level=competency_data.skill_level,
-        years_of_experience=competency_data.years_of_experience,
-        tenant_id=current_user.tenant_id
+        years_of_experience=competency_data.years_of_experience
     )
     db.add(new_ec)
     db.commit()
@@ -75,7 +74,7 @@ def add_employee_competency(employee_id: int, competency_data: EmployeeCompetenc
     return new_ec
 
 @router.get("/employee/{employee_id}", response_model=List[EmployeeCompetencyResponse])
-def get_employee_competencies(employee_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_employee_competencies(employee_id: int, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Get all competencies for an employee"""
     employee = db.query(User).filter(User.id == employee_id).first()
     if not employee:
@@ -85,7 +84,7 @@ def get_employee_competencies(employee_id: int, db: Session = Depends(get_tenant
     return competencies
 
 @router.put("/employee/{employee_id}/{competency_id}", response_model=EmployeeCompetencyResponse)
-def update_employee_competency(employee_id: int, competency_id: int, update_data: EmployeeCompetencyBase, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def update_employee_competency(employee_id: int, competency_id: int, update_data: EmployeeCompetencyBase, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Update employee's competency"""
     # Check authorization
     if current_user.id != employee_id and current_user.role != RoleEnum.MANAGER:
@@ -106,7 +105,7 @@ def update_employee_competency(employee_id: int, competency_id: int, update_data
     return ec
 
 @router.delete("/employee/{employee_id}/{competency_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_employee_competency(employee_id: int, competency_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def delete_employee_competency(employee_id: int, competency_id: int, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Remove competency from employee"""
     # Check authorization
     if current_user.id != employee_id and current_user.role != RoleEnum.MANAGER:
@@ -124,7 +123,7 @@ def delete_employee_competency(employee_id: int, competency_id: int, db: Session
     return None
 
 @router.get("/competency/{competency_id}/employees", tags=["Competencies"])
-def get_employees_with_competency(competency_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
+def get_employees_with_competency(competency_id: int, db: Session = Depends(get_shard1_db), current_user: User = Depends(get_current_user)):
     """Get all employees with a specific competency"""
     competency = db.query(Competency).filter(Competency.id == competency_id).first()
     if not competency:

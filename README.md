@@ -118,35 +118,57 @@ graph TD
 - **`app/schemas/schemas.py`**: Uses Pydantic to enforce strict type-checking on incoming HTTP requests and outgoing responses. If a frontend sends a string where an integer is expected, this layer rejects it with a 422 error.
 - **`app/models/models.py`**: Contains the SQLAlchemy Object-Relational Mapping (ORM). Here, Python classes (like `User` or `PerformanceReview`) are defined to perfectly mirror the PostgreSQL tables.
 
-### 🗄️ 3. Database Connection Flow (`app/database.py`)
-The database connection architecture is designed for stability, high concurrency, and real-time reactivity.
+### 🗄️ 3. Database Architecture (Service-Based Sharding)
+The database connection architecture uses **Service-Based Sharding**. Because ACME Talent Hub is an internal tool, we don't need complicated multi-tenant isolation. Instead, we split the databases by **Service Domain** for maximum performance and organized scale.
 
 ```mermaid
-sequenceDiagram
-    participant Route as FastAPI Route
-    participant DB as database.py
-    participant Session as SQLAlchemy Session
-    participant Postgres as PostgreSQL
-    participant WS as WebSocket Manager
+graph TD
+    subgraph Frontend [ACME Frontend]
+        UI[React Dashboard]
+    end
+
+    subgraph Backend [FastAPI Server]
+        API[API Router]
+        AuthService[Auth & Identity]
+        CoreService[Core Features]
+        
+        API --> AuthService
+        API --> CoreService
+    end
+
+    subgraph Shard1 [ACME-DB-1 : Core Identity]
+        DB1[(Shard 1)]
+        DB1_Data[Users, Departments, Competencies]
+        DB1 -.-> DB1_Data
+    end
+
+    subgraph Shard2 [ACME-DB-2 : Application Features]
+        DB2[(Shard 2)]
+        DB2_Data[Goals, Reviews, Training, Chat]
+        DB2 -.-> DB2_Data
+    end
+
+    AuthService ==>|Read/Write User Data| DB1
+    CoreService ==>|Read/Write Feature Data| DB2
     
-    Route->>DB: get_db() Dependency
-    DB->>Session: Create SessionLocal()
-    Session->>Postgres: Acquire Connection from Pool
-    Route->>Session: Execute Query (e.g. Add Review)
-    Session->>Postgres: INSERT statement
-    Route->>Session: session.commit()
-    Session->>DB: Event Listener (after_commit) triggers
-    DB->>WS: broadcast("update")
-    WS-->>Clients: Real-time UI refresh
-    DB->>Session: session.close() in finally block
-    Session->>Postgres: Return Connection to Pool
+    UI --> API
 ```
 
-- **Engine & Connection Pooling:** We use SQLAlchemy's `create_engine` connected to a PostgreSQL URI. This engine maintains a **Connection Pool** (`pool_pre_ping=True`), which keeps multiple database connections open and ready to use, preventing the overhead of creating a new TCP connection on every single API request.
-- **Session Yielding:** The `get_db()` dependency generator creates a localized database session (`SessionLocal()`) for an incoming HTTP request, yields it to the route to perform queries, and strictly guarantees `db.close()` is called in a `finally` block when the request finishes, preventing memory and connection leaks.
-- **Event Listeners (Real-time DB triggers):** Inside `database.py`, we use `@event.listens_for(Session, "after_commit")`. Whenever the database commits a new row (e.g., a new review is added), this listener catches the event globally and triggers the `WebSocket Manager` to broadcast an `'update'` message to the frontend, causing a seamless UI refresh.
+#### Why are we doing this? (Simple English Explanation)
+Imagine a huge library. If you put the index cards (where to find books) and the reading rooms (where people sit and read for hours) in the exact same tiny room, the index card line gets blocked by people reading.
+
+Similarly, if ACME grows to thousands of employees, keeping all data in one database causes problems:
+- **It Slows Down:** Running heavy analytical queries (like calculating company-wide performance) can slow down simple tasks (like logging in).
+- **Single Point of Failure:** If one database crashes, everything stops working.
+
+By separating the data:
+- **Shard 1 (The Index):** Stores `users`, `departments`, and `competencies`. It handles quick, secure authentication and identity lookups.
+- **Shard 2 (The Reading Room):** Stores `goals`, `performance_reviews`, `training_records`, and `chat_messages`. It handles the heavy lifting, history, and massive amounts of data without slowing down Shard 1.
+
+When the dashboard needs data that mixes the two (like matching a review to a user's name), the backend fetches the review data from Shard 2, fetches the user names from Shard 1, and intelligently stitches them together before sending it to your screen.
 
 ---
+
 
 ## 🚀 Deployment Strategy: Why these tools?
 
