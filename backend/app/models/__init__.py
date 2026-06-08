@@ -17,4 +17,5 @@ from app.models.models import (
     AchievementTypeEnum,
     ChatMessage,
     WorkTimelineEvent,
+    Company,
 )
