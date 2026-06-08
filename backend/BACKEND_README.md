@@ -1,402 +1,124 @@
-# ACME Employee Platform - Backend API
+# ACME Talent Hub - Backend API
 
-A modern, scalable backend API for centralized employee performance and career development management.
+A high-performance, scalable backend API designed for the ACME Talent Hub. Built with **FastAPI**, it provides centralized employee performance tracking, talent intelligence, and career development management.
 
-## Features
+## 🚀 Key Features
 
-- **JWT Authentication** - Secure role-based access control (Admin, Manager, Employee)
-- **Employee Management** - CRUD operations with department tracking
-- **Performance Reviews** - Track ratings, feedback, and performance history
-- **Development Plans** - Goals tracking with progress monitoring
-- **Competency Management** - Skill tracking and employee skill levels
-- **Training Records** - Track trainings and certifications
-- **Dashboard Analytics** - Employee statistics, high performers, skill gaps, promotion readiness
-- **RESTful API** - Clean, documented endpoints with Swagger UI
-- **Multi-Tenancy** - Each company (tenant) is isolated with their own `tenant_id`
-- **Database Sharding** - Data is split across multiple Neon PostgreSQL databases for scale
+- **FastAPI Framework**: High-performance, asynchronous endpoints with auto-generated Swagger UI.
+- **Service-Based Database Sharding**: Data is intelligently partitioned across two databases to ensure analytical queries don't slow down core identity operations.
+- **Real-Time WebSockets**: Instant dashboard updates and live department chat functionality.
+- **Role-Based Access Control (RBAC)**: Strict separation between `MANAGER` and `EMPLOYEE` privileges.
+- **Talent Intelligence**: Endpoints dedicated to identifying skill gaps, top performers, and at-risk employees.
+- **Robust Security**: JWT Authentication, bcrypt password hashing, and secure OTP fallbacks.
 
 ---
 
-## 🗄️ Database Sharding Architecture
+## 🏗️ System Architecture & Sharding
 
-### Why Did We Do This?
+Because ACME Talent Hub handles high volumes of historical and analytical data, we utilize **Service-Based Sharding** across two distinct PostgreSQL databases. This prevents heavy analytics (like calculating company-wide performance) from impacting simple operations (like logging in).
 
-Originally, we considered a Multi-Tenant architecture for multiple companies. However, we realized we are building this **only for ACME**. Therefore, we pivoted to **Service-Based Sharding** (also known as Microservice Database per Domain).
+### 🗄️ Shard 1 (Core Identity)
+Powered by the `DATABASE_URL` environment variable.
+Handles the core truth of **WHO** works here and **WHAT** the organization structure looks like.
 
-If ACME grows to thousands of employees, keeping all data in one database can lead to:
-- **Performance Bottlenecks:** Heavy analytical queries (like computing team performance) slowing down simple login requests.
-- **Single Point of Failure:** If the database crashes, the entire app goes down.
+| Data Domain | Purpose |
+|-------------|---------|
+| **Users & Auth** | Handles secure login, passwords, roles, and profiles. |
+| **Competencies** | The catalog of company skills (Python, Leadership, etc.). |
+| **Employee Skills** | Tracks which user has which skill and at what level. |
 
-By using **Service-Based Sharding**, we split the data into two physical databases based on what the data does. Think of it like a restaurant: the front-of-house (Identity/Auth) is separated from the kitchen (Features/Analytics).
+### 🗄️ Shard 2 (Application Features)
+Powered by the `SHARD_2_DB_URL` environment variable.
+Handles the **WORK** and **HISTORY**. This is the high-volume transactional database.
 
----
-
-### Overview Diagram
-
-```mermaid
-graph TD
-    subgraph Frontend [ACME Frontend]
-        UI[React SPA]
-    end
-
-    subgraph Backend [FastAPI Backend]
-        API[API Router]
-        Auth[Auth & User Service]
-        Feature[Feature & Analytics Service]
-        
-        API --> Auth
-        API --> Feature
-    end
-
-    subgraph Shard1 [Shard 1 Database : Core Identity]
-        DB1[(ACME-DB-1)]
-        DB1_Data[Users, Departments, Competencies]
-        DB1 -.-> DB1_Data
-    end
-
-    subgraph Shard2 [Shard 2 Database : Application Features]
-        DB2[(ACME-DB-2)]
-        DB2_Data[Goals, Reviews, Training, Chat]
-        DB2 -.-> DB2_Data
-    end
-
-    Auth ==>|Read/Write User Data| DB1
-    Feature ==>|Read/Write Feature Data| DB2
-    
-    UI --> API
-```
+| Data Domain | Purpose |
+|-------------|---------|
+| **Goals** | Employee objectives and progress tracking. |
+| **Reviews** | Performance review ratings and feedback. |
+| **Learning & Training** | Training records and course recommendations. |
+| **Timeline** | Historical career events and milestones. |
+| **Chat & Achievements** | Departmental chat messages and team accomplishments. |
 
 ---
 
-### What Data Lives Where?
+## ⚙️ Environment Variables
 
-#### 🗄️ ACME-DB-1 (Shard 1 — Core Identity & Organization)
-
-This database handles the core truth of **WHO** works here and **WHAT** the organization structure looks like.
-
-| Table | What's Stored | Why Here? |
-|-------|--------------|-----------|
-| `users` | All user accounts (email, password hash, role) | Crucial for authentication and login. |
-| `departments` | Department names | Core organizational structure. |
-| `competencies` | Python, React.js, Leadership, etc. | Core catalog of what skills matter to ACME. |
-| `employee_competencies` | Which employee has which skill at what level | Ties directly to the user identity. |
-
-#### 🗄️ ACME-DB-2 (Shard 2 — Application Features & History)
-
-This database handles the **WORK** and **HISTORY**. It stores high-volume transactional data.
-
-| Table | What's Stored | Why Here? |
-|-------|--------------|-----------|
-| `goals` | Every employee goal | High volume, updated frequently. |
-| `performance_reviews` | Ratings and feedback | Read-heavy during analytics. |
-| `training_records` | Certificates and training logs | Historical append-only data. |
-| `team_achievements` | Team milestones | Feature-specific data. |
-| `chat_messages` | Department chat history | Very high volume, easily partitioned. |
-| `work_timeline_events` | Career history per employee | Historical timeline data. |
-
----
-
-### How Cross-Database Queries Work
-
-Because Shard 1 and Shard 2 are separate, we cannot use traditional SQL `JOIN` statements between a User and their Goals. 
-Instead, we handle this efficiently in the backend code:
-
-```
-Step 1:  User requests their Dashboard Stats.
-Step 2:  Backend queries Shard 2 for all performance reviews to calculate average ratings.
-Step 3:  Backend extracts the `employee_id` list of top performers.
-Step 4:  Backend queries Shard 1 for the Names and Avatars of those specific IDs.
-Step 5:  Backend merges the data in memory and returns it to the frontend.
-```
-
----
-
-### Environment Variables for Sharding
-
-Update your `.env` file with both database URLs:
+To run the backend, you must configure the following in your `.env` or Render environment:
 
 ```env
-# Shard 1 - Identity (Required by Pydantic)
-DATABASE_URL="postgresql://user:pass@host1/neondb"
+# Required Database Connections
+DATABASE_URL="postgresql://user:pass@host1/neondb"     # Shard 1 (Identity)
+SHARD_2_DB_URL="postgresql://user:pass@host2/neondb"   # Shard 2 (Features)
 
-# Shard 2 - Features
-SHARD_2_DB_URL="postgresql://user:pass@host2/neondb"
+# Security
+SECRET_KEY="your-secure-jwt-secret"
+ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES="1440"
+
+# Optional Services (Has local/console fallbacks if not provided)
+REDIS_HOST="localhost"
+SMTP_HOST="localhost"
+RESEND_API_KEY=""
 ```
 
+---
 
-## Tech Stack
+## 🔒 Role-Based Access Control (RBAC)
 
-- **Framework:** FastAPI 0.104+
-- **Database:** PostgreSQL
-- **ORM:** SQLAlchemy 2.0
-- **Authentication:** JWT (python-jose)
-- **Password Hashing:** bcrypt + passlib
-- **API Documentation:** Swagger UI (automatic)
+The system strictly enforces two operational roles.
 
-## Prerequisites
+### 👑 Manager
+- Manage users and update organizational roles.
+- Create, update, and delete company competencies.
+- Create performance reviews and assign goals to employees.
+- Access the `talent_intelligence` and `dashboard` analytics for team overviews.
 
-- Python 3.8+
-- PostgreSQL 12+ (or Supabase Postgres)
-- pip (Python package manager)
+### 👔 Employee
+- View own profile and performance reviews.
+- Update progress on assigned goals.
+- Log personal training records and timeline events.
+- Access the `employee_dashboard` for a personalized view of their career.
 
-## Quick Start
+---
 
-### 1. Setup Environment
+## 📡 API Modules & Routers
 
-```bash
-cd backend
+The application is highly modular. Each domain has its own dedicated router inside `app/routes/`:
 
-# Create virtual environment
-python -m venv venv
+- **`/api/users`**: User CRUD, profile management, and OTP auth flows.
+- **`/api/competencies`**: Skill catalog and employee-specific skill level tracking.
+- **`/api/goals`**: Goal creation, assignment, and status updates.
+- **`/api/reviews`**: Performance reviews and historical ratings.
+- **`/api/learning` & `/api/training-records`**: Course recommendations and employee training logs.
+- **`/api/timeline`**: Career milestones and event tracking.
+- **`/api/achievements`**: Team and individual accomplishments.
+- **`/api/chat`**: WebSocket-powered departmental chat rooms.
+- **`/api/dashboard`**: High-level analytical stats for managers.
+- **`/api/employee-dashboard`**: Personalized metrics and upcoming goals for employees.
+- **`/api/talent-intelligence`**: Advanced analytics (identifying top performers, skill gaps, at-risk staff).
 
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
+---
 
-# Install dependencies
-pip install -r requirements.txt
-```
+## 🛠️ Local Development Setup
 
-### 2. Configure Database
+1. **Create Virtual Environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Or `venv\Scripts\activate` on Windows
+   ```
 
-Create a PostgreSQL database:
-```sql
-CREATE DATABASE employee_platform;
-```
+2. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Update `.env` file with your database URL:
-```
-DATABASE_URL=postgresql://username:password@localhost:5432/employee_platform
-SECRET_KEY=your-secret-key-here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-ENV=development
-```
+3. **Configure Environment:**
+   Create a `.env` file matching the variables listed above. Ensure both `DATABASE_URL` and `SHARD_2_DB_URL` are provided.
 
-### 3. Run the Application
+4. **Run the Server:**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
-```bash
-uvicorn app.main:app --reload
-```
-
-The API will be available at: `http://localhost:8000`
-- **Swagger UI:** `http://localhost:8000/docs`
-- **ReDoc:** `http://localhost:8000/redoc`
-
-## API Documentation
-
-### Authentication Endpoints
-
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login and get JWT token
-- `GET /auth/me` - Get current user info
-
-### User Management
-
-- `GET /api/users` - List all users
-- `GET /api/users/{user_id}` - Get user details
-- `POST /api/users` - Create new user (admin only)
-- `PUT /api/users/{user_id}` - Update user
-- `DELETE /api/users/{user_id}` - Deactivate user (admin only)
-
-### Performance Reviews
-
-- `GET /api/reviews` - List all reviews
-- `POST /api/reviews` - Create review (manager/admin only)
-- `GET /api/reviews/{review_id}` - Get review details
-- `GET /api/reviews/employee/{employee_id}` - Get employee reviews
-- `PUT /api/reviews/{review_id}` - Update review
-- `DELETE /api/reviews/{review_id}` - Delete review
-- `GET /api/reviews/employee/{employee_id}/average` - Get average rating
-
-### Competencies
-
-- `GET /api/competencies` - List all competencies
-- `POST /api/competencies` - Create competency (admin only)
-- `POST /api/competencies/employee/{employee_id}` - Add skill to employee
-- `GET /api/competencies/employee/{employee_id}` - Get employee skills
-- `PUT /api/competencies/employee/{employee_id}/{competency_id}` - Update skill level
-- `DELETE /api/competencies/employee/{employee_id}/{competency_id}` - Remove skill
-
-### Development Plans
-
-- `GET /api/development-plans` - List all plans
-- `POST /api/development-plans` - Create development plan
-- `GET /api/development-plans/employee/{employee_id}` - Get employee plans
-- `PUT /api/development-plans/{plan_id}` - Update plan
-- `DELETE /api/development-plans/{plan_id}` - Delete plan
-- `GET /api/development-plans/employee/{employee_id}/completed` - Get completed plans
-
-### Training Records
-
-- `GET /api/training-records` - List all training records
-- `POST /api/training-records` - Create training record
-- `GET /api/training-records/employee/{employee_id}` - Get employee trainings
-- `PUT /api/training-records/{record_id}` - Update training record
-- `DELETE /api/training-records/{record_id}` - Delete training record
-- `GET /api/training-records/employee/{employee_id}/stats` - Get training statistics
-
-### Dashboard & Analytics
-
-- `GET /api/dashboard/stats` - Employee statistics
-- `GET /api/dashboard/high-performers` - High-performing employees (rating >= 4.0)
-- `GET /api/dashboard/at-risk-employees` - At-risk employees (rating < 2.0)
-- `GET /api/dashboard/skill-gaps` - Identify skill gaps
-- `GET /api/dashboard/performance-distribution` - Rating distribution
-- `GET /api/dashboard/promotion-ready-employees` - Employees ready for promotion
-- `GET /api/dashboard/training-completion-rate` - Organization training completion
-- `GET /api/dashboard/department-performance` - Performance by department
-
-## Database Schema
-
-### Users Table
-- id (PK)
-- name
-- email (unique)
-- password_hash
-- role (admin, manager, employee)
-- department
-- is_active
-- created_at, updated_at
-
-### Performance Reviews
-- id (PK)
-- employee_id (FK)
-- reviewer_id (FK)
-- rating (1-5)
-- feedback
-- review_period
-- review_date
-- created_at, updated_at
-
-### Competencies
-- id (PK)
-- name (unique)
-- description
-- created_at
-
-### Employee Competencies
-- id (PK)
-- employee_id (FK)
-- competency_id (FK)
-- skill_level (beginner, intermediate, advanced, expert)
-- years_of_experience
-- created_at, updated_at
-
-### Development Plans
-- id (PK)
-- employee_id (FK)
-- goal
-- description
-- status (pending, in_progress, completed, on_hold)
-- target_date
-- progress_percentage (0-100)
-- created_at, updated_at
-
-### Training Records
-- id (PK)
-- employee_id (FK)
-- training_name
-- provider
-- completion_date
-- certificate_url
-- duration_hours
-- created_at
-
-## Role-Based Access Control
-
-### Manager
-- Manage users and organizational roles
-- Create, update, and delete competencies
-- Create performance reviews for employees
-- View team performance and manage team development plans
-- View all dashboard analytics
-
-### Employee
-- View own profile
-- View own reviews
-- Create and manage own development plans
-- View own trainings
-
-## Testing
-
-Run tests with pytest:
-```bash
-pytest app/
-```
-
-## Deployment
-
-### Local PostgreSQL Alternative
-For development without local PostgreSQL, use Supabase:
-1. Create Supabase project
-2. Get connection string
-3. Update `.env` with Supabase connection URL
-
-### Production Deployment Options
-- **AWS EC2** - Deploy with gunicorn + nginx
-- **AWS Lambda** - Deploy with serverless framework
-- **Railway** - Simple one-click deployment
-- **Render** - Easy FastAPI deployment
-- **Fly.io** - Container deployment
-
-## Project Structure
-
-```
-backend/
-├── app/
-│   ├── main.py           # FastAPI application entry point
-│   ├── database.py       # SQLAlchemy setup and configuration
-│   ├── models/           # SQLAlchemy ORM models
-│   ├── schemas/          # Pydantic schemas for validation
-│   ├── routes/           # API endpoint routes
-│   │   ├── users.py
-│   │   ├── reviews.py
-│   │   ├── competencies.py
-│   │   ├── development_plans.py
-│   │   ├── training_records.py
-│   │   └── dashboard.py
-│   ├── auth/             # JWT authentication utilities
-│   └── utils/            # Helper utilities
-├── requirements.txt      # Python dependencies
-├── .env                  # Environment variables
-└── README.md            # This file
-```
-
-## Code Quality
-
-- Type hints throughout
-- Pydantic validation
-- Comprehensive error handling
-- CORS enabled for frontend integration
-- RESTful API design
-- Clean separation of concerns
-
-## Future Enhancements
-
-- Database migrations with Alembic
-- Unit and integration tests
-- Rate limiting
-- Audit logging
-- Email notifications
-- Advanced filtering and search
-- Bulk operations
-- Reporting exports (CSV, PDF)
-- Real-time notifications with WebSockets
-
-## Contributing
-
-1. Follow PEP 8 style guide
-2. Add type hints to all functions
-3. Write docstrings for endpoints
-4. Test all changes locally
-
-## License
-
-ACME Inc. - Confidential
-
-## Support
-
-For issues or questions, contact the development team.
+5. **View Documentation:**
+   Open your browser to `http://localhost:8000/docs` to interact with the auto-generated Swagger UI.
