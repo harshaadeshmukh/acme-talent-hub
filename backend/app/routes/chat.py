@@ -27,10 +27,17 @@ async def websocket_chat(websocket: WebSocket, department_name: str, user_id: in
     # Note: simple auth by passing user_id over WS url
     global_db = SessionLocalShard1()
     try:
-        user = global_db.query(User).filter(User.id == user_id).first()
-        if not user or not user.department or user.department != department_name:
+        user_obj = global_db.query(User).filter(User.id == user_id).first()
+        if not user_obj or not user_obj.department or user_obj.department != department_name:
             await websocket.close(code=1008)
             return
+        # Extract user data before closing session to avoid DetachedInstanceError
+        user = {
+            "id": user_obj.id,
+            "name": user_obj.name,
+            "email": user_obj.email,
+            "profile_pic_url": user_obj.profile_pic_url
+        }
     finally:
         global_db.close()
         
@@ -48,8 +55,8 @@ async def websocket_chat(websocket: WebSocket, department_name: str, user_id: in
                     # Broadcast typing event to the room
                     typing_event = {
                         "type": "typing",
-                        "sender_id": user.id,
-                        "name": user.name
+                        "sender_id": user["id"],
+                        "name": user["name"]
                     }
                     await manager.broadcast_to_room(department_name, json.dumps(typing_event))
                     continue
@@ -82,10 +89,10 @@ async def websocket_chat(websocket: WebSocket, department_name: str, user_id: in
                 "content": new_msg.content,
                 "timestamp": new_msg.timestamp.isoformat(),
                 "sender": {
-                    "id": user.id,
-                    "name": user.name,
-                    "email": user.email,
-                    "profile_pic_url": user.profile_pic_url
+                    "id": user["id"],
+                    "name": user["name"],
+                    "email": user["email"],
+                    "profile_pic_url": user["profile_pic_url"]
                 }
             }
             await manager.broadcast_to_room(department_name, json.dumps(response))
