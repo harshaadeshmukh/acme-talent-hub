@@ -12,6 +12,155 @@ A modern, scalable backend API for centralized employee performance and career d
 - **Training Records** - Track trainings and certifications
 - **Dashboard Analytics** - Employee statistics, high performers, skill gaps, promotion readiness
 - **RESTful API** - Clean, documented endpoints with Swagger UI
+- **Multi-Tenancy** - Each company (tenant) is isolated with their own `tenant_id`
+- **Database Sharding** - Data is split across multiple Neon PostgreSQL databases for scale
+
+---
+
+## 🗄️ Database Sharding Architecture
+
+### Why Did We Do This?
+
+Imagine a single database as a single cash register in a supermarket. If only 10 customers come in, one register is fine. But what if **10,000 companies** all sign up for ACME Talent Hub, each with hundreds of employees?
+
+One database would:
+- **Slow down** under millions of rows
+- Become a **single point of failure** (if it crashes, everyone is down)
+- Hit **storage limits**
+
+**Database Sharding** solves this by splitting data across multiple databases (called "shards"). Each company is assigned to one shard. Think of it as opening **multiple cash registers** — each serves a different set of customers, so no single one gets overwhelmed.
+
+---
+
+### Overview Diagram
+
+```
+                        ACME Talent Hub - Request Flow
+                        ================================
+
+  Browser / Frontend (Vercel)
+           │
+           │  HTTP Request (e.g. "show my goals")
+           ▼
+  ┌─────────────────────────────────────────────────────┐
+  │              FastAPI Backend (Render)                │
+  │                                                     │
+  │  1. Decode JWT token → get user_id                  │
+  │  2. Look up user in Global DB → get tenant_id       │
+  │  3. Look up Company → get shard_id ("shard_1" or   │
+  │     "shard_2")                                      │
+  │  4. Route query to the correct shard database       │
+  └──────────────┬──────────────────────────────────────┘
+                 │
+       ┌─────────┴──────────┐
+       │                    │
+       ▼                    ▼
+┌─────────────┐      ┌─────────────┐
+│  ACME-DB    │      │  ACME-DB-2  │
+│  (Shard 1)  │      │  (Shard 2)  │
+│             │      │             │
+│ • companies │      │ • goals     │
+│ • users     │      │ • reviews   │
+│ • depts     │      │ • training  │
+│             │      │ • chat      │
+│ ← Global DB │      │ • skills    │
+│   for Auth  │      │             │
+│             │      │ ← Acme Corp │
+│ Future:     │      │   data lives│
+│ Company B   │      │   here      │
+│ data here   │      │             │
+└─────────────┘      └─────────────┘
+```
+
+---
+
+### What Data Lives Where?
+
+#### 🗄️ ACME-DB (Shard 1 — also called the Global DB)
+
+This is the **"front door"** database. Before the system knows which company you belong to, it needs a place to check who you are.
+
+| Table | What's Stored | Why Here? |
+|-------|--------------|-----------|
+| `companies` | List of all tenants (Acme Corp, etc.) + their `shard_id` | Every request reads this to find the correct shard |
+| `users` | All user accounts (email, password hash, role) | Login must work before we know which shard to use |
+| `departments` | Department names per tenant | Needed during user lookups and routing |
+
+#### 🗄️ ACME-DB-2 (Shard 2 — Acme Corp's dedicated shard)
+
+This is the **"work"** database. Once we know you belong to Acme Corp (shard_2), ALL your actual data is fetched from here.
+
+| Table | What's Stored | Why Here? |
+|-------|--------------|-----------|
+| `competencies` | Python, React.js, Leadership, DevOps, etc. | Tenant-specific skill catalog |
+| `goals` | Every employee goal (draft, submitted, approved) | Isolated per tenant |
+| `performance_reviews` | Ratings and feedback | Private per company |
+| `training_records` | Certificates and training logs | Per employee, per tenant |
+| `team_achievements` | Team milestones | Per tenant |
+| `chat_messages` | Department chat history | Per tenant |
+| `employee_competencies` | Which employee has which skill at what level | Per tenant |
+| `work_timeline_events` | Career history per employee | Per tenant |
+
+---
+
+### How the Routing Works (Step by Step)
+
+```
+Step 1:  User sends API request with JWT token
+         e.g. GET /api/goals
+
+Step 2:  FastAPI calls get_tenant_db() dependency
+         ↓ decodes JWT → gets user_id
+
+Step 3:  Looks up user in ACME-DB (Global)
+         → finds tenant_id = 1
+
+Step 4:  Looks up Company where id = 1
+         → finds shard_id = "shard_2"
+
+Step 5:  Connects to ACME-DB-2 (Shard 2)
+         → runs: SELECT * FROM goals WHERE employee_id = <user_id>
+         → returns Acme Corp's goals ✅
+```
+
+---
+
+### Adding a New Company in the Future
+
+When Company B signs up:
+1. Create a `Company` row in Global DB with `shard_id = "shard_1"`
+2. All of Company B's data (goals, reviews, chat, etc.) automatically routes to **ACME-DB (Shard 1)**
+3. Acme Corp's data stays safe in Shard 2 — **complete data isolation**
+
+```
+companies table (in ACME-DB):
+┌────┬─────────────┬──────────┐
+│ id │ name        │ shard_id │
+├────┼─────────────┼──────────┤
+│ 1  │ Acme Corp   │ shard_2  │  → data goes to ACME-DB-2
+│ 2  │ Company B   │ shard_1  │  → data goes to ACME-DB
+└────┴─────────────┴──────────┘
+```
+
+---
+
+### Environment Variables for Sharding
+
+Update your `.env` file with both database URLs:
+
+```env
+# Global DB (also acts as Shard 1)
+DATABASE_URL="postgresql://user:pass@host1/neondb"
+SHARD_1_DB_URL="postgresql://user:pass@host1/neondb"
+
+# Shard 2 — for Acme Corp
+SHARD_2_DB_URL="postgresql://user:pass@host2/neondb"
+```
+
+To add more shards in the future, add `SHARD_3_DB_URL`, `SHARD_4_DB_URL`, etc. and update the `engines` registry in `database.py`.
+
+---
+
 
 ## Tech Stack
 
