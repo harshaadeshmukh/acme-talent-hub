@@ -15,6 +15,39 @@ A high-performance, scalable backend API designed for the ACME Talent Hub. Built
 
 ## 🏗️ System Architecture & Sharding
 
+```mermaid
+graph TD
+    subgraph Frontend [ACME Frontend]
+        UI[React Dashboard]
+    end
+
+    subgraph Backend [FastAPI Backend]
+        API[API Router]
+        Auth[Identity Service]
+        Feature[Feature & Analytics Service]
+        
+        API --> Auth
+        API --> Feature
+    end
+
+    subgraph Shard 1 [Shard 1 Database : Core Identity]
+        DB1[(ACME-DB-1)]
+        DB1_Data[Users, Departments, Competencies]
+        DB1 -.-> DB1_Data
+    end
+
+    subgraph Shard 2 [Shard 2 Database : Application Features]
+        DB2[(ACME-DB-2)]
+        DB2_Data[Goals, Reviews, Training, Chat]
+        DB2 -.-> DB2_Data
+    end
+
+    Auth ==>|Reads/Writes User Data| DB1
+    Feature ==>|Reads/Writes Feature Data| DB2
+    
+    UI --> API
+```
+
 ### ❓ Why Did We Build with 2 Databases?
 
 Originally, the system was designed around a single massive database. However, as ACME Talent Hub evolved into a heavy analytics and tracking platform, we implemented **Service-Based Sharding** across two distinct PostgreSQL databases. 
