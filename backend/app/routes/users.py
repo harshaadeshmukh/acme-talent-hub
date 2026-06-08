@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from pydantic import BaseModel
 
-from app.database import get_db
+from app.database import get_shard1_db, get_shard2_db
 from app.models import User, RoleEnum, PerformanceReview, TrainingRecord, Goal, EmployeeCompetency, GoalStatusEnum, Department
 from app.schemas import UserResponse, UserCreate, UserUpdate
 from app.auth import get_current_user, get_current_manager, get_current_manager, get_password_hash

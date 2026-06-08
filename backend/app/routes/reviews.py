@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.database import get_db
+from app.database import get_shard1_db, get_shard2_db
 from app.models import User, PerformanceReview, RoleEnum
 from app.schemas import PerformanceReviewResponse, PerformanceReviewCreate, PerformanceReviewUpdate
 from app.database import get_shard1_db, get_shard2_db, get_current_user, get_current_manager
