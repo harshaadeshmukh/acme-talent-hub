@@ -5,12 +5,12 @@ from typing import List
 from app.database import get_db
 from app.models import User, TrainingRecord, RoleEnum
 from app.schemas import TrainingRecordResponse, TrainingRecordCreate, TrainingRecordUpdate
-from app.auth import get_current_user, get_current_manager
+from app.auth import get_tenant_db, get_current_user, get_current_manager
 
 router = APIRouter(prefix="/api/training-records", tags=["Training Records"])
 
 @router.post("/", response_model=TrainingRecordResponse, status_code=status.HTTP_201_CREATED)
-def create_training_record(record: TrainingRecordCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_training_record(record: TrainingRecordCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Create training record"""
     # Check authorization
     if current_user.id != record.employee_id and current_user.role != RoleEnum.MANAGER:
@@ -35,13 +35,13 @@ def create_training_record(record: TrainingRecordCreate, db: Session = Depends(g
     return new_record
 
 @router.get("/", response_model=List[TrainingRecordResponse])
-def list_training_records(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def list_training_records(skip: int = 0, limit: int = 100, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """List all training records"""
     records = db.query(TrainingRecord).offset(skip).limit(limit).all()
     return records
 
 @router.get("/employee/{employee_id}", response_model=List[TrainingRecordResponse])
-def get_employee_training_records(employee_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_employee_training_records(employee_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get all training records for an employee"""
     employee = db.query(User).filter(User.id == employee_id).first()
     if not employee:
@@ -51,7 +51,7 @@ def get_employee_training_records(employee_id: int, db: Session = Depends(get_db
     return records
 
 @router.get("/{record_id}", response_model=TrainingRecordResponse)
-def get_training_record(record_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_training_record(record_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get training record by ID"""
     record = db.query(TrainingRecord).filter(TrainingRecord.id == record_id).first()
     if not record:
@@ -59,7 +59,7 @@ def get_training_record(record_id: int, db: Session = Depends(get_db), current_u
     return record
 
 @router.put("/{record_id}", response_model=TrainingRecordResponse)
-def update_training_record(record_id: int, record_update: TrainingRecordUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def update_training_record(record_id: int, record_update: TrainingRecordUpdate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Update training record"""
     record = db.query(TrainingRecord).filter(TrainingRecord.id == record_id).first()
     if not record:
@@ -85,7 +85,7 @@ def update_training_record(record_id: int, record_update: TrainingRecordUpdate, 
     return record
 
 @router.delete("/{record_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_training_record(record_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def delete_training_record(record_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Delete training record"""
     record = db.query(TrainingRecord).filter(TrainingRecord.id == record_id).first()
     if not record:
@@ -100,7 +100,7 @@ def delete_training_record(record_id: int, db: Session = Depends(get_db), curren
     return None
 
 @router.get("/employee/{employee_id}/completed", response_model=List[TrainingRecordResponse], tags=["Training Records"])
-def get_completed_trainings(employee_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_completed_trainings(employee_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get completed trainings for an employee"""
     from datetime import datetime
     
@@ -115,7 +115,7 @@ def get_completed_trainings(employee_id: int, db: Session = Depends(get_db), cur
     return records
 
 @router.get("/employee/{employee_id}/stats", tags=["Training Records"])
-def get_training_stats(employee_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_training_stats(employee_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get training statistics for an employee"""
     from sqlalchemy import func
     

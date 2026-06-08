@@ -7,13 +7,13 @@ import json
 from app.database import get_db
 from app.models import ChatMessage, User
 from app.schemas import ChatMessageResponse
-from app.auth import get_current_user
+from app.auth import get_tenant_db, get_current_user
 from app.websocket import manager
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])
 
 @router.get("/history/{department_name}", response_model=List[ChatMessageResponse])
-def get_chat_history(department_name: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_chat_history(department_name: str, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     if not current_user.department or current_user.department != department_name:
         raise HTTPException(status_code=403, detail="Not authorized to access this department's chat")
         
@@ -23,7 +23,7 @@ def get_chat_history(department_name: str, db: Session = Depends(get_db), curren
     return messages
 
 @router.websocket("/ws/{department_name}/{user_id}")
-async def websocket_chat(websocket: WebSocket, department_name: str, user_id: int, db: Session = Depends(get_db)):
+async def websocket_chat(websocket: WebSocket, department_name: str, user_id: int, db: Session = Depends(get_tenant_db)):
     # Note: simple auth by passing user_id over WS url
     user = db.query(User).filter(User.id == user_id).first()
     if not user or not user.department or user.department != department_name:
