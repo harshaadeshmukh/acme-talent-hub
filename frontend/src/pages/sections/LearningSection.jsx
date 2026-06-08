@@ -203,6 +203,18 @@ export default function LearningSection({ user }) {
 
   return (
     <div className="es-section-content" style={{ animation: 'fadeIn 0.4s ease', paddingTop: '20px' }}>
+      {(!user?.department || user?.department === 'Unassigned') ? (
+        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', margin: '24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌱</div>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>No Team Assigned</h2>
+          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
+            {user?.role === 'manager' 
+              ? 'Please select or add a team from your profile to start managing learning and growth for your team.'
+              : 'You need to be assigned to a team by your manager to view and track your learning goals.'}
+          </p>
+        </div>
+      ) : (
+        <>
       <style>{`
         .growth-card {
           background: #ffffff;
@@ -704,6 +716,8 @@ export default function LearningSection({ user }) {
             <button type="submit" className="es-btn-primary" style={{ marginTop: '10px' }}>Save Feedback</button>
           </form>
         </Modal>
+      )}
+      </>
       )}
     </div>
   )

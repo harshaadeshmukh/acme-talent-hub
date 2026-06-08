@@ -239,6 +239,16 @@ export default function ManageTeamSection() {
 
   return (
     <div className="es-root">
+      {(!user?.department || user?.department === 'Unassigned') ? (
+        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
+          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
+            Please select or add a team from your profile to start managing employees and viewing their performance collections.
+          </p>
+        </div>
+      ) : (
+        <>
       {/* Command Bar */}
       <div className="es-command-bar">
         <div className="es-cmd-left">
@@ -887,6 +897,8 @@ export default function ManageTeamSection() {
         </Modal>
       )}
 
+    </>
+    )}
     </div>
   )
 }

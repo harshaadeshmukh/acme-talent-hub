@@ -509,6 +509,18 @@ export default function AchievementsSection({ user }) {
 
   return (
     <div style={S.page}>
+      {(!user?.department || user?.department === 'Unassigned') ? (
+        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', margin: '24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏆</div>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>No Team Assigned</h2>
+          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
+            {isManager
+              ? 'Please select or add a team from your profile to start tracking team achievements.'
+              : 'You need to be assigned to a team by your manager to view team achievements.'}
+          </p>
+        </div>
+      ) : (
+        <>
       <style>{`
         @keyframes achModalIn { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:none; } }
         .ach-card:hover { transform: translateY(-5px) !important; box-shadow: 0 16px 40px rgba(0,0,0,0.1) !important; }
@@ -764,6 +776,8 @@ export default function AchievementsSection({ user }) {
             </form>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   )
