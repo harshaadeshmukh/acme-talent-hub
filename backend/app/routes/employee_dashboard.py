@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from app.auth import get_current_user
 from app.models import User, Goal, PerformanceReview, TrainingRecord, GoalStatusEnum, TeamAchievement
-from app.database import get_shard1_db, get_shard2_db, get_current_user
+from app.database import get_shard1_db, get_shard2_db
 
 router = APIRouter(prefix="/api/employee-dashboard", tags=["Employee Dashboard"])
 

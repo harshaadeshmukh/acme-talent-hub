@@ -4,10 +4,11 @@ from typing import List
 from datetime import datetime
 import json
 
+from app.auth import get_current_user
 from app.database import SessionLocal, shard_session_factories
 from app.models import ChatMessage, User, Company
 from app.schemas import ChatMessageResponse
-from app.database import get_shard1_db, get_shard2_db, get_current_user
+from app.database import get_shard1_db, get_shard2_db
 from app.websocket import manager
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])

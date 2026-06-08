@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
+from app.auth import get_current_user, get_current_manager
 from app.models import Goal, GoalStatusEnum, User
 from app.schemas import GoalCreate, GoalFeedback, GoalResponse
-from app.database import get_shard1_db, get_shard2_db, get_current_user, get_current_manager
+from app.database import get_shard1_db, get_shard2_db
 
 router = APIRouter(prefix="/api/goals", tags=["Goals"])
 

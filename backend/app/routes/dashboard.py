@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 from typing import List
 
+from app.auth import get_current_user, get_current_manager
 from app.database import get_shard1_db, get_shard2_db
 from app.models import User, PerformanceReview, TrainingRecord, EmployeeCompetency, RoleEnum
 from app.schemas import EmployeeStats, HighPerformer, SkillGap
-from app.database import get_shard1_db, get_shard2_db, get_current_user, get_current_manager
+from app.database import get_shard1_db, get_shard2_db
 
 router = APIRouter(prefix="/api/manager-dashboard", tags=["Manager Dashboard"])
 

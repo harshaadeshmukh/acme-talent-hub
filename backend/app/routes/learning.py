@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
-from app.database import get_shard1_db, get_shard2_db, get_current_user
+from app.auth import get_current_user
+from app.database import get_shard1_db, get_shard2_db
 from app.models.models import User, TrainingRecord, Goal, VerificationStatusEnum, RoleEnum, GoalStatusEnum
 from app.schemas.schemas import (
     TrainingRecordCreate, TrainingRecordResponse, CertificateVerifyRequest,

@@ -4,9 +4,10 @@ from sqlalchemy import func
 from typing import List, Dict, Any
 from pydantic import BaseModel
 
+from app.auth import get_current_manager
 from app.models import User, Competency, EmployeeCompetency, RoleEnum, SkillLevelEnum
 from app.schemas import TeamSkillGap, GoalMatchResponse
-from app.database import get_shard1_db, get_shard2_db, get_current_manager
+from app.database import get_shard1_db, get_shard2_db
 
 router = APIRouter()
 

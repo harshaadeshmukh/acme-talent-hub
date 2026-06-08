@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
+from app.auth import get_current_user, get_current_manager
 from app.models import TeamAchievement
 from app.schemas.schemas import AchievementCreate, AchievementResponse
-from app.database import get_shard1_db, get_shard2_db, get_current_user, get_current_manager
+from app.database import get_shard1_db, get_shard2_db
 
 router = APIRouter(prefix="/api/achievements", tags=["Achievements"])
 
