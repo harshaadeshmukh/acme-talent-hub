@@ -20,7 +20,31 @@ def get_chat_history(department_name: str, db: Session = Depends(get_shard2_db),
     messages = db.query(ChatMessage).filter(
         ChatMessage.department_name == department_name
     ).order_by(ChatMessage.timestamp.asc()).limit(100).all()
-    return messages
+    
+    if not messages:
+        return []
+        
+    # Cross-Database Stitching: Fetch sender details from Shard 1
+    sender_ids = list(set([m.sender_id for m in messages]))
+    global_db = SessionLocalShard1()
+    try:
+        users = global_db.query(User).filter(User.id.in_(sender_ids)).all()
+        user_map = {u.id: u for u in users}
+        
+        response_messages = []
+        for msg in messages:
+            response_messages.append({
+                "id": msg.id,
+                "sender_id": msg.sender_id,
+                "department_name": msg.department_name,
+                "content": msg.content,
+                "timestamp": msg.timestamp,
+                "sender": user_map.get(msg.sender_id)
+            })
+            
+        return response_messages
+    finally:
+        global_db.close()
 
 @router.websocket("/ws/{department_name}/{user_id}")
 async def websocket_chat(websocket: WebSocket, department_name: str, user_id: int):
