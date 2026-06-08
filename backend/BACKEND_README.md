@@ -116,8 +116,8 @@ Step 5:  Backend merges the data in memory and returns it to the frontend.
 Update your `.env` file with both database URLs:
 
 ```env
-# Shard 1 - Identity
-SHARD_1_DB_URL="postgresql://user:pass@host1/neondb"
+# Shard 1 - Identity (Required by Pydantic)
+DATABASE_URL="postgresql://user:pass@host1/neondb"
 
 # Shard 2 - Features
 SHARD_2_DB_URL="postgresql://user:pass@host2/neondb"
@@ -307,17 +307,12 @@ The API will be available at: `http://localhost:8000`
 
 ## Role-Based Access Control
 
-### Admin
-- Manage all users
-- Create/update/delete competencies
-- Create performance reviews for any employee
-- View all analytics
-
 ### Manager
-- View team performance
-- Create performance reviews
-- Manage team development plans
-- View analytics
+- Manage users and organizational roles
+- Create, update, and delete competencies
+- Create performance reviews for employees
+- View team performance and manage team development plans
+- View all dashboard analytics
 
 ### Employee
 - View own profile
