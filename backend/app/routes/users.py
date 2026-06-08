@@ -177,24 +177,24 @@ def create_department(dept: DepartmentCreate, db: Session = Depends(get_shard1_d
     return {"message": "Department created successfully"}
 
 @router.get("/{user_id}/details")
-def get_user_details(user_id: int, db: Session = Depends(get_shard1_db)):
+def get_user_details(user_id: int, db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db)):
     """Get detailed stats and competencies for a user modal"""
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db1.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
         
-    reviews = db.query(PerformanceReview).filter(PerformanceReview.employee_id == user_id).all()
+    reviews = db2.query(PerformanceReview).filter(PerformanceReview.employee_id == user_id).all()
     avg_rating = round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else None
     
-    training = db.query(TrainingRecord).filter(TrainingRecord.employee_id == user_id).all()
+    training = db2.query(TrainingRecord).filter(TrainingRecord.employee_id == user_id).all()
     training_hours = sum(t.duration_hours for t in training if t.duration_hours)
     
-    active_goals = db.query(Goal).filter(
+    active_goals = db2.query(Goal).filter(
         Goal.employee_id == user_id, 
         Goal.status.in_([GoalStatusEnum.DRAFT, GoalStatusEnum.SUBMITTED, GoalStatusEnum.APPROVED])
     ).count()
     
-    competencies = db.query(EmployeeCompetency).filter(EmployeeCompetency.employee_id == user_id).all()
+    competencies = db1.query(EmployeeCompetency).filter(EmployeeCompetency.employee_id == user_id).all()
     skills = [{"name": c.competency.name, "level": c.skill_level} for c in competencies if c.competency]
     
     return {
