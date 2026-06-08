@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
-from app.database import get_db
 from app.auth import get_tenant_db, get_current_user
 from app.models.models import User, TrainingRecord, Goal, VerificationStatusEnum, RoleEnum, GoalStatusEnum
 from app.schemas.schemas import (
@@ -28,7 +27,7 @@ def get_certificates(db: Session = Depends(get_tenant_db), current_user: User = 
 
 @router.post("/certificates", response_model=TrainingRecordResponse)
 def create_certificate(cert: TrainingRecordCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
-    db_cert = TrainingRecord(**cert.dict(), employee_id=current_user.id)
+    db_cert = TrainingRecord(**cert.dict(), employee_id=current_user.id, tenant_id=current_user.tenant_id)
     db.add(db_cert)
     db.commit()
     db.refresh(db_cert)
@@ -102,7 +101,7 @@ def get_goals(db: Session = Depends(get_tenant_db), current_user: User = Depends
 
 @router.post("/goals", response_model=GoalResponse)
 def create_goal(goal: GoalCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
-    db_goal = Goal(**goal.dict(), employee_id=current_user.id)
+    db_goal = Goal(**goal.dict(), employee_id=current_user.id, tenant_id=current_user.tenant_id)
     db.add(db_goal)
     db.commit()
     db.refresh(db_goal)

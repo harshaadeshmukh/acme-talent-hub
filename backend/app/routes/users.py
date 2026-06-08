@@ -25,7 +25,8 @@ def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: U
         email=user.email,
         password_hash=get_password_hash(user.password),
         role=user.role,
-        department=user.department
+        department=user.department,
+        tenant_id=current_user.tenant_id  # Inherit tenant from the creating manager
     )
     db.add(new_user)
     db.commit()
@@ -171,7 +172,7 @@ def create_department(dept: DepartmentCreate, db: Session = Depends(get_db), cur
     if existing:
         return {"message": "Department already exists"}
         
-    new_dept = Department(name=name)
+    new_dept = Department(name=name, tenant_id=current_user.tenant_id)
     db.add(new_dept)
     db.commit()
     return {"message": "Department created successfully"}

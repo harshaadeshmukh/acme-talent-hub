@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
-from app.database import get_db
 from app.models import Goal, GoalStatusEnum, User
 from app.schemas import GoalCreate, GoalFeedback, GoalResponse
 from app.auth import get_tenant_db, get_current_user, get_current_manager
@@ -12,7 +11,7 @@ router = APIRouter(prefix="/api/goals", tags=["Goals"])
 @router.post("/", response_model=GoalResponse, status_code=201)
 def create_goal(goal: GoalCreate, db: Session = Depends(get_tenant_db),
                 current_user: User = Depends(get_current_user)):
-    new_goal = Goal(employee_id=current_user.id, **goal.model_dump())
+    new_goal = Goal(employee_id=current_user.id, tenant_id=current_user.tenant_id, **goal.model_dump())
     db.add(new_goal)
     db.commit()
     db.refresh(new_goal)

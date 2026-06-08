@@ -4,7 +4,6 @@ from sqlalchemy import func
 from typing import List, Dict, Any
 from pydantic import BaseModel
 
-from app.database import get_db
 from app.models import User, Competency, EmployeeCompetency, RoleEnum, SkillLevelEnum
 from app.schemas import TeamSkillGap, GoalMatchResponse
 from app.auth import get_tenant_db, get_current_manager

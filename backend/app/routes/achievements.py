@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.database import get_db
 from app.models import TeamAchievement
 from app.schemas.schemas import AchievementCreate, AchievementResponse
 from app.auth import get_tenant_db, get_current_user, get_current_manager
@@ -16,7 +15,8 @@ def create_achievement(achievement: AchievementCreate, db: Session = Depends(get
         team_name=achievement.team_name,
         title=achievement.title,
         description=achievement.description,
-        type=achievement.type
+        type=achievement.type,
+        tenant_id=current_user.tenant_id
     )
     db.add(new_achievement)
     db.commit()

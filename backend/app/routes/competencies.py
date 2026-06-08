@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.database import get_db
 from app.models import User, Competency, EmployeeCompetency, RoleEnum
 from app.schemas import CompetencyResponse, CompetencyCreate, EmployeeCompetencyResponse, EmployeeCompetencyCreate, EmployeeCompetencyBase
 from app.auth import get_tenant_db, get_current_user, get_current_manager
@@ -17,7 +16,7 @@ def create_competency(competency: CompetencyCreate, db: Session = Depends(get_te
     if existing:
         raise HTTPException(status_code=400, detail="Competency already exists")
     
-    new_competency = Competency(name=competency.name)
+    new_competency = Competency(name=competency.name, tenant_id=current_user.tenant_id)
     db.add(new_competency)
     db.commit()
     db.refresh(new_competency)
@@ -67,7 +66,8 @@ def add_employee_competency(employee_id: int, competency_data: EmployeeCompetenc
         employee_id=employee_id,
         competency_id=competency_data.competency_id,
         skill_level=competency_data.skill_level,
-        years_of_experience=competency_data.years_of_experience
+        years_of_experience=competency_data.years_of_experience,
+        tenant_id=current_user.tenant_id
     )
     db.add(new_ec)
     db.commit()

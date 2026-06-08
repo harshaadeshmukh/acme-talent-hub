@@ -8,7 +8,7 @@ import os
 from datetime import timedelta
 from sqlalchemy.orm import Session
 
-from app.database import Base, engine, get_db, settings
+from app.database import Base, engine, get_db, settings, engines
 from app.models import User, RoleEnum
 from app.schemas import UserRegister, UserLogin, Token, UserResponse, OTPVerifyRequest, ForgotPasswordRequest, ResetPasswordRequest
 from app.auth import get_password_hash, verify_password, create_access_token, get_current_user
@@ -40,8 +40,10 @@ except Exception as e:
     print(f"WARNING: Redis not available ({e}), falling back to in-memory storage.")
     redis_client = DummyRedis()
 
-# Create tables
+# Create tables on all databases
 Base.metadata.create_all(bind=engine)
+for _shard_engine in engines.values():
+    Base.metadata.create_all(bind=_shard_engine)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -142,15 +144,19 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
+    # Default tenant - register users under first company (ID=1)
+    # In a full multi-tenant setup, tenant selection happens at onboarding
+    from app.models.models import Company
+    default_company = db.query(Company).first()
     password_hash = get_password_hash(user.password)
-    
     new_user = User(
         name=user.name,
         email=user.email,
         password_hash=password_hash,
         department=user.department,
         role=user.role,
-        is_active=True
+        is_active=True,
+        tenant_id=default_company.id if default_company else 1
     )
     db.add(new_user)
     db.commit()
@@ -186,13 +192,16 @@ def verify_otp(payload: OTPVerifyRequest, db: Session = Depends(get_db)):
         )
         
     # Mark OTP as verified and actually CREATE the user now
+    from app.models.models import Company
+    default_company = db.query(Company).first()
     new_user = User(
         name=redis_data["name"],
         email=redis_data["email"],
         password_hash=redis_data["password_hash"],
         department=redis_data["department"],
         role=RoleEnum.EMPLOYEE,
-        is_active=True
+        is_active=True,
+        tenant_id=default_company.id if default_company else 1
     )
     db.add(new_user)
     db.commit()

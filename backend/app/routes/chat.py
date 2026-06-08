@@ -4,7 +4,6 @@ from typing import List
 from datetime import datetime
 import json
 
-from app.database import get_db
 from app.models import ChatMessage, User
 from app.schemas import ChatMessageResponse
 from app.auth import get_tenant_db, get_current_user
@@ -62,7 +61,8 @@ async def websocket_chat(websocket: WebSocket, department_name: str, user_id: in
                 sender_id=user_id,
                 department_name=department_name,
                 content=content,
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
+                tenant_id=user.tenant_id
             )
             db.add(new_msg)
             db.commit()
