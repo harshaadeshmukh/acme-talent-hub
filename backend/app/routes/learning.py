@@ -17,14 +17,16 @@ router = APIRouter()
 # ───────────────────────────────────────────────────────────────────────────
 
 @router.get("/certificates", response_model=List[TrainingRecordResponse])
-def get_certificates(db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
+def get_certificates(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     if current_user.role == RoleEnum.MANAGER:
         # Get team's certificates
-        users = db.query(User).filter(User.department == current_user.department).all()
+        users = db1.query(User).filter(User.department == current_user.department).all()
         user_ids = [u.id for u in users]
-        return db.query(TrainingRecord).filter(TrainingRecord.employee_id.in_(user_ids)).order_by(TrainingRecord.created_at.desc()).all()
+        if not user_ids:
+            return []
+        return db2.query(TrainingRecord).filter(TrainingRecord.employee_id.in_(user_ids)).order_by(TrainingRecord.created_at.desc()).all()
     else:
-        return db.query(TrainingRecord).filter(TrainingRecord.employee_id == current_user.id).order_by(TrainingRecord.created_at.desc()).all()
+        return db2.query(TrainingRecord).filter(TrainingRecord.employee_id == current_user.id).order_by(TrainingRecord.created_at.desc()).all()
 
 @router.post("/certificates", response_model=TrainingRecordResponse)
 def create_certificate(cert: TrainingRecordCreate, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
@@ -92,13 +94,15 @@ def delete_certificate(cert_id: int, db: Session = Depends(get_shard2_db), curre
 # ───────────────────────────────────────────────────────────────────────────
 
 @router.get("/goals", response_model=List[GoalResponse])
-def get_goals(db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
+def get_goals(db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     if current_user.role == RoleEnum.MANAGER:
-        users = db.query(User).filter(User.department == current_user.department).all()
+        users = db1.query(User).filter(User.department == current_user.department).all()
         user_ids = [u.id for u in users]
-        return db.query(Goal).filter(Goal.employee_id.in_(user_ids)).order_by(Goal.created_at.desc()).all()
+        if not user_ids:
+            return []
+        return db2.query(Goal).filter(Goal.employee_id.in_(user_ids)).order_by(Goal.created_at.desc()).all()
     else:
-        return db.query(Goal).filter(Goal.employee_id == current_user.id).order_by(Goal.created_at.desc()).all()
+        return db2.query(Goal).filter(Goal.employee_id == current_user.id).order_by(Goal.created_at.desc()).all()
 
 @router.post("/goals", response_model=GoalResponse)
 def create_goal(goal: GoalCreate, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
