@@ -42,6 +42,21 @@ class GoalCategoryEnum(str, Enum):
     PROJECT = "project"
 
 
+# ── Company Schemas ───────────────────────────────────────────────────────────
+class CompanyBase(BaseModel):
+    name: str
+
+class CompanyCreate(CompanyBase):
+    pass
+
+class CompanyResponse(CompanyBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 # ── Auth Schemas ──────────────────────────────────────────────────────────────
 class UserRegister(BaseModel):
     name: str
@@ -108,6 +123,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: int
+    tenant_id: int
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -133,6 +149,7 @@ class PerformanceReviewUpdate(BaseModel):
 
 class PerformanceReviewResponse(PerformanceReviewBase):
     id: int
+    tenant_id: int
     employee_id: int
     reviewer_id: int
     review_date: datetime
@@ -152,6 +169,7 @@ class CompetencyCreate(CompetencyBase):
 
 class CompetencyResponse(CompetencyBase):
     id: int
+    tenant_id: int
     created_at: datetime
 
     class Config:
@@ -169,6 +187,7 @@ class EmployeeCompetencyCreate(EmployeeCompetencyBase):
 
 class EmployeeCompetencyResponse(EmployeeCompetencyBase):
     id: int
+    tenant_id: int
     employee_id: int
     created_at: datetime
     updated_at: datetime
@@ -208,6 +227,7 @@ class CertificateVerifyRequest(BaseModel):
 
 class TrainingRecordResponse(TrainingRecordBase):
     id: int
+    tenant_id: int
     employee_id: int
     employee_name: Optional[str] = None
     verification_status: VerificationStatusEnum
@@ -266,6 +286,7 @@ class AchievementCreate(BaseModel):
 
 class AchievementResponse(BaseModel):
     id: int
+    tenant_id: int
     team_name: str
     title: str
     description: Optional[str]
@@ -277,6 +298,7 @@ class AchievementResponse(BaseModel):
 
 class GoalResponse(BaseModel):
     id: int
+    tenant_id: int
     employee_id: int
     employee_name: Optional[str] = None
     title: str
@@ -317,6 +339,7 @@ class TimelineEventUpdate(BaseModel):
 
 class TimelineEventResponse(TimelineEventBase):
     id: int
+    tenant_id: int
     employee_id: int
     created_at: datetime
 
@@ -353,6 +376,7 @@ class ChatMessageCreate(BaseModel):
 
 class ChatMessageResponse(BaseModel):
     id: int
+    tenant_id: int
     sender_id: int
     department_name: str
     content: str

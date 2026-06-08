@@ -11,7 +11,7 @@ from app.models.models import (
     User, RoleEnum, PerformanceReview, Competency,
     EmployeeCompetency, SkillLevelEnum,
     StatusEnum, TrainingRecord, generate_emp_id,
-    Goal, GoalStatusEnum
+    Goal, GoalStatusEnum, Company
 )
 from app.auth import get_password_hash
 from datetime import datetime, timedelta
@@ -23,7 +23,18 @@ db = SessionLocal()
 
 print("🌱 Seeding database...")
 
-# ── 1. Competencies ───────────────────────────────────────────────────────────
+# ── 1. Create Default Tenant ──────────────────────────────────────────────────
+acme_company = db.query(Company).filter(Company.name == "Acme Corp").first()
+if not acme_company:
+    acme_company = Company(name="Acme Corp")
+    db.add(acme_company)
+    db.commit()
+    db.refresh(acme_company)
+    print(f"  ✅ Created default company: Acme Corp (ID: {acme_company.id})")
+else:
+    print(f"  ⏭  Skipped (exists): Acme Corp")
+
+# ── 2. Competencies ───────────────────────────────────────────────────────────
 competency_names = [
     ("Python",          "Backend development with Python"),
     ("React.js",        "Frontend development with React"),
@@ -38,7 +49,7 @@ comp_map = {}
 for name, desc in competency_names:
     existing = db.query(Competency).filter(Competency.name == name).first()
     if not existing:
-        c = Competency(name=name, description=desc)
+        c = Competency(name=name, tenant_id=acme_company.id)
         db.add(c)
         db.flush()
         comp_map[name] = c
