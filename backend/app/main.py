@@ -54,7 +54,10 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update in production
+    allow_origins=[
+        "http://localhost:5173",
+        "https://acme-talent-hub.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

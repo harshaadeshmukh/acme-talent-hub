@@ -1,6 +1,8 @@
 import os, glob
 
-for filepath in glob.glob('e:\\LEARNING_REACT\\ACME\\ACME-Talent-Hub\\backend\\app\\routes\\*.py'):
+base_dir = os.path.dirname(os.path.abspath(__file__))
+routes_pattern = os.path.join(base_dir, 'app', 'routes', '*.py')
+for filepath in glob.glob(routes_pattern):
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
     
