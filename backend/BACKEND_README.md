@@ -15,7 +15,26 @@ A high-performance, scalable backend API designed for the ACME Talent Hub. Built
 
 ## 🏗️ System Architecture & Sharding
 
-Because ACME Talent Hub handles high volumes of historical and analytical data, we utilize **Service-Based Sharding** across two distinct PostgreSQL databases. This prevents heavy analytics (like calculating company-wide performance) from impacting simple operations (like logging in).
+### ❓ Why Did We Build with 2 Databases?
+
+Originally, the system was designed around a single massive database. However, as ACME Talent Hub evolved into a heavy analytics and tracking platform, we implemented **Service-Based Sharding** across two distinct PostgreSQL databases. 
+
+Here is why:
+1. **Preventing Login Bottlenecks**: Heavy analytical queries (like calculating company-wide performance distributions or scanning chat history) require massive compute power. If all data lived in one database, a manager loading the Talent Intelligence dashboard could severely slow down an employee simply trying to log in.
+2. **Independent Scaling**: Because the databases are split by "Domain", Shard 2 (which handles high-volume transactions like Chat and Goals) can automatically scale its compute power independently of Shard 1.
+3. **Fault Tolerance**: If the analytics/chat database goes down, employees can still log in and view their core profiles because the Identity database remains unaffected.
+
+### 🔄 Cross-Database Workflow (How it works in practice)
+
+Because Shard 1 and Shard 2 are physically separate, we cannot use traditional SQL `JOIN` statements to link a User to their Goals. Instead, the FastAPI backend acts as an intelligent data-stitcher:
+
+```text
+Step 1: The frontend requests the Dashboard Stats.
+Step 2: The Backend queries Shard 2 to calculate the average performance ratings for all employees.
+Step 3: The Backend extracts the `employee_id` list of top performers from Shard 2.
+Step 4: The Backend queries Shard 1 using those specific IDs to fetch the Names and Avatars of the employees.
+Step 5: The Backend instantly merges the data in-memory using Python dictionaries, and returns a unified JSON response to the frontend.
+```
 
 ### 🗄️ Shard 1 (Core Identity)
 Powered by the `DATABASE_URL` environment variable.
