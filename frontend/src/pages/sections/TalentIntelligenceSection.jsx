@@ -236,8 +236,12 @@ export default function TalentIntelligenceSection() {
       .then(res => res.json())
       .then(data => {
         let team = data.filter(u => u.role === 'employee');
-        if (user?.role !== 'admin' && user?.department) {
-          team = team.filter(u => u.department === user.department);
+        if (user?.role !== 'admin' && user?.department && user.department !== 'Unassigned') {
+          team = team.filter(u => 
+            u.department === user.department || 
+            !u.department || 
+            u.department.toLowerCase() === 'unassigned'
+          );
         }
         setEmployees(team);
         if (team.length > 0) {
