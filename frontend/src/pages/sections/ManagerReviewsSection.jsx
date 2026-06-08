@@ -480,13 +480,22 @@ export default function ManagerReviewsSection() {
 
   return (
     <div className="perf-page-container" style={{ animation: 'fadeIn 0.4s ease' }}>
-      {/* Premium Hero Header */}
+      {(!user?.department || user?.department === 'Unassigned') ? (
+        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
+          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
+            Please select or add a team from your profile to start managing performance reviews.
+          </p>
+        </div>
+      ) : (
+        <>
       <div style={{
         backgroundColor: '#0f1117',
         backgroundImage: 'linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px)',
         backgroundSize: '28px 28px',
         borderRadius: '16px', padding: '18px 22px',
-        marginBottom: '24px',
+        marginBottom: '18px',
         position: 'relative', overflow: 'hidden',
       }}>
         <div style={{ position: 'absolute', top: '-60px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%)', pointerEvents: 'none' }} />
@@ -557,8 +566,8 @@ export default function ManagerReviewsSection() {
         </div>
       </div>
 
-      {/* Top Section - Overview & Actionable Insights */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px', marginBottom: '24px' }}>
+          {/* Top Section - Overview & Actionable Insights */}le Insights */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px', marginBottom: '24px' }}>
         
         {/* Stats - Horizontal */}
         <div className="perf-premium-card" style={{ height: '100%', marginBottom: 0 }}>
@@ -849,168 +858,138 @@ export default function ManagerReviewsSection() {
                   {review.employeeAvatar ? (
                     <img src={review.employeeAvatar} alt={review.employeeName} className="perf-avatar" style={{ objectFit: 'cover' }} />
                   ) : (
-                    <div className="perf-avatar" style={{ background: '#6366f1' }}>
-                      {getInitials(review.employeeName)}
-                    </div>
-                  )}
-                  <div className="perf-reviewer-name">{review.employeeName}</div>
-                </div>
-                {review.rating > 0 && (
-                  <div className="perf-review-rating">
-                    {review.rating.toFixed(1)}
-                    <StarRounded className="perf-star-icon" />
-                  </div>
-                )}
-              </div>
-              
-              <div className="perf-review-text" style={{ fontStyle: review.rating > 0 ? 'normal' : 'italic', color: review.rating > 0 ? '#475569' : '#94a3b8' }}>
-                {review.rating > 0 ? review.feedback : 'Pending evaluation...'}
-              </div>
-
-              {review.rating === 0 && (
-                <div style={{ marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-                  <button 
-                    onClick={() => { setEvaluateTarget(review); setRating(0); setPotential(1); setFeedback(''); setActiveFramework(null); setFrameworkData({}); }}
-                    style={{ width: '100%', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '8px', borderRadius: '6px', fontWeight: 600, color: '#0f172a', cursor: 'pointer', transition: 'background 0.2s' }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = '#f8fafc'}
-                  >
-                    Complete Evaluation
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Assign Modal */}
-      {assignOpen && (
-        <Modal title="Assign Performance Review" subtitle="Select an employee and review period" onClose={() => setAssignOpen(false)}>
-          <form onSubmit={handleAssign}>
-            <div className="es-field" style={{ marginBottom: '20px' }}>
-              <label className="es-field-label">Select Employee (Searchable) <span className="es-required">*</span></label>
-              <Autocomplete
-                options={users.filter(u => u.id !== user.id && u.department === user.department)}
-                getOptionLabel={(option) => `${option.name} (${option.department})`}
-                value={users.find(u => u.id.toString() === selectedEmployee.toString()) || null}
-                onChange={(e, newValue) => setSelectedEmployee(newValue ? newValue.id : '')}
-                renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    placeholder="Search by name..." 
-                    required 
-                    size="small"
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '6px', background: '#fff' } }}
-                  />
-                )}
-                noOptionsText="No employees found in your department"
-              />
-            </div>
-            <div className="es-field">
-              <label className="es-field-label">Review Cycle (e.g., Q2 2026, Annual 2027) <span className="es-required">*</span></label>
-              <input 
-                type="text" 
-                className="es-input" 
-                required 
-                placeholder="Type the review period here..."
-                value={reviewCycle} 
-                onChange={e => setReviewCycle(e.target.value.toUpperCase())} 
-              />
-            </div>
-            <div className="es-modal-footer" style={{ marginTop: '32px' }}>
-              <button type="button" className="es-btn es-btn-ghost" onClick={() => setAssignOpen(false)}>Cancel</button>
-              <button type="submit" className="es-btn es-btn-primary" disabled={submitting || !selectedEmployee}>
-                {submitting ? 'Assigning…' : 'Assign Review'}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
-
-      {/* Advanced Split-Screen Evaluate Modal */}
-      {evaluateTarget && (
-        <Modal
-          title={`Evaluate ${getUserName(evaluateTarget.employee_id)}`}
-          subtitle={`Advanced Company Calibration · ${evaluateTarget.review_period}`}
-          onClose={() => setEvaluateTarget(null)}
-          wide
-          splitScreen
-        >
-          <div className="evaluate-split-layout">
+        <>
+          {/* Top Section - Overview & Actionable Insights */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px', marginBottom: '24px' }}>
             
-            {/* Left Side: Premium Advanced Analytics Panel */}
-            <div style={{ flex: '1', background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', color: '#fff', border: '1px solid #334155', borderRadius: '16px', padding: '28px', boxShadow: '0 20px 40px -12px rgba(0,0,0,0.4)', position: 'relative', overflow: 'hidden' }}>
-              {/* Decorative background glow */}
-              <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', background: 'rgba(99, 102, 241, 0.2)', filter: 'blur(50px)', borderRadius: '50%' }}></div>
-              <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '150px', height: '150px', background: 'rgba(16, 185, 129, 0.15)', filter: 'blur(50px)', borderRadius: '50%' }}></div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', position: 'relative', zIndex: 2 }}>
-                <div style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', padding: '6px', borderRadius: '8px', display: 'flex' }}>
-                  <Timeline style={{ color: '#fff', fontSize: '1.2rem' }} />
+            {/* Stats - Horizontal */}
+            <div className="perf-premium-card" style={{ height: '100%', marginBottom: 0 }}>
+              <div className="perf-section-title">Overview</div>
+              <div className="perf-metric-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '16px' }}>
+                <div className="perf-metric-box" style={{ padding: '20px 16px' }}>
+                  <div className="perf-metric-label">Average Rating Given</div>
+                  <div className="perf-metric-value">{averageRating.toFixed(1)}</div>
+                  <div className="perf-stat-sub">Across all evaluations</div>
                 </div>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#f8fafc', fontWeight: 700, letterSpacing: '0.5px' }}>Advanced Context</h3>
+                <div className="perf-metric-box" style={{ padding: '20px 16px' }}>
+                  <div className="perf-metric-label">Total Reviews</div>
+                  <div className="perf-metric-value">{completedReviews.length}</div>
+                  <div className="perf-stat-sub">Completed cycles</div>
+                </div>
+                <div className="perf-metric-box" style={{ padding: '20px 16px', background: pendingReviews.length > 0 ? '#fffbeb' : '#f8fafc', borderColor: pendingReviews.length > 0 ? '#fde68a' : '#f1f5f9' }}>
+                  <div className="perf-metric-label">Pending Reviews</div>
+                  <div className="perf-metric-value" style={{ color: pendingReviews.length > 0 ? '#d97706' : '#0f172a' }}>{pendingReviews.length}</div>
+                  <div className="perf-stat-sub">Awaiting evaluation</div>
+                </div>
               </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', zIndex: 2 }}>
-                {/* Real Data Metric: Historical Average */}
-                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(10px)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '12px' }}>
-                    <TrendingUp fontSize="small" style={{ color: '#fbbf24' }} /> Past Performance
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    {(() => {
-                      const past = allCompanyReviews.filter(r => r.employee_id === evaluateTarget.employee_id && r.rating > 0);
-                      if (past.length === 0) {
-                        return <span style={{ fontSize: '0.9rem', color: '#cbd5e1', fontStyle: 'italic' }}>First review for this employee</span>;
-                      }
-                      const avg = (past.reduce((sum, r) => sum + r.rating, 0) / past.length).toFixed(1);
-                      return (
-                        <>
-                          <span style={{ fontSize: '1.8rem', color: '#fff', fontWeight: 800, textShadow: '0 2px 10px rgba(255,255,255,0.2)' }}>{avg}/5</span>
-                          <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Historical Average</span>
-                        </>
-                      );
-                    })()}
+
+              {/* New Performance Distribution Visualization */}
+              <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Team Performance Distribution
                   </div>
                 </div>
-
-                {/* Metric 3: Premium 9-Box Grid */}
-                <NineBoxGrid 
-                  employeeName={getUserName(evaluateTarget.employee_id).split(' ')[0]} 
-                  rating={rating} 
-                  potential={potential}
-                  onSelectBox={(r, p) => { setRating(r); setPotential(p); }}
-                />
+                
+                {(() => {
+                  const dist = { elite: [], high: [], core: [], risk: [] };
+                  chartData.forEach(emp => {
+                    if (emp.rating >= 4.5) dist.elite.push(emp.fullName);
+                    else if (emp.rating >= 3.5) dist.high.push(emp.fullName);
+                    else if (emp.rating >= 2.5) dist.core.push(emp.fullName);
+                    else dist.risk.push(emp.fullName);
+                  });
+                  const totalDist = chartData.length || 1;
+                  
+                  return (
+                    <div style={{ display: 'flex', height: '14px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                      {dist.elite.length > 0 && <div title={`Elite (4.5+): ${dist.elite.join(', ')}`} style={{ width: `${(dist.elite.length/totalDist)*100}%`, background: '#8b5cf6', transition: 'width 1s ease' }} />}
+                      {dist.high.length > 0 && <div title={`High (3.5+): ${dist.high.join(', ')}`} style={{ width: `${(dist.high.length/totalDist)*100}%`, background: '#10b981', transition: 'width 1s ease' }} />}
+                      {dist.core.length > 0 && <div title={`Core (2.5+): ${dist.core.join(', ')}`} style={{ width: `${(dist.core.length/totalDist)*100}%`, background: '#f59e0b', transition: 'width 1s ease' }} />}
+                      {dist.risk.length > 0 && <div title={`Risk (<2.5): ${dist.risk.join(', ')}`} style={{ width: `${(dist.risk.length/totalDist)*100}%`, background: '#ef4444', transition: 'width 1s ease' }} />}
+                    </div>
+                  );
+                })()}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{width: 8, height: 8, borderRadius: '50%', background: '#8b5cf6'}}/> Elite</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{width: 8, height: 8, borderRadius: '50%', background: '#10b981'}}/> High</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{width: 8, height: 8, borderRadius: '50%', background: '#f59e0b'}}/> Core</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{width: 8, height: 8, borderRadius: '50%', background: '#ef4444'}}/> Risk</span>
+                </div>
               </div>
             </div>
 
-            {/* Right Side: Premium Evaluation Form */}
-            <div style={{ flex: '1.2', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <form onSubmit={handleEvaluate} style={{ background: '#f8fafc', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}>
-                
-                {/* Rating Field */}
-                <div className="es-field" style={{ marginBottom: '24px' }}>
-                  <label className="es-field-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1e293b' }}>Performance Rating <span className="es-required">*</span></span>
-                  </label>
-                  <div style={{ background: '#fff', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <StarRating value={rating} onChange={setRating} />
-                    <div style={{ fontWeight: 600, color: rating > 0 ? '#10b981' : '#94a3b8', fontSize: '0.85rem' }}>
-                      {['Select Rating','Needs Improvement','Below Expectations','Meets Expectations','Exceeds Expectations','Outstanding'][Math.floor(rating)] || 'Pending'}
-                    </div>
+            {/* Performance Chart Component */}
+            <div className="perf-premium-card" style={{ height: '100%', marginBottom: 0, paddingBottom: '16px' }}>
+              <div className="perf-section-title">
+                Performance Calibration 
+                {companyAverage > 0 && <span style={{ fontSize: '0.75rem', marginLeft: '12px', background: 'rgba(99,102,241,0.1)', color: '#4f46e5', padding: '4px 8px', borderRadius: '12px' }}>Company Avg: {companyAverage.toFixed(1)}</span>}
+              </div>
+              <div style={{ height: '280px', width: '100%' }}>
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} dy={10} />
+                      <YAxis domain={[0, 5]} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} dx={-10} ticks={[0, 1, 2, 3, 4, 5]} />
+                      <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                      
+                      {companyAverage > 0 && (
+                        <ReferenceLine 
+                          y={companyAverage} 
+                          stroke="#6366f1" 
+                          strokeDasharray="4 4" 
+                          strokeWidth={2}
+                          label={{ 
+                            position: 'insideTopLeft', 
+                            value: 'Company Baseline', 
+                            fill: '#4f46e5', 
+                            fontSize: 11, 
+                            fontWeight: 700, 
+                            offset: 15,
+                            dy: -12
+                          }} 
+                        />
+                      )}
+                      
+                      <Bar 
+                        dataKey="rating" 
+                        radius={[6, 6, 0, 0]} 
+                        animationDuration={1500} 
+                        animationEasing="ease-out"
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={entry.rating >= 4.5 ? '#8b5cf6' : entry.rating >= 3.5 ? '#10b981' : entry.rating >= 2.5 ? '#f59e0b' : '#ef4444'} 
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '0.95rem', fontStyle: 'italic', background: '#f8fafc', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+                    Complete reviews to see calibration data.
                   </div>
-                </div>
-                
-                {/* Feedback Field */}
-                <div className="es-field">
-                  <label className="es-field-label" style={{ marginBottom: '12px', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>Detailed Feedback <span className="es-required">*</span></span>
-                    <span style={{ fontSize: '0.75rem', color: '#10b981', display: feedback.length > 20 ? 'flex' : 'none', alignItems: 'center', gap: '4px', background: 'rgba(16, 185, 129, 0.1)', padding: '4px 8px', borderRadius: '12px' }}>
-                      Tone: Constructive & Professional
-                    </span>
-                  </label>
-                  
+                )}
+              </div>
+            </div>
+            
+          </div>
+
+          {/* Action Center - Highlight pending reviews */}
+          {pendingReviews.length > 0 && (
+            <div style={{ background: 'linear-gradient(to right, #fffbeb, #fef3c7)', border: '1px solid #fde68a', borderRadius: '16px', padding: '24px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', boxShadow: '0 4px 6px -1px rgba(217, 119, 6, 0.05)' }}>
+              <div>
+                <h3 style={{ margin: '0 0 8px 0', color: '#92400e', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                  Action Required: Pending Evaluations
+                </h3>
+                <p style={{ margin: 0, color: '#b45309', fontSize: '0.9rem', fontWeight: 500 }}>You have {pendingReviews.length} employee{pendingReviews.length !== 1 ? 's' : ''} awaiting your performance review.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {pendingReviews.slice(0, 3).map((pr, i) => (
+                  <button 
                   {/* Premium Smart Chips */}
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, marginRight: '4px' }}>Smart Frameworks:</span>
@@ -1104,6 +1083,8 @@ export default function ManagerReviewsSection() {
             </div>
           </div>
         </Modal>
+      )}
+      </>
       )}
     </div>
   )

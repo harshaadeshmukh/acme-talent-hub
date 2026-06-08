@@ -518,6 +518,16 @@ export default function AchievementsSection({ user }) {
         .ach-leaderboard-row:hover { transform: translateX(3px); box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important; }
       `}</style>
 
+      {isManager && (!user?.department || user?.department === 'Unassigned') ? (
+        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
+          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
+            Please select or add a team from your profile to start viewing team achievements.
+          </p>
+        </div>
+      ) : (
+        <>
       {/* ── Hero Header ── */}
       <div style={S.heroWrap}>
         <div style={S.heroGlow} />
@@ -544,145 +554,147 @@ export default function AchievementsSection({ user }) {
         </div>
       </div>
 
-      {/* ── Insights: Leaderboard + Analytics (Manager only, when data exists) ── */}
-      {isManager && !loading && source.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px', marginBottom: '0' }}>
-          <TopTeamsLeaderboard source={source} departments={departments} />
-          <AchievementAnalytics source={source} />
-        </div>
-      )}
-
-      {/* ── Filter Bar ── */}
-      {!loading && source.length > 0 && (
-        <div style={S.filterBar}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: '4px' }}>Type</span>
-          <button style={S.filterChip(typeFilter === 'all', '#6366f1')} onClick={() => setTypeFilter('all')}>All</button>
-          {Object.entries(TYPES).map(([key, cfg]) => (
-            <button key={key} style={S.filterChip(typeFilter === key, cfg.color)} onClick={() => setTypeFilter(key)}>
-              {cfg.icon} {cfg.label}
-            </button>
-          ))}
-          {isManager && departments.length > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
-              <div style={S.filterDivider} />
-              <div style={{ position: 'relative' }}>
-                <button 
-                  onClick={() => setTeamDropdownOpen(!teamDropdownOpen)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '8px 16px', background: '#fff', 
-                    border: '1px solid', borderColor: teamDropdownOpen ? '#6366f1' : '#e2e8f0',
-                    borderRadius: '10px',
-                    fontSize: '13px', fontWeight: 600, color: '#334155',
-                    cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-                    transition: 'all 0.2s', outline: 'none'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = teamDropdownOpen ? '#6366f1' : '#cbd5e1'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = teamDropdownOpen ? '#6366f1' : '#e2e8f0'}
-                >
-                  <svg width="14" height="14" fill="none" stroke="#64748b" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                  {teamFilter === 'all' ? 'All Teams' : teamFilter}
-                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ transform: teamDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', color: '#94a3b8' }}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-
-                {teamDropdownOpen && (
-                  <>
-                    <div style={{ position: 'fixed', inset: 0, zIndex: 90 }} onClick={() => setTeamDropdownOpen(false)} />
-                    <div style={{
-                      position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-                      background: '#fff', border: '1px solid #e2e8f0',
-                      borderRadius: '12px', padding: '6px',
-                      boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
-                      zIndex: 100, minWidth: '200px',
-                      animation: 'achModalIn 0.2s ease'
-                    }}>
-                      <div 
-                        onClick={() => { setTeamFilter('all'); setTeamDropdownOpen(false); }}
-                        style={{
-                          padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: teamFilter === 'all' ? 700 : 500,
-                          color: teamFilter === 'all' ? '#4f46e5' : '#475569',
-                          background: teamFilter === 'all' ? '#e0e7ff' : 'transparent',
-                          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          transition: 'background 0.15s'
-                        }}
-                        onMouseEnter={e => { if (teamFilter !== 'all') e.currentTarget.style.background = '#f8fafc' }}
-                        onMouseLeave={e => { if (teamFilter !== 'all') e.currentTarget.style.background = 'transparent' }}
-                      >
-                        All Teams
-                        {teamFilter === 'all' && <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
-                      </div>
-                      
-                      <div style={{ height: '1px', background: '#f1f5f9', margin: '4px 0' }} />
-                      
-                      {departments.map(d => (
-                        <div 
-                          key={d}
-                          onClick={() => { setTeamFilter(d); setTeamDropdownOpen(false); }}
-                          style={{
-                            padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: teamFilter === d ? 700 : 500,
-                            color: teamFilter === d ? '#4f46e5' : '#475569',
-                            background: teamFilter === d ? '#e0e7ff' : 'transparent',
-                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            transition: 'background 0.15s'
-                          }}
-                          onMouseEnter={e => { if (teamFilter !== d) e.currentTarget.style.background = '#f8fafc' }}
-                          onMouseLeave={e => { if (teamFilter !== d) e.currentTarget.style.background = 'transparent' }}
-                        >
-                          {d}
-                          {teamFilter === d && <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+          {/* ── Insights: Leaderboard + Analytics (Manager only, when data exists) ── */}
+          {isManager && !loading && source.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px', marginBottom: '0' }}>
+              <TopTeamsLeaderboard source={source} departments={departments} />
+              <AchievementAnalytics source={source} />
             </div>
           )}
-        </div>
-      )}
 
-      {/* ── Content ── */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '80px', color: '#94a3b8' }}>
-          <div style={{ fontSize: '40px', marginBottom: '16px', animation: 'spin 1.5s linear infinite', display: 'inline-block' }}>⏳</div>
-          <p style={{ fontWeight: 600 }}>Loading achievements...</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div style={S.empty}>
-          <div style={{ fontSize: '56px', marginBottom: '16px', filter: 'grayscale(0.4)' }}>🏆</div>
-          <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#334155', margin: '0 0 10px' }}>
-            {source.length === 0 ? 'No achievements yet' : 'No results for this filter'}
-          </h3>
-          <p style={{ color: '#64748b', maxWidth: '380px', margin: '0 auto', lineHeight: 1.6 }}>
-            {isManager
-              ? source.length === 0 ? 'Click "Award Achievement" to recognize your first team milestone!' : 'Try removing some filters to see more achievements.'
-              : "Your team's milestones will appear here once your manager recognizes them."}
-          </p>
-        </div>
-      ) : (
-        <div style={S.grid}>
-          {filtered.map(ach => {
-            const cfg = TYPES[ach.type] || TYPES.product_launch
-            const date = new Date(ach.date_awarded).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-            return (
-              <div key={ach.id} className="ach-card" style={S.card()}>
-                <div style={S.cardAccent(cfg.color)} />
-                <div style={S.cardBody}>
-                  <div style={S.cardTop}>
-                    <div style={S.iconWrap(cfg.light)}>{cfg.icon}</div>
-                    <div style={S.typeBadge(cfg.color, cfg.light)}>{cfg.icon} {cfg.label}</div>
+          {/* ── Filter Bar ── */}
+          {!loading && source.length > 0 && (
+            <div style={S.filterBar}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: '4px' }}>Type</span>
+              <button style={S.filterChip(typeFilter === 'all', '#6366f1')} onClick={() => setTypeFilter('all')}>All</button>
+              {Object.entries(TYPES).map(([key, cfg]) => (
+                <button key={key} style={S.filterChip(typeFilter === key, cfg.color)} onClick={() => setTypeFilter(key)}>
+                  {cfg.icon} {cfg.label}
+                </button>
+              ))}
+              {isManager && departments.length > 1 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+                  <div style={S.filterDivider} />
+                  <div style={{ position: 'relative' }}>
+                    <button 
+                      onClick={() => setTeamDropdownOpen(!teamDropdownOpen)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        padding: '8px 16px', background: '#fff', 
+                        border: '1px solid', borderColor: teamDropdownOpen ? '#6366f1' : '#e2e8f0',
+                        borderRadius: '10px',
+                        fontSize: '13px', fontWeight: 600, color: '#334155',
+                        cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                        transition: 'all 0.2s', outline: 'none'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = teamDropdownOpen ? '#6366f1' : '#cbd5e1'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = teamDropdownOpen ? '#6366f1' : '#e2e8f0'}
+                    >
+                      <svg width="14" height="14" fill="none" stroke="#64748b" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                      {teamFilter === 'all' ? 'All Teams' : teamFilter}
+                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ transform: teamDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', color: '#94a3b8' }}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+
+                    {teamDropdownOpen && (
+                      <>
+                        <div style={{ position: 'fixed', inset: 0, zIndex: 90 }} onClick={() => setTeamDropdownOpen(false)} />
+                        <div style={{
+                          position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+                          background: '#fff', border: '1px solid #e2e8f0',
+                          borderRadius: '12px', padding: '6px',
+                          boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                          zIndex: 100, minWidth: '200px',
+                          animation: 'achModalIn 0.2s ease'
+                        }}>
+                          <div 
+                            onClick={() => { setTeamFilter('all'); setTeamDropdownOpen(false); }}
+                            style={{
+                              padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: teamFilter === 'all' ? 700 : 500,
+                              color: teamFilter === 'all' ? '#4f46e5' : '#475569',
+                              background: teamFilter === 'all' ? '#e0e7ff' : 'transparent',
+                              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                              transition: 'background 0.15s'
+                            }}
+                            onMouseEnter={e => { if (teamFilter !== 'all') e.currentTarget.style.background = '#f8fafc' }}
+                            onMouseLeave={e => { if (teamFilter !== 'all') e.currentTarget.style.background = 'transparent' }}
+                          >
+                            All Teams
+                            {teamFilter === 'all' && <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
+                          </div>
+                          
+                          <div style={{ height: '1px', background: '#f1f5f9', margin: '4px 0' }} />
+                          
+                          {departments.map(d => (
+                            <div 
+                              key={d}
+                              onClick={() => { setTeamFilter(d); setTeamDropdownOpen(false); }}
+                              style={{
+                                padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: teamFilter === d ? 700 : 500,
+                                color: teamFilter === d ? '#4f46e5' : '#475569',
+                                background: teamFilter === d ? '#e0e7ff' : 'transparent',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                transition: 'background 0.15s'
+                              }}
+                              onMouseEnter={e => { if (teamFilter !== d) e.currentTarget.style.background = '#f8fafc' }}
+                              onMouseLeave={e => { if (teamFilter !== d) e.currentTarget.style.background = 'transparent' }}
+                            >
+                              {d}
+                              {teamFilter === d && <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <h3 style={S.cardTitle}>{ach.title}</h3>
-                  <p style={S.cardDesc}>{ach.description || <em style={{ opacity: 0.5 }}>No description provided.</em>}</p>
                 </div>
-                <div style={S.cardFooter}>
-                  <span style={S.footerTeam}>👥 {ach.team_name}</span>
-                  <span style={S.footerDate}>{date}</span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Content ── */}
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '80px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '40px', marginBottom: '16px', animation: 'spin 1.5s linear infinite', display: 'inline-block' }}>⏳</div>
+              <p style={{ fontWeight: 600 }}>Loading achievements...</p>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div style={S.empty}>
+              <div style={{ fontSize: '56px', marginBottom: '16px', filter: 'grayscale(0.4)' }}>🏆</div>
+              <h3 style={{ fontSize: '22px', fontWeight: 800, color: '#334155', margin: '0 0 10px' }}>
+                {source.length === 0 ? 'No achievements yet' : 'No results for this filter'}
+              </h3>
+              <p style={{ color: '#64748b', maxWidth: '380px', margin: '0 auto', lineHeight: 1.6 }}>
+                {isManager
+                  ? source.length === 0 ? 'Click "Award Achievement" to recognize your first team milestone!' : 'Try removing some filters to see more achievements.'
+                  : "Your team's milestones will appear here once your manager recognizes them."}
+              </p>
+            </div>
+          ) : (
+            <div style={S.grid}>
+              {filtered.map(ach => {
+                const cfg = TYPES[ach.type] || TYPES.product_launch
+                const date = new Date(ach.date_awarded).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                return (
+                  <div key={ach.id} className="ach-card" style={S.card()}>
+                    <div style={S.cardAccent(cfg.color)} />
+                    <div style={S.cardBody}>
+                      <div style={S.cardTop}>
+                        <div style={S.iconWrap(cfg.light)}>{cfg.icon}</div>
+                        <div style={S.typeBadge(cfg.color, cfg.light)}>{cfg.icon} {cfg.label}</div>
+                      </div>
+                      <h3 style={S.cardTitle}>{ach.title}</h3>
+                      <p style={S.cardDesc}>{ach.description || <em style={{ opacity: 0.5 }}>No description provided.</em>}</p>
+                    </div>
+                    <div style={S.cardFooter}>
+                      <span style={S.footerTeam}>👥 {ach.team_name}</span>
+                      <span style={S.footerDate}>{date}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </>
       )}
 
       {/* ── Award Modal ── */}

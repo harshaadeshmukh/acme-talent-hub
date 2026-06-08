@@ -239,6 +239,16 @@ export default function ManageTeamSection() {
 
   return (
     <div className="es-root">
+      {(!user?.department || user?.department === 'Unassigned') ? (
+        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
+          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
+            Please select or add a team from your profile to start managing employees and viewing their performance collections.
+          </p>
+        </div>
+      ) : (
+        <>
       {/* Command Bar */}
       <div className="es-command-bar">
         <div className="es-cmd-left">
@@ -267,101 +277,90 @@ export default function ManageTeamSection() {
         </div>
       </div>
 
-      {/* Stats Strip */}
-      <div className="es-stat-strip">
-        <div className="es-stat-item">
-          <span className="es-stat-num">{members.length}</span>
-          <span className="es-stat-lbl">Total Members</span>
-        </div>
-        <div className="es-stat-divider" />
-        <div className="es-stat-item">
-          <span className="es-stat-num">{members.filter(m => m.role === 'manager').length}</span>
-          <span className="es-stat-lbl">Managers</span>
-        </div>
-        <div className="es-stat-divider" />
-        <div className="es-stat-item">
-          <span className="es-stat-num">{members.filter(m => m.role === 'employee').length}</span>
-          <span className="es-stat-lbl">Employees</span>
-        </div>
-        <div className="es-stat-divider" />
-        <div className="es-stat-item">
-          <span className="es-stat-num">{deptSet.length}</span>
-          <span className="es-stat-lbl">Departments</span>
-        </div>
-        <div className="es-stat-divider" />
-        <div className="es-stat-item">
-          <span className="es-stat-num" style={{ color: '#10b981' }}>{members.filter(m => m.department && m.department !== 'Unassigned').length}</span>
-          <span className="es-stat-lbl">Assigned</span>
-        </div>
-        <div className="es-stat-spacer" />
-        {/* View toggle */}
-        <div className="es-view-toggle">
-          <button className={`es-vt-btn ${viewMode === 'table' ? 'es-vt-active' : ''}`} onClick={() => setViewMode('table')} title="Table view">
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
-          </button>
-          <button className={`es-vt-btn ${viewMode === 'cards' ? 'es-vt-active' : ''}`} onClick={() => setViewMode('cards')} title="Card view">
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          </button>
-        </div>
-      </div>
+          {/* Stats Strip */}
+          <div className="es-stat-strip">
+            <div className="es-stat-item">
+              <span className="es-stat-num">{members.length}</span>
+              <span className="es-stat-lbl">Total Members</span>
+            </div>
+            <div className="es-stat-divider" />
+            <div className="es-stat-item">
+              <span className="es-stat-num">{members.filter(m => m.role === 'manager').length}</span>
+              <span className="es-stat-lbl">Managers</span>
+            </div>
+            <div className="es-stat-divider" />
+            <div className="es-stat-item">
+              <span className="es-stat-num">{members.filter(m => m.role === 'employee').length}</span>
+              <span className="es-stat-lbl">Employees</span>
+            </div>
+            <div className="es-stat-divider" />
+            <div className="es-stat-item">
+              <span className="es-stat-num">{deptSet.length}</span>
+              <span className="es-stat-lbl">Departments</span>
+            </div>
+            <div className="es-stat-divider" />
+            <div className="es-stat-item">
+              <span className="es-stat-num" style={{ color: '#10b981' }}>{members.filter(m => m.department && m.department !== 'Unassigned').length}</span>
+              <span className="es-stat-lbl">Assigned</span>
+            </div>
+            <div className="es-stat-spacer" />
+            {/* View toggle */}
+            <div className="es-view-toggle">
+              <button className={`es-vt-btn ${viewMode === 'table' ? 'es-vt-active' : ''}`} onClick={() => setViewMode('table')} title="Table view">
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+              </button>
+              <button className={`es-vt-btn ${viewMode === 'cards' ? 'es-vt-active' : ''}`} onClick={() => setViewMode('cards')} title="Card view">
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              </button>
+            </div>
+          </div>
 
-      {/* Toolbar */}
-      <div className="es-toolbar">
-        <div className="es-search-wrap">
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input
-            className="es-search"
-            placeholder="Search name, email or department…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          {search && (
-            <button className="es-search-clear" onClick={() => setSearch('')}>
-              <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
+          {/* Toolbar */}
+          <div className="es-toolbar">
+            <div className="es-search-wrap">
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input
+                className="es-search"
+                placeholder="Search name, email or department…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+              {search && (
+                <button className="es-search-clear" onClick={() => setSearch('')}>
+                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              )}
+            </div>
+            <div className="es-filter-pills">
+              {roles.map(r => (
+                <button key={r} className={`es-pill ${filterRole === r ? 'es-pill-active' : ''}`} onClick={() => setFilterRole(r)}>
+                  {r}
+                  {r !== 'All' && <span className="es-pill-count">{members.filter(m => m.role === r.toLowerCase()).length}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {successMsg && (
+            <div className="es-error-banner" style={{ background: '#d1fae5', color: '#065f46', border: '1px solid #a7f3d0' }}>
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+              {successMsg}
+            </div>
           )}
-        </div>
-        <div className="es-filter-pills">
-          {roles.map(r => (
-            <button key={r} className={`es-pill ${filterRole === r ? 'es-pill-active' : ''}`} onClick={() => setFilterRole(r)}>
-              {r}
-              {r !== 'All' && <span className="es-pill-count">{members.filter(m => m.role === r.toLowerCase()).length}</span>}
-            </button>
-          ))}
-        </div>
-      </div>
+          {warningMsg && (
+            <div className="es-error-banner" style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fcd34d' }}>
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              {warningMsg}
+            </div>
+          )}
 
-      {successMsg && (
-        <div className="es-error-banner" style={{ background: '#d1fae5', color: '#065f46', border: '1px solid #a7f3d0' }}>
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-          {successMsg}
-        </div>
-      )}
-      {warningMsg && (
-        <div className="es-error-banner" style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fcd34d' }}>
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          {warningMsg}
-        </div>
-      )}
-
-      {error && (
-        <div className="es-error-banner">
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-          {error}
-          <button onClick={() => fetchMembers(search)}>Retry</button>
-        </div>
-      )}
-
-      {(!user?.department || user?.department === 'Unassigned') ? (
-        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
-          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
-            Please select or add a team from your profile to start managing employees and viewing their performance collections.
-          </p>
-        </div>
-      ) : (
-        <>
+          {error && (
+            <div className="es-error-banner">
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              {error}
+              <button onClick={() => fetchMembers(search)}>Retry</button>
+            </div>
+          )}
           {/* TABLE VIEW */}
           {viewMode === 'table' && (
             <div className="es-panel">
