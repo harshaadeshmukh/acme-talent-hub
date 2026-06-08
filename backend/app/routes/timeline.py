@@ -4,18 +4,18 @@ from typing import List
 from app.database import get_db
 from app.models import WorkTimelineEvent, User
 from app.schemas import TimelineEventCreate, TimelineEventUpdate, TimelineEventResponse
-from app.auth import get_current_user
+from app.auth import get_tenant_db, get_current_user
 
 router = APIRouter(prefix="/api/timeline", tags=["Timeline"])
 
 @router.get("/employee/{employee_id}", response_model=List[TimelineEventResponse])
-def get_employee_timeline(employee_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_employee_timeline(employee_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     # Anyone authenticated can view a timeline (managers, peers, etc.)
     events = db.query(WorkTimelineEvent).filter(WorkTimelineEvent.employee_id == employee_id).order_by(WorkTimelineEvent.start_date.desc()).all()
     return events
 
 @router.post("/", response_model=TimelineEventResponse, status_code=201)
-def create_timeline_event(event: TimelineEventCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_timeline_event(event: TimelineEventCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     # Employees can add events to their own timeline
     new_event = WorkTimelineEvent(employee_id=current_user.id, **event.model_dump())
     db.add(new_event)
@@ -24,7 +24,7 @@ def create_timeline_event(event: TimelineEventCreate, db: Session = Depends(get_
     return new_event
 
 @router.patch("/{event_id}", response_model=TimelineEventResponse)
-def update_timeline_event(event_id: int, event: TimelineEventUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def update_timeline_event(event_id: int, event: TimelineEventUpdate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     db_event = db.query(WorkTimelineEvent).filter(WorkTimelineEvent.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Timeline event not found")
@@ -42,7 +42,7 @@ def update_timeline_event(event_id: int, event: TimelineEventUpdate, db: Session
     return db_event
 
 @router.delete("/{event_id}", status_code=204)
-def delete_timeline_event(event_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def delete_timeline_event(event_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     db_event = db.query(WorkTimelineEvent).filter(WorkTimelineEvent.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Timeline event not found")

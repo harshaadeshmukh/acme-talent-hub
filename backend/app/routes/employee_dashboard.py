@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import get_db
 from app.models import User, Goal, PerformanceReview, TrainingRecord, GoalStatusEnum, TeamAchievement
-from app.auth import get_current_user
+from app.auth import get_tenant_db, get_current_user
 
 router = APIRouter(prefix="/api/employee-dashboard", tags=["Employee Dashboard"])
 
 @router.get("/stats")
-def get_employee_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_employee_stats(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get stats for the employee dashboard"""
     # Active goals: Goals that are approved
     active_goals = db.query(Goal).filter(

@@ -5,12 +5,12 @@ from typing import List
 from app.database import get_db
 from app.models import User, PerformanceReview, RoleEnum
 from app.schemas import PerformanceReviewResponse, PerformanceReviewCreate, PerformanceReviewUpdate
-from app.auth import get_current_user, get_current_manager
+from app.auth import get_tenant_db, get_current_user, get_current_manager
 
 router = APIRouter(prefix="/api/reviews", tags=["Performance Reviews"])
 
 @router.post("/", response_model=PerformanceReviewResponse, status_code=status.HTTP_201_CREATED)
-def create_review(review: PerformanceReviewCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def create_review(review: PerformanceReviewCreate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_manager)):
     """Create performance review (manager/manager only)"""
     # Verify employee and reviewer exist
     employee = db.query(User).filter(User.id == review.employee_id, User.is_active == True).first()
@@ -38,13 +38,13 @@ def create_review(review: PerformanceReviewCreate, db: Session = Depends(get_db)
     return new_review
 
 @router.get("/", response_model=List[PerformanceReviewResponse])
-def list_reviews(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def list_reviews(skip: int = 0, limit: int = 100, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """List all reviews"""
     reviews = db.query(PerformanceReview).offset(skip).limit(limit).all()
     return reviews
 
 @router.get("/employee/{employee_id}", response_model=List[PerformanceReviewResponse])
-def get_employee_reviews(employee_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_employee_reviews(employee_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get all reviews for an employee"""
     employee = db.query(User).filter(User.id == employee_id).first()
     if not employee:
@@ -54,7 +54,7 @@ def get_employee_reviews(employee_id: int, db: Session = Depends(get_db), curren
     return reviews
 
 @router.get("/{review_id}", response_model=PerformanceReviewResponse)
-def get_review(review_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_review(review_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get review by ID"""
     review = db.query(PerformanceReview).filter(PerformanceReview.id == review_id).first()
     if not review:
@@ -62,7 +62,7 @@ def get_review(review_id: int, db: Session = Depends(get_db), current_user: User
     return review
 
 @router.put("/{review_id}", response_model=PerformanceReviewResponse)
-def update_review(review_id: int, review_update: PerformanceReviewUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def update_review(review_id: int, review_update: PerformanceReviewUpdate, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_manager)):
     """Update performance review (manager/manager only)"""
     review = db.query(PerformanceReview).filter(PerformanceReview.id == review_id).first()
     if not review:
@@ -84,7 +84,7 @@ def update_review(review_id: int, review_update: PerformanceReviewUpdate, db: Se
     return review
 
 @router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_review(review_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def delete_review(review_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_manager)):
     """Delete performance review (manager/manager only)"""
     review = db.query(PerformanceReview).filter(PerformanceReview.id == review_id).first()
     if not review:
@@ -99,7 +99,7 @@ def delete_review(review_id: int, db: Session = Depends(get_db), current_user: U
     return None
 
 @router.get("/employee/{employee_id}/average", tags=["Performance Reviews"])
-def get_employee_average_rating(employee_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_employee_average_rating(employee_id: int, db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get average rating for an employee"""
     from sqlalchemy import func
     

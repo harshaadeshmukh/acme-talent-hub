@@ -6,12 +6,12 @@ from typing import List
 from app.database import get_db
 from app.models import User, PerformanceReview, TrainingRecord, EmployeeCompetency, RoleEnum
 from app.schemas import EmployeeStats, HighPerformer, SkillGap
-from app.auth import get_current_user, get_current_manager
+from app.auth import get_tenant_db, get_current_user, get_current_manager
 
 router = APIRouter(prefix="/api/manager-dashboard", tags=["Manager Dashboard"])
 
 @router.get("/stats", response_model=EmployeeStats)
-def get_employee_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_employee_stats(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get overall employee statistics"""
     total_employees = db.query(User).filter(User.role == RoleEnum.EMPLOYEE, User.is_active == True).count()
     active_employees = db.query(User).filter(User.role == RoleEnum.EMPLOYEE, User.is_active == True).count()
@@ -44,7 +44,7 @@ def get_employee_stats(db: Session = Depends(get_db), current_user: User = Depen
     }
 
 @router.get("/high-performers", response_model=List[HighPerformer])
-def get_high_performers(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_high_performers(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get high-performing employees (average rating >= 4.0)"""
     high_performers = db.query(
         User.id,
@@ -75,7 +75,7 @@ def get_high_performers(db: Session = Depends(get_db), current_user: User = Depe
     ]
 
 @router.get("/at-risk-employees", response_model=List[dict])
-def get_at_risk_employees(db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def get_at_risk_employees(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_manager)):
     """Get at-risk employees (average rating < 2.0 or no reviews in last 6 months)"""
     from datetime import datetime, timedelta
     
@@ -112,7 +112,7 @@ def get_at_risk_employees(db: Session = Depends(get_db), current_user: User = De
     return result
 
 @router.get("/skill-gaps", response_model=List[dict])
-def get_skill_gaps(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_skill_gaps(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Identify critical skill gaps across organization"""
     from app.models import Competency
     
@@ -142,7 +142,7 @@ def get_skill_gaps(db: Session = Depends(get_db), current_user: User = Depends(g
     return skill_gaps
 
 @router.get("/performance-distribution")
-def get_performance_distribution(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_performance_distribution(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get distribution of performance ratings"""
     ratings_dist = {
         "5_stars": 0,
@@ -172,7 +172,7 @@ def get_performance_distribution(db: Session = Depends(get_db), current_user: Us
     }
 
 @router.get("/promotion-ready-employees", response_model=List[dict])
-def get_promotion_ready_employees(db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def get_promotion_ready_employees(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_manager)):
     """Get employees ready for promotion (avg rating >= 4.5 and completed development plans)"""
     promotion_ready = db.query(
         User.id,
@@ -204,7 +204,7 @@ def get_promotion_ready_employees(db: Session = Depends(get_db), current_user: U
     ]
 
 @router.get("/training-completion-rate")
-def get_training_completion_rate(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_training_completion_rate(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get organization-wide training completion rate"""
     total_trainings = db.query(TrainingRecord).count()
     completed_trainings = db.query(TrainingRecord).filter(
@@ -220,7 +220,7 @@ def get_training_completion_rate(db: Session = Depends(get_db), current_user: Us
     }
 
 @router.get("/department-performance")
-def get_department_performance(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_department_performance(db: Session = Depends(get_tenant_db), current_user: User = Depends(get_current_user)):
     """Get average performance by department"""
     departments = db.query(User.department).filter(
         User.is_active == True,
