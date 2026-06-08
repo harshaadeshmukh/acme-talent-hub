@@ -116,6 +116,8 @@ Here is a comprehensive list of interview questions recruiters or senior enginee
 34. How did you handle database migrations? (If asked, mention you used `Base.metadata.create_all` for the MVP but would use Alembic for production).
 35. What is a database Index, and which columns in your database would benefit most from indexing?
 36. Explain the difference between an Inner Join and a Left Join. Give an example using your Users and Reviews tables.
+36a. **Why did you implement Service-Based Sharding with two separate databases instead of a single monolith?** (Answer: To prevent heavy analytical queries on Chat/Goals from creating bottlenecks for core Identity/Auth operations, and to allow independent scaling).
+36b. **How do you securely configure and enforce connections to your specific database shards?** (Answer: By strictly requiring `DATABASE_URL` for Shard 1 and `SHARD_2_DB_URL` for Shard 2 in the Render environment variables, and removing any code fallbacks).
 
 ### 🔄 Real-Time Data (WebSockets)
 37. What is a WebSocket, and how does it differ from traditional HTTP polling?
