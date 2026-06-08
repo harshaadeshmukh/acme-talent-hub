@@ -667,16 +667,6 @@ export default function TalentIntelligenceSection() {
 
   return (
     <div className="es-section-content" style={{ animation: 'fadeIn 0.4s ease', paddingTop: '20px' }}>
-      {(!user?.department || user?.department === 'Unassigned') ? (
-        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
-          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
-            Please select or add a team from your profile to start viewing talent intelligence insights.
-          </p>
-        </div>
-      ) : (
-        <>
       {/* Hero Header matching LearningSection style */}
       <div style={{
         backgroundColor: '#0f1117',
@@ -702,18 +692,17 @@ export default function TalentIntelligenceSection() {
           </div>
         </div>
       </div>
-          <div style={{ marginBottom: '10px' }}>
-            {renderTabs()}
-          </div>
 
-          <ErrorBoundary>
-            <div className="es-section-content" style={{ marginTop: '0' }}>
-              {activeTab === 'overlay' && renderOverlayTab()}
-              {activeTab === 'matrix' && renderMatrixTab()}
-            </div>
-          </ErrorBoundary>
-        </>
-      )}
+      <div style={{ marginBottom: '10px' }}>
+        {renderTabs()}
+      </div>
+
+      <ErrorBoundary>
+        <div className="es-section-content" style={{ marginTop: '0' }}>
+          {activeTab === 'overlay' && renderOverlayTab()}
+          {activeTab === 'matrix' && renderMatrixTab()}
+        </div>
+      </ErrorBoundary>
     </div>
   );
 }

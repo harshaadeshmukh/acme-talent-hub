@@ -311,54 +311,44 @@ export default function LearningSection({ user }) {
         }
       `}</style>
 
-      {isManager && (!user?.department || user?.department === 'Unassigned') ? (
-        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
-          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
-            Please select or add a team from your profile to start assigning and viewing team development goals.
-          </p>
-        </div>
-      ) : (
-        <>
-          {/* Hero Header */}
-          <div style={{
-            backgroundColor: '#0f1117',
-            backgroundImage: 'linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-            borderRadius: '16px', padding: '18px 22px',
-            marginBottom: '18px',
-            position: 'relative', overflow: 'hidden',
-          }}>
-            <div style={{ position: 'absolute', top: '-60px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%)', pointerEvents: 'none' }} />
+      {/* Hero Header */}
+      <div style={{
+        backgroundColor: '#0f1117',
+        backgroundImage: 'linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+        borderRadius: '16px', padding: '18px 22px',
+        marginBottom: '18px',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{ position: 'absolute', top: '-60px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%)', pointerEvents: 'none' }} />
 
-            <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', fontWeight: '500', letterSpacing: '0.04em' }}>
-                  ⬡ {isManager ? 'Manager Dashboard' : 'Employee Dashboard'} / <span style={{ color: 'rgba(255,255,255,0.6)' }}>Growth Hub</span>
-                </div>
-                <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#ffffff', margin: '0', letterSpacing: '-0.02em' }}>
-                  {isManager ? 'Learning & Growth' : 'Development'}
-                </h1>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: '0' }}>
-                  Track goals, verify skills, and manage professional development {isManager ? 'for your team' : 'journey'}.
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '10px 16px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{goals.filter(g => g.progress_percentage === 100).length}</div>
-                  <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Goals Hit</div>
-                </div>
-                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '10px 16px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#10b981', lineHeight: 1 }}>{certs.filter(c => c.verification_status === 'approved').length}</div>
-                  <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Verified Skills</div>
-                </div>
-              </div>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', fontWeight: '500', letterSpacing: '0.04em' }}>
+              ⬡ {isManager ? 'Manager Dashboard' : 'Employee Dashboard'} / <span style={{ color: 'rgba(255,255,255,0.6)' }}>Growth Hub</span>
             </div>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#ffffff', margin: '0', letterSpacing: '-0.02em' }}>
+              {isManager ? 'Learning & Growth' : 'Development'}
+            </h1>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: '0' }}>
+              Track goals, verify skills, and manage professional development {isManager ? 'for your team' : 'journey'}.
+            </p>
           </div>
 
-          {/* Needs Attention (Manager Only) */}
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '10px 16px', textAlign: 'center' }}>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{goals.filter(g => g.progress_percentage === 100).length}</div>
+              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Goals Hit</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '10px 16px', textAlign: 'center' }}>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#10b981', lineHeight: 1 }}>{certs.filter(c => c.verification_status === 'approved').length}</div>
+              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Verified Skills</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Needs Attention (Manager Only) */}
       {isManager && certs.some(c => c.verification_status === 'pending') && (
         <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -714,8 +704,6 @@ export default function LearningSection({ user }) {
             <button type="submit" className="es-btn-primary" style={{ marginTop: '10px' }}>Save Feedback</button>
           </form>
         </Modal>
-      )}
-        </>
       )}
     </div>
   )

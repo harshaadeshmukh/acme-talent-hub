@@ -223,16 +223,6 @@ export default function ManagerOverviewSection({ onNavigate }) {
   return (
     <div className="mgr-dashboard">
 
-      {(!user?.department || user?.department === 'Unassigned') ? (
-        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
-          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
-            Please select or add a team from your profile to start viewing your team overview.
-          </p>
-        </div>
-      ) : (
-        <>
       {/* ── Command Bar ── */}
       <div className="mgr-command-bar">
         <div className="mgr-command-left">
@@ -259,6 +249,19 @@ export default function ManagerOverviewSection({ onNavigate }) {
           </button>
         </div>
       </div>
+
+      {/* ── Unassigned Manager Alert ── */}
+      {(!user?.department || user?.department === 'Unassigned') && (
+        <div style={{ background: '#eff6ff', border: '1px solid #3b82f6', borderRadius: '8px', padding: '16px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span style={{ fontSize: '24px' }}>🏢</span>
+            <div>
+              <div style={{ fontWeight: 600, color: '#1e3a8a', fontSize: '16px' }}>You are not assigned to a team</div>
+              <div style={{ fontSize: '14px', color: '#1d4ed8', marginTop: '4px' }}>Please update your department from your profile to start managing employees and tracking performance.</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Unassigned Alert ── */}
       {unassignedEmployees.length > 0 && (
@@ -554,8 +557,8 @@ export default function ManagerOverviewSection({ onNavigate }) {
         )}
       </div>
 
-        </>
-      )}
+
+
     </div>
   )
 }
