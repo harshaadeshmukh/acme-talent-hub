@@ -30,12 +30,16 @@ settings = Settings()
 # Database setup
 connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
 
+# Strict checking to enforce 2 databases
+if not settings.shard_2_db_url:
+    raise ValueError("CRITICAL: SHARD_2_DB_URL is missing! You must provide two separate database URLs to use sharding.")
+
 # Engine 1 (Users, Profiles, Competencies)
 engine1 = create_engine(settings.shard_1_db_url or settings.database_url, pool_pre_ping=True, connect_args=connect_args)
 SessionLocalShard1 = sessionmaker(autocommit=False, autoflush=False, bind=engine1)
 
 # Engine 2 (Chat, Reviews, Goals, Achievements)
-engine2 = create_engine(settings.shard_2_db_url or settings.database_url, pool_pre_ping=True, connect_args=connect_args)
+engine2 = create_engine(settings.shard_2_db_url, pool_pre_ping=True, connect_args=connect_args)
 SessionLocalShard2 = sessionmaker(autocommit=False, autoflush=False, bind=engine2)
 
 Base1 = declarative_base()
