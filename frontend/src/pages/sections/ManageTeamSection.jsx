@@ -103,7 +103,6 @@ export default function ManageTeamSection() {
       setUnassigned(uPool)
 
       const myTeam = data.filter(u => {
-        if (user?.role === 'admin') return true;
         if (!user?.department) return true;
         return u.department === user?.department;
       });
@@ -353,141 +352,153 @@ export default function ManageTeamSection() {
         </div>
       )}
 
-      {/* TABLE VIEW */}
-      {viewMode === 'table' && (
-        <div className="es-panel">
-          <div className="es-table-wrap">
-            <table className="es-table">
-              <thead>
-                <tr>
-                  <th style={{ width: 48 }}>#</th>
-                  <th>Employee</th>
-                  <th>Department</th>
-                  <th>Role</th>
-                  <th>Email</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  [...Array(5)].map((_, i) => (
-                    <tr key={i}>
-                      {[...Array(7)].map((_, j) => (
-                        <td key={j}><span className="es-skeleton" style={{ width: j === 0 ? 24 : j === 1 ? 140 : j === 6 ? 80 : 90, height: 14 }} /></td>
-                      ))}
+      {(!user?.department || user?.department === 'Unassigned') ? (
+        <div className="es-panel" style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏢</div>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>You are not assigned to a team</h2>
+          <p style={{ color: '#64748b', fontSize: '15px', maxWidth: '400px', margin: '0 auto 24px', lineHeight: '1.5' }}>
+            Please select or add a team from your profile to start managing employees and viewing their performance collections.
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* TABLE VIEW */}
+          {viewMode === 'table' && (
+            <div className="es-panel">
+              <div className="es-table-wrap">
+                <table className="es-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 48 }}>#</th>
+                      <th>Employee</th>
+                      <th>Department</th>
+                      <th>Role</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
-                  ))
-                ) : filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={7}>
-                      <div className="es-empty">
-                        <div className="es-empty-icon">👥</div>
-                        <p>{search ? `No results for "${search}"` : 'No team members found'}</p>
-                        <span>{search ? 'Try a different search term.' : 'Members will appear here once assigned to your department.'}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filtered.map((m, i) => (
-                    <tr key={m.id} onClick={() => setSelectedMember(m)} style={{ cursor: 'pointer' }} className="es-table-row-hover">
-                      <td><span className="es-row-num">{i + 1}</span></td>
-                      <td>
-                        <div className="es-emp-cell">
-                          <Avatar name={m.name} index={i} imageUrl={m.profile_pic_url} />
-                          <div>
-                            <div className="es-emp-name">{m.name}</div>
-                            <div className="es-emp-jobtitle">
-                              {m.job_title || m.role.charAt(0).toUpperCase() + m.role.slice(1)}
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      [...Array(5)].map((_, i) => (
+                        <tr key={i}>
+                          {[...Array(7)].map((_, j) => (
+                            <td key={j}><span className="es-skeleton" style={{ width: j === 0 ? 24 : j === 1 ? 140 : j === 6 ? 80 : 90, height: 14 }} /></td>
+                          ))}
+                        </tr>
+                      ))
+                    ) : filtered.length === 0 ? (
+                      <tr>
+                        <td colSpan={7}>
+                          <div className="es-empty">
+                            <div className="es-empty-icon">👥</div>
+                            <p>{search ? `No results for "${search}"` : 'No team members found'}</p>
+                            <span>{search ? 'Try a different search term.' : 'Members will appear here once assigned to your department.'}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filtered.map((m, i) => (
+                        <tr key={m.id} onClick={() => setSelectedMember(m)} style={{ cursor: 'pointer' }} className="es-table-row-hover">
+                          <td><span className="es-row-num">{i + 1}</span></td>
+                          <td>
+                            <div className="es-emp-cell">
+                              <Avatar name={m.name} index={i} imageUrl={m.profile_pic_url} />
+                              <div>
+                                <div className="es-emp-name">{m.name}</div>
+                                <div className="es-emp-jobtitle">
+                                  {m.job_title || m.role.charAt(0).toUpperCase() + m.role.slice(1)}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        {m.department && m.department !== 'Unassigned'
-                          ? <span className="es-dept-tag">{m.department}</span>
-                          : <span className="es-unassigned">Unassigned</span>
-                        }
-                      </td>
-                      <td><RoleBadge role={m.role} /></td>
-                      <td><span className="es-email">{m.email}</span></td>
-                      <td><span className="es-status-active">● Active</span></td>
-                      <td>
-                        {m.id !== user?.id && (
-                          <div className="es-row-actions" onClick={e => e.stopPropagation()}>
-                            <button className="es-action-btn es-edit-btn" onClick={() => setEditTarget({ ...m })} title="Edit">
-                              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                              Edit
-                            </button>
-                            <button className="es-action-btn es-delete-btn" onClick={() => setDeleteTarget(m)} title="Remove">
-                              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                              Remove
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          {!loading && filtered.length > 0 && (
-            <div className="es-table-footer">
-              Showing <strong>{filtered.length}</strong> of <strong>{members.length}</strong> members
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* CARD VIEW */}
-      {viewMode === 'cards' && (
-        <div className="es-cards-grid">
-          {loading ? (
-            [...Array(6)].map((_, i) => <div key={i} className="es-member-card es-card-skeleton" />)
-          ) : filtered.length === 0 ? (
-            <div className="es-empty-full">
-              <div className="es-empty-icon">👥</div>
-              <p>{search ? `No results for "${search}"` : 'No team members found'}</p>
-            </div>
-          ) : (
-            filtered.map((m, i) => (
-              <div key={m.id} className="es-member-card" onClick={() => setSelectedMember(m)} style={{ cursor: 'pointer' }}>
-                <div className="es-card-top">
-                  <Avatar name={m.name} size={48} index={i} imageUrl={m.profile_pic_url} />
-                  <div className="es-card-actions" onClick={e => e.stopPropagation()}>
-                    {m.id !== user?.id && (
-                      <>
-                        <button className="es-icon-btn" onClick={() => setEditTarget({ ...m })} title="Edit">
-                          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        </button>
-                        <button className="es-icon-btn es-icon-del" onClick={() => setDeleteTarget(m)} title="Remove">
-                          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-                        </button>
-                      </>
+                          </td>
+                          <td>
+                            {m.department && m.department !== 'Unassigned'
+                              ? <span className="es-dept-tag">{m.department}</span>
+                              : <span className="es-unassigned">Unassigned</span>
+                            }
+                          </td>
+                          <td><RoleBadge role={m.role} /></td>
+                          <td><span className="es-email">{m.email}</span></td>
+                          <td><span className="es-status-active">● Active</span></td>
+                          <td>
+                            {m.id !== user?.id && (
+                              <div className="es-row-actions" onClick={e => e.stopPropagation()}>
+                                <button className="es-action-btn es-edit-btn" onClick={() => setEditTarget({ ...m })} title="Edit">
+                                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                  Edit
+                                </button>
+                                <button className="es-action-btn es-delete-btn" onClick={() => setDeleteTarget(m)} title="Remove">
+                                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                                  Remove
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))
                     )}
-                  </div>
-                </div>
-                <div className="es-card-name">{m.name}</div>
-                <div className="es-card-jobtitle">
-                  {m.job_title || m.role.charAt(0).toUpperCase() + m.role.slice(1)}
-                </div>
-                <div className="es-card-email">{m.email}</div>
-                <div className="es-card-meta">
-                  <RoleBadge role={m.role} />
-                  {m.department && m.department !== 'Unassigned'
-                    ? <span className="es-dept-tag">{m.department}</span>
-                    : <span className="es-unassigned">No dept</span>
-                  }
-                </div>
-                <div className="es-card-status">
-                  <span className="es-status-active">● Active</span>
-                  <span className="es-card-id">ID #{m.id}</span>
-                </div>
+                  </tbody>
+                </table>
               </div>
-            ))
+              {!loading && filtered.length > 0 && (
+                <div className="es-table-footer">
+                  Showing <strong>{filtered.length}</strong> of <strong>{members.length}</strong> members
+                </div>
+              )}
+            </div>
           )}
-        </div>
+
+          {/* CARD VIEW */}
+          {viewMode === 'cards' && (
+            <div className="es-cards-grid">
+              {loading ? (
+                [...Array(6)].map((_, i) => <div key={i} className="es-member-card es-card-skeleton" />)
+              ) : filtered.length === 0 ? (
+                <div className="es-empty-full">
+                  <div className="es-empty-icon">👥</div>
+                  <p>{search ? `No results for "${search}"` : 'No team members found'}</p>
+                </div>
+              ) : (
+                filtered.map((m, i) => (
+                  <div key={m.id} className="es-member-card" onClick={() => setSelectedMember(m)} style={{ cursor: 'pointer' }}>
+                    <div className="es-card-top">
+                      <Avatar name={m.name} size={48} index={i} imageUrl={m.profile_pic_url} />
+                      <div className="es-card-actions" onClick={e => e.stopPropagation()}>
+                        {m.id !== user?.id && (
+                          <>
+                            <button className="es-icon-btn" onClick={() => setEditTarget({ ...m })} title="Edit">
+                              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button className="es-icon-btn es-icon-del" onClick={() => setDeleteTarget(m)} title="Remove">
+                              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="es-card-name">{m.name}</div>
+                    <div className="es-card-jobtitle">
+                      {m.job_title || m.role.charAt(0).toUpperCase() + m.role.slice(1)}
+                    </div>
+                    <div className="es-card-email">{m.email}</div>
+                    <div className="es-card-meta">
+                      <RoleBadge role={m.role} />
+                      {m.department && m.department !== 'Unassigned'
+                        ? <span className="es-dept-tag">{m.department}</span>
+                        : <span className="es-unassigned">No dept</span>
+                      }
+                    </div>
+                    <div className="es-card-status">
+                      <span className="es-status-active">● Active</span>
+                      <span className="es-card-id">ID #{m.id}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {/* ── Add Department Modal ── */}

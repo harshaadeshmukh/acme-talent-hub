@@ -161,7 +161,7 @@ export default function ManagerOverviewSection({ onNavigate }) {
       } catch { /* ignore */ }
 
       // Dynamic Team Filtering
-      const isManager = user?.role !== 'admin'
+      const isManager = user?.role === 'manager'
       const myTeamUsers = usersData.filter(u => 
         u.role === 'employee' && (!isManager || (u.department === user.department && u.id !== user.id))
       )
@@ -249,6 +249,19 @@ export default function ManagerOverviewSection({ onNavigate }) {
           </button>
         </div>
       </div>
+
+      {/* ── Unassigned Manager Alert ── */}
+      {(!user?.department || user?.department === 'Unassigned') && (
+        <div style={{ background: '#eff6ff', border: '1px solid #3b82f6', borderRadius: '8px', padding: '16px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span style={{ fontSize: '24px' }}>🏢</span>
+            <div>
+              <div style={{ fontWeight: 600, color: '#1e3a8a', fontSize: '16px' }}>You are not assigned to a team</div>
+              <div style={{ fontSize: '14px', color: '#1d4ed8', marginTop: '4px' }}>Please update your department from your profile to start managing employees and tracking performance.</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Unassigned Alert ── */}
       {unassignedEmployees.length > 0 && (
