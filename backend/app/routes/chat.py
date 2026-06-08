@@ -5,10 +5,9 @@ from datetime import datetime
 import json
 
 from app.auth import get_current_user
-from app.database import SessionLocal, shard_session_factories
-from app.models import ChatMessage, User, Company
+from app.models import ChatMessage, User
 from app.schemas import ChatMessageResponse
-from app.database import get_shard1_db, get_shard2_db
+from app.database import get_shard1_db, get_shard2_db, SessionLocalShard1, SessionLocalShard2
 from app.websocket import manager
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])
@@ -26,20 +25,16 @@ def get_chat_history(department_name: str, db: Session = Depends(get_shard2_db),
 @router.websocket("/ws/{department_name}/{user_id}")
 async def websocket_chat(websocket: WebSocket, department_name: str, user_id: int):
     # Note: simple auth by passing user_id over WS url
-    global_db = SessionLocal()
+    global_db = SessionLocalShard1()
     try:
         user = global_db.query(User).filter(User.id == user_id).first()
         if not user or not user.department or user.department != department_name:
             await websocket.close(code=1008)
             return
-            
-        company = global_db.query(Company).filter(Company.id == user.tenant_id).first()
-        shard_id = company.shard_id if company else "shard_1"
     finally:
         global_db.close()
         
-    factory = shard_session_factories.get(shard_id, SessionLocal)
-    db = factory()
+    db = SessionLocalShard2()
     
     await manager.connect(websocket, room=department_name)
     try:
