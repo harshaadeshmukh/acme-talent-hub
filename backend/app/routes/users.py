@@ -151,12 +151,12 @@ def get_departments(db: Session = Depends(get_db), current_user: User = Depends(
     for d in existing_user_deps:
         dept_name = d[0].strip()
         if not db.query(Department).filter(Department.name == dept_name).first():
-            db.add(Department(name=dept_name))
+            db.add(Department(name=dept_name, tenant_id=current_user.tenant_id))
     db.commit()
 
     deps = db.query(Department).all()
     if not deps:
-        db.add(Department(name="Team General"))
+        db.add(Department(name="Team General", tenant_id=current_user.tenant_id))
         db.commit()
         deps = db.query(Department).all()
 

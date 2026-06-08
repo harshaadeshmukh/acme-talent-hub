@@ -4,7 +4,8 @@ from typing import List
 from datetime import datetime
 import json
 
-from app.models import ChatMessage, User
+from app.database import SessionLocal, shard_session_factories
+from app.models import ChatMessage, User, Company
 from app.schemas import ChatMessageResponse
 from app.auth import get_tenant_db, get_current_user
 from app.websocket import manager
@@ -22,20 +23,29 @@ def get_chat_history(department_name: str, db: Session = Depends(get_tenant_db),
     return messages
 
 @router.websocket("/ws/{department_name}/{user_id}")
-async def websocket_chat(websocket: WebSocket, department_name: str, user_id: int, db: Session = Depends(get_tenant_db)):
+async def websocket_chat(websocket: WebSocket, department_name: str, user_id: int):
     # Note: simple auth by passing user_id over WS url
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user or not user.department or user.department != department_name:
-        await websocket.close(code=1008)
-        return
+    global_db = SessionLocal()
+    try:
+        user = global_db.query(User).filter(User.id == user_id).first()
+        if not user or not user.department or user.department != department_name:
+            await websocket.close(code=1008)
+            return
+            
+        company = global_db.query(Company).filter(Company.id == user.tenant_id).first()
+        shard_id = company.shard_id if company else "shard_1"
+    finally:
+        global_db.close()
         
+    factory = shard_session_factories.get(shard_id, SessionLocal)
+    db = factory()
+    
     await manager.connect(websocket, room=department_name)
     try:
         while True:
             raw_data = await websocket.receive_text()
             
             try:
-                # Try parsing as JSON to handle rich events
                 data = json.loads(raw_data)
                 
                 if data.get("type") == "typing":
@@ -86,3 +96,5 @@ async def websocket_chat(websocket: WebSocket, department_name: str, user_id: in
             await manager.broadcast_to_room(department_name, json.dumps(response))
     except WebSocketDisconnect:
         manager.disconnect(websocket, room=department_name)
+    finally:
+        db.close()
