@@ -11,14 +11,14 @@ from app.database import get_shard1_db, get_shard2_db
 router = APIRouter(prefix="/api/reviews", tags=["Performance Reviews"])
 
 @router.post("/", response_model=PerformanceReviewResponse, status_code=status.HTTP_201_CREATED)
-def create_review(review: PerformanceReviewCreate, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_manager)):
+def create_review(review: PerformanceReviewCreate, db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_manager)):
     """Create performance review (manager/manager only)"""
     # Verify employee and reviewer exist
-    employee = db.query(User).filter(User.id == review.employee_id, User.is_active == True).first()
+    employee = db1.query(User).filter(User.id == review.employee_id, User.is_active == True).first()
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
     
-    reviewer = db.query(User).filter(User.id == review.reviewer_id, User.is_active == True).first()
+    reviewer = db1.query(User).filter(User.id == review.reviewer_id, User.is_active == True).first()
     if not reviewer:
         raise HTTPException(status_code=404, detail="Reviewer not found")
     
@@ -33,9 +33,9 @@ def create_review(review: PerformanceReviewCreate, db: Session = Depends(get_sha
         feedback=review.feedback,
         review_period=review.review_period
     )
-    db.add(new_review)
-    db.commit()
-    db.refresh(new_review)
+    db2.add(new_review)
+    db2.commit()
+    db2.refresh(new_review)
     return new_review
 
 @router.get("/", response_model=List[PerformanceReviewResponse])
@@ -45,13 +45,13 @@ def list_reviews(skip: int = 0, limit: int = 100, db: Session = Depends(get_shar
     return reviews
 
 @router.get("/employee/{employee_id}", response_model=List[PerformanceReviewResponse])
-def get_employee_reviews(employee_id: int, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
+def get_employee_reviews(employee_id: int, db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     """Get all reviews for an employee"""
-    employee = db.query(User).filter(User.id == employee_id).first()
+    employee = db1.query(User).filter(User.id == employee_id).first()
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
     
-    reviews = db.query(PerformanceReview).filter(PerformanceReview.employee_id == employee_id).all()
+    reviews = db2.query(PerformanceReview).filter(PerformanceReview.employee_id == employee_id).all()
     return reviews
 
 @router.get("/{review_id}", response_model=PerformanceReviewResponse)
@@ -100,19 +100,19 @@ def delete_review(review_id: int, db: Session = Depends(get_shard2_db), current_
     return None
 
 @router.get("/employee/{employee_id}/average", tags=["Performance Reviews"])
-def get_employee_average_rating(employee_id: int, db: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
+def get_employee_average_rating(employee_id: int, db1: Session = Depends(get_shard1_db), db2: Session = Depends(get_shard2_db), current_user: User = Depends(get_current_user)):
     """Get average rating for an employee"""
     from sqlalchemy import func
     
-    employee = db.query(User).filter(User.id == employee_id).first()
+    employee = db1.query(User).filter(User.id == employee_id).first()
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
     
-    avg_rating = db.query(func.avg(PerformanceReview.rating)).filter(
+    avg_rating = db2.query(func.avg(PerformanceReview.rating)).filter(
         PerformanceReview.employee_id == employee_id
     ).scalar()
     
-    total_reviews = db.query(PerformanceReview).filter(
+    total_reviews = db2.query(PerformanceReview).filter(
         PerformanceReview.employee_id == employee_id
     ).count()
     
