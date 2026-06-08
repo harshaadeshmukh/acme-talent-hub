@@ -65,12 +65,13 @@ class Company(Base):
     __tablename__ = "companies"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
+    shard_id = Column(String, default="shard_1", index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Department(Base):
     __tablename__ = "departments"
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     name = Column(String, unique=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -79,7 +80,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, default=generate_emp_id)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
@@ -111,7 +112,7 @@ class WorkTimelineEvent(Base):
     __tablename__ = "work_timeline_events"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     title = Column(String, nullable=False)
     company = Column(String, nullable=False)
@@ -128,7 +129,7 @@ class PerformanceReview(Base):
     __tablename__ = "performance_reviews"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     reviewer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     rating = Column(Float, nullable=False)  # 1-5
@@ -147,7 +148,7 @@ class Competency(Base):
     __tablename__ = "competencies"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     name = Column(String, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -159,7 +160,7 @@ class EmployeeCompetency(Base):
     __tablename__ = "employee_competencies"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     competency_id = Column(Integer, ForeignKey("competencies.id"), nullable=False)
     skill_level = Column(Enum(SkillLevelEnum), default=SkillLevelEnum.BEGINNER)
@@ -178,7 +179,7 @@ class TrainingRecord(Base):
     __tablename__ = "training_records"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     training_name = Column(String, nullable=False)
     provider = Column(String, nullable=True)
@@ -207,7 +208,7 @@ class Goal(Base):
     __tablename__ = "goals"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
@@ -235,7 +236,7 @@ class TeamAchievement(Base):
     __tablename__ = "team_achievements"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     team_name = Column(String, nullable=False, index=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
@@ -248,7 +249,7 @@ class ChatMessage(Base):
     __tablename__ = "chat_messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    tenant_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    tenant_id = Column(Integer, index=True, nullable=False)
     sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     department_name = Column(String, index=True, nullable=False)
     content = Column(Text, nullable=False)
